@@ -1,4 +1,4 @@
-# Hammer
+# Hammer Discord BOT
 A discord.js bot - #DISCORD HACK WEEK 2019
 
 # Starting your bot
