@@ -6,7 +6,7 @@ A discord.js bot - #DISCORD HACK WEEK 2019
 ________________
 2- Put the same but in the .env file
 ________________
-3- Host all the docs on glitch
+3- Host all the docs on https://glitch.com/edit/
 ________________
 4- To make the bot 24/7 uptime, you will need https://uptimerobot.com
 ________________
