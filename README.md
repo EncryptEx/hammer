@@ -8,7 +8,7 @@ ________________
 ________________
 3- Host all the docs on https://glitch.com/edit/
 ________________
-4- To make the bot 24/7 uptime, you will need https://uptimerobot.com
+4- To make the bot 24/7 uptime, you will need https://uptimerobot.com and put the glitch app link (html sample page)
 ________________
 # HAMMER'S TEAM
 limusina10#6341
