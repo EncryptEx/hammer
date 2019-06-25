@@ -228,7 +228,7 @@ client.on("message", (message) => {
     }
     if (message.content.startsWith(prefix + "warn")) {
         var perms = message.member.hasPermission("ADMINISTRATOR");
-        if(!perms) return message.channel.send(":no_entry: `Error` :no_entry: `|` You don't have permssions.");
+        if(!perms) return message.channel.send(":no_entry: `Error` :no_entry: `|` You haven't the ADMINISTRATOR permssion.");
         const args = message.content.split(" ").slice(1);
         var user = message.author
         var server = message.guild;
@@ -322,7 +322,7 @@ client.on("message", (message) => {
 
     var perms = message.member.hasPermission("KICK_MEMBERS");
 
-    if(!perms) return message.channel.send(":no_entry: `Error` :no_entry: `|` You don't have permssions.");
+    if(!perms) return message.channel.send(":no_entry: `Error` :no_entry: `|` You don't have KICK_MEMBERS permssion.");
     if (message.mentions.users.size < 1) return message.reply('Who?').catch(console.error);
     message.delete(100);
     if (!razon) return message.channel.send('Write a reason, `/kick @username [reason]`');
@@ -356,7 +356,7 @@ client.on("message", (message) => {
     let role = message.guild.roles.find("name", nombrerol);
     let perms = message.member.hasPermission("MANAGE_ROLES_OR_PERMISSIONS");
 
-    if(!perms) return message.channel.send(":no_entry: `Error` :no_entry: `|` You don't have permssions.");
+    if(!perms) return message.channel.send(":no_entry: `Error` :no_entry: `|` You don't have MANAGE_ROLES_OR_PERMISSIONS permssion.");
      
     if(message.mentions.users.size < 1) return message.reply('Who?').catch(console.error);
     if(!nombrerol) return message.channel.send('Write the name of the role to add,`.addrol @member [Role]`');
@@ -374,7 +374,7 @@ client.on("message", (message) => {
     let role = message.guild.roles.find("name", nombrerol);
     let perms = message.member.hasPermission("MANAGE_ROLES_OR_PERMISSIONS");
 
-    if(!perms) return message.channel.send(":no_entry: `Error` :no_entry: `|` You don't have permssions.");
+    if(!perms) return message.channel.send(":no_entry: `Error` :no_entry: `|` You don't have MANAGE_ROLES_OR_PERMISSIONS permssion.");
      
     if(message.mentions.users.size < 1) return message.reply('Who?').catch(console.error);
     if(!nombrerol) return message.channel.send('Write the name of the role to remove, `.removerol @member[Role]`');
@@ -394,7 +394,7 @@ client.on("message", (message) => {
     var guild = message.guild;
     var perms = message.member.hasPermission("MANAGE_ROLES_OR_PERMISSIONS");
     
-    if(!perms) return message.channel.send(":no_entry: `Error` :no_entry: `|` You don't have permssions.");
+    if(!perms) return message.channel.send(":no_entry: `Error` :no_entry: `|` You don't have MANAGE_ROLES_OR_PERMISSIONS permssion.");
     
     const args = message.content.slice(prefix.length).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
@@ -530,8 +530,8 @@ client.on("message", (message) => {
     }
 
      if (message.content.startsWith(prefix + "topwarns")) {
-        var perms = message.member.hasPermission("ADMINISTRATOR");
-        if(!perms) return message.channel.send(":no_entry: `Error` :no_entry: `|` You don't have permssions.");
+        var perms = message.member.hasPermission("KICK_MEMBERS");
+        if(!perms) return message.channel.send(":no_entry: `Error` :no_entry: `|` You don't have KICK_MEMBERS permssion.");
         //connect to db
         let lista = `SELECT idusuario, warns FROM usuarios ORDER BY warns DESC LIMIT 10`
         let embed = new Discord.RichEmbed()
@@ -626,7 +626,7 @@ client.on("message", (message) => {
         let razon = args.slice(1).join(' ');
             
         var perms = message.member.hasPermission("BAN_MEMBERS");
-        if(!perms) return message.channel.send(":no_entry: `Error` :no_entry: `|` You don't have permssions.");
+        if(!perms) return message.channel.send(":no_entry: `Error` :no_entry: `|` You don't have BAN_MEMBERS permssion.");
             
         if (message.mentions.users.size < 1) return message.reply('Who?.').catch(console.error);
         if(!razon) return message.channel.send('Write a reason, `/ban @username [reason]`');
@@ -656,7 +656,7 @@ client.on("message", (message) => {
         const args = message.content.slice(prefix.length).trim().split(/ +/g);
         const command = args.shift().toLowerCase();
         let user = message.mentions.users.first();
-        if(!perms) return message.channel.send(":no_entry: `Error` :no_entry: `|` You don't have permssions.");
+        if(!perms) return message.channel.send(":no_entry: `Error` :no_entry: `|` You don't have ADMINISTRATOR permssion.");
         let razon = args.slice(1).join(' ');
         if(!razon) return message.channel.send('Write a reason, `.unwarn @username [reason]`');
 
@@ -694,7 +694,7 @@ client.on("message", (message) => {
     }
     if (message.content.startsWith(prefix + "log")) {
         var perms = message.member.hasPermission("ADMINISTRATOR");
-        if(!perms) return message.channel.send(":no_entry: `Error` :no_entry: `|` You don't have permssions.");
+        if(!perms) return message.channel.send(":no_entry: `Error` :no_entry: `|` You don't have ADMINISTRATOR permssion.");
     
         let SQL = "CREATE TABLE IF NOT EXISTS log (idguild TEXT, channelid TEXT)";
 
@@ -850,5 +850,28 @@ client.on("message", (message) => {
 
     });
     }
+    if (message.content.startsWith(prefix + "lock")) {
+        var perms = message.author.hasPermission('MANAGE_MESSAGES');
+        if (!perms) return message.channel.send(":no_entry: `Error` :no_entry: `|` You haven't the MANAGE_MESSAGES permission.");
+         message.delete(100);
+         message.channel.overwritePermissions(message.guild.id, {
+         SEND_MESSAGES: false
+
+           }).then(() => {
+               message.reply(`:lock: This channel was **locked** by ${message.author.username}#${message.author.discriminator}`);
+           });
+    }
+    if (message.content.startsWith(prefix + "unlock")) {
+        var perms = message.author.hasPermission('MANAGE_MESSAGES');
+        if (!perms) return message.channel.send(":no_entry: `Error` :no_entry: `|` You haven't the MANAGE_MESSAGES permission.");
+         message.delete(100);
+         message.channel.overwritePermissions(message.guild.id, {
+         SEND_MESSAGES: true
+
+           }).then(() => {
+               message.reply(`:unlock: This channel was **unlocked** by ${message.author.username}#${message.author.discriminator}`);
+           });
+    }
+
 });
 client.login(process.env.TOKEN);
