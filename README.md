@@ -10,3 +10,10 @@ ________________
 ________________
 4- To make the bot 24/7 uptime, you will need https://uptimerobot.com
 ________________
+# HAMMER'S TEAM
+limusina10#6341
+=========
+GashohFDEZ#3722
+=========
+Mariete05#4835
+=========
