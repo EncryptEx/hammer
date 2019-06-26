@@ -10,6 +10,9 @@ ________________
 ________________
 4- To make the bot 24/7 uptime, you will need https://uptimerobot.com and put the glitch app link (html sample page)
 ________________
+# CONFIGURING YOUR BOT
+Use /log with ADMINISTRATOR perms in the server
+________________
 # HAMMER'S TEAM
 limusina10#6341
 =========
@@ -17,5 +20,3 @@ GashohFDEZ#3722
 =========
 Mariete05#4835
 =========
-# CONFIGURING YOUR BOT
-Use /log with ADMINISTRATOR perms in the server
