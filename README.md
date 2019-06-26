@@ -17,3 +17,5 @@ GashohFDEZ#3722
 =========
 Mariete05#4835
 =========
+# CONFIGURING YOUR BOT
+Use /log with ADMINISTRATOR perms in the server
