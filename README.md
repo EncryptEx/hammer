@@ -1,7 +1,7 @@
 # Hammer Discord BOT
 A discord.js bot - #DISCORD HACK WEEK 2019
 
-100% Pure JAvaScript
+100% Pure JavaScript
 
 For what is used for Hammer? Use /hammer in a discord guild/server
 
