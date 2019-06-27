@@ -1,6 +1,11 @@
 # Hammer Discord BOT
 A discord.js bot - #DISCORD HACK WEEK 2019
 
+# Add the bot
+https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot
+_______________
+Or you can create yours:
+
 # Starting your bot
 1- Go to config.json and paste there your prefix and token
 ________________
