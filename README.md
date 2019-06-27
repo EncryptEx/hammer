@@ -1,6 +1,7 @@
 # Hammer Discord BOT
 A discord.js bot - #DISCORD HACK WEEK 2019
-
+________
+100% Pure JAvaScript
 # Add the bot
 https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot
 _______________
