@@ -1,7 +1,11 @@
 # Hammer Discord BOT
 A discord.js bot - #DISCORD HACK WEEK 2019
-________
+
 100% Pure JAvaScript
+
+For what is used for Hammer? Use /hammer in a discord guild/server
+
+What and how many commands has Hemmer? User /help in a discord guild/server and check DM.
 # Add the bot
 https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot
 _______________
