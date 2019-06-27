@@ -8,7 +8,7 @@ For what is used for Hammer? Use /hammer in a discord guild/server
 What and how many commands has Hemmer? User /help in a discord guild/server and check DM.
 # Add the bot
 https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot
-_______________
+ 
 Or you can create yours:
 
 # Starting your bot
