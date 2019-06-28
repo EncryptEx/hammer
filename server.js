@@ -101,6 +101,27 @@ client.on("guildMemberRemove", (member) => {
     });
     
 });
+client.on("messageDelete", (message) => {
+    var id = member.guild.id
+    //start search if the channel was configurated before
+    let rm = `SELECT * FROM log WHERE idguild = ${id}`;
+    db.get(rm, (err, filas) => {
+       if (err) return console.error(err.message)
+        if (filas){
+            let dbcnhlid = `${filas.channelid}`;
+            let canal = client.channels.get(`${dbcnhlid}`);
+            const embed = new Discord.RichEmbed()
+            .setColor(0xbc1b0d)
+            .setAuthor("Message Deleted")
+            .addField('User:',`${message.author.username}`)
+            .addField('Mensaje Message:',`${message}`)
+            .setTimestamp()
+            canal.send({embed});
+        } else {
+
+        }
+    });
+});
 /*MODO EDICIÓN EN PRACTICAS ------------------------------------------
 client.on('messageUpdate', (oldMessage, newMessage) => {
      if (oldMessage.guild.id == "528741398292332554") {
@@ -163,9 +184,9 @@ client.on("message", (message) => {
         .addField('**Prefix:**', "``/``")
         .addField("**Hammer's Team:**", "``limusina10#6341, GashohFDEZ#3722, Mariete05#4835``")
         .addField('**Status: **', "``Online, 99,7% uptime``")
-        .addField('**Moderator Commands:**', "``warn, uwnarn, topwarns, kick, ban, addrole, removerole, createrole``")
+        .addField('**Moderator Commands:**', "``warn, uwnarn, topwarns, kick, ban, addrole, removerole, createrole, lock, unlock``")
         .addField('**Automod:**', '``Blocks about 100 swear words``')
-        .addField('**Info Commands:**', "``help, hammer, ping, hello, assistance, whois``")
+        .addField('**Info Commands:**', "``help, hammer, ping, hello, assistance, whois, guild, roles``")
         .addField('**Bot Customizing:**', "``log``")
         .addField('**Invite:**', ":link:[Click Here](https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot)")
         .setTimestamp()
@@ -243,7 +264,7 @@ client.on("message", (message) => {
         .addField("Moderator: ", user)
         .addField("User Warned: ", warned)
         .addField("Reason: ", razon)
-        .setDescription("Be carefully, at the 3 warns you will be muted or kicked by a server moderator, ")
+        .setDescription("Be carefully, at the 3 warns you will be muted or kicked by Hammer BOT ")
         .setColor(0Xff0000)
         .setTimestamp()
         
@@ -283,25 +304,34 @@ client.on("message", (message) => {
 
 
         });
-        //check if user has reached 3 warns to be able to kick him/her
-        
-        let sentenciados = `SELECT * FROM usuarios WHERE idusuario = ${id}`;
-        db.get(sentenciados, (err, filas) => {
+        let getnumofwaarnsindb = `SELECT * FROM usuarios WHERE idusuario = ${id}`;
+        db.get(getnumofwaarnsindb, (err, filas) => {
             if (err) return console.error(err.message)
             
-            if (!filas){
-                console.log(filas);
-                //user registered and warned before
-                if (filas.warns >= 3) {
+            if (filas){
+                
+                //user registered and warned before+
+                let numofwarns = `${filas.warns}`
+                if (numofwarns > 2) {
                     let user = filas.idusuario
-                    let razon = "To many warns"
+                    let razon = "Too many warns"
 
                     var admin = "Hammer Bot";
                     var server = message.guild;
                     
-                    var banned = user;
+                    var banned = user
 
-                    message.channel.send("/kick " + user + " "  + razon);
+                    if (!message.guild.member(banned).kickable) return message.reply("I can't kick this member. Please use /unwarn to that user.");
+                
+                    let update = `UPDATE usuarios SET warns=0 WHERE idusuario = ${user}`;
+
+                    db.run(update, function(err) {
+                        if (err) return console.error(err.message)
+                    });
+
+                    message.guild.member(banned).kick(razon);
+                    let name = client.users.get(banned).tag
+                    message.channel.send(`The user **${name}** has been kicked because had too many warns.`);
                 } else {
                     //has no 3 warns
                 }
@@ -310,14 +340,19 @@ client.on("message", (message) => {
             }
 
         });
+    
 
       
     }
+
+
     
   if (message.content.startsWith(prefix + "kick")) {
     const args = message.content.slice(prefix.length).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
-    let user = message.mentions.users.first();
+    let user = message.mentions.users.first()
+    || client.users.get(args[0]) 
+    || client.users.find(x => x.tag === args.join(" "))
     let razon = args.slice(1).join(' ');
 
     var perms = message.member.hasPermission("KICK_MEMBERS");
@@ -347,6 +382,7 @@ client.on("message", (message) => {
     message.channel.send({embed});
     banned.send({embed});
   }
+
   if (message.content.startsWith(prefix + "addrole")) {
     const args = message.content.slice(prefix.length).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
@@ -560,63 +596,86 @@ client.on("message", (message) => {
      }
     if (message.content.startsWith(prefix + "assistance")) {
         //connect to db
-        // Agregar debajo del comentario: <-- INSERT USUARIO -->
+        let userm = message.mentions.users.first()
 
-        let id = message.author.id;
-        let sentencia = `SELECT idusuario, warns FROM usuarios WHERE idusuario = ${id}`;
+        if(!userm){
+            //no @
+            var user = message.author;
+            
+        
 
-        db.get(sentencia, (err, filas) => {
-            if (err) return console.error(err.message)
-                
+            let id = message.author.id;
+            let sentencia = `SELECT idusuario, warns FROM usuarios WHERE idusuario = ${id}`;
+
+            db.get(sentencia, (err, filas) => {
+                if (err) return console.error(err.message)
                     
-            if (!filas){
-                //not exists
-                const embed = new Discord.RichEmbed()
-                .setThumbnail(message.author.avatarURL)
-                .setColor(0x0E83A)
-                .setAuthor(`Account Status of ${message.author.username}#${message.author.discriminator}`, message.author.avatarURL)
-                .setDescription(`Secure Level: (Nº of warns) 0 (You're a good member)`)
-                .setTimestamp()
-                .setFooter(`Comand executed by ${message.author.username}`, message.author.avatarURL)
-                message.channel.send({embed});
-            } else {
-                let numwarns = `${filas.warns}` ;
-                console.log(numwarns);
-                //warned before
-                //if (numwarns = '0') {
+                        
+                if (!filas){
                     //not exists
                     const embed = new Discord.RichEmbed()
                     .setThumbnail(message.author.avatarURL)
-                    .setColor(0x28b7ff)
+                    .setColor(0x0E83A)
                     .setAuthor(`Account Status of ${message.author.username}#${message.author.discriminator}`, message.author.avatarURL)
-                    .setDescription(`Secure Level: (Nº of warns): ** ${filas.warns}**. Be carefully, be cause at the 3 warns you will be kicked by me.`)
+                    .setDescription(`Secure Level: (Nº of warns) 0 (You're a good member)`)
                     .setTimestamp()
                     .setFooter(`Comand executed by ${message.author.username}`, message.author.avatarURL)
                     message.channel.send({embed});
-                } /*else if (numwarns = '1') {
-                    const embed = new Discord.RichEmbed()
-                    .setThumbnail(message.author.avatarURL)
-                    .setColor(0xffbf00)
-                    .setAuthor(`Account Status of ${message.author.username}#${message.author.discriminator}`, message.author.avatarURL)
-                    .addField(`Secure Level: (Nº of warns) `,` 1 (You've to be carefully)`)
-                    .setTimestamp()
-                    .setFooter(`Comand executed by ${message.author.username}`, message.author.avatarURL)
-                    message.channel.send({embed});
-                } else if (numwarns = '2') {
-                    const embed = new Discord.RichEmbed()
-                    .setThumbnail(message.author.avatarURL)
-                    .setColor(0Xff0000)
-                    .setAuthor(`Account Status of ${message.author.username}#${message.author.discriminator}`, message.author.avatarURL)
-                    .addField(`Secure Level: (Nº of warns) `,` 2 (You're in danger!)`)
-                    .setTimestamp()
-                    .setFooter(`Comand executed by ${message.author.username}`, message.author.avatarURL)
-                    message.channel.send({embed});
-                }*/
+                } else {
+                    let numwarns = `${filas.warns}` ;
+                    console.log(numwarns);
+                    //warned before
+                    //if (numwarns = '0') {
+                        //not exists
+                        const embed = new Discord.RichEmbed()
+                        .setThumbnail(message.author.avatarURL)
+                        .setColor(0x28b7ff)
+                        .setAuthor(`Account Status of ${message.author.username}#${message.author.discriminator}`, message.author.avatarURL)
+                        .setDescription(`Secure Level: (Nº of warns): ** ${filas.warns}**. Be carefully, because at the 3 warns you will be kicked by Hammer BOT.`)
+                        .setTimestamp()
+                        .setFooter(`Comand executed by ${message.author.username}`, message.author.avatarURL)
+                        message.channel.send({embed});
+                    }
              
 
             });
+        } else {
+            let usrnmid = userm.id;
+            let select = `SELECT idusuario, warns FROM usuarios WHERE idusuario = ${usrnmid}`;
+             db.get(select, (err, filas) => {
+                if (err) return console.error(err.message)
+                    
+                        
+                if (!filas){
+                    //not exists
+                    const embed = new Discord.RichEmbed()
+                    .setThumbnail(message.author.avatarURL)
+                    .setColor(0x0E83A)
+                    .setAuthor(`Account Status of ${userm.username}#${userm.discriminator}`, userm.avatarURL)
+                    .setDescription(`Secure Level: (Nº of warns) 0 (You're a good member)`)
+                    .setTimestamp()
+                    .setFooter(`Comand executed by ${message.author.username}`, message.author.avatarURL)
+                    message.channel.send({embed});
+                } else {
+                    let numwarns = `${filas.warns}` ;
+                    console.log(numwarns);
+                    //warned before
+                    //if (numwarns = '0') {
+                        //not exists
+                        const embed = new Discord.RichEmbed()
+                        .setThumbnail(message.author.avatarURL)
+                        .setColor(0x28b7ff)
+                        .setAuthor(`Account Status of ${message.author.username}#${message.author.discriminator}`, message.author.avatarURL)
+                        .setDescription(`Secure Level: (Nº of warns): ** ${filas.warns}**. Be carefully, because at the 3 warns you will be kicked by Hammer BOT.`)
+                        .setTimestamp()
+                        .setFooter(`Comand executed by ${message.author.username}`, message.author.avatarURL)
+                        message.channel.send({embed});
+                }
+            
+            });
 
         }
+    }
 
     
     if (message.content.startsWith(prefix + "ban")) {
@@ -658,7 +717,7 @@ client.on("message", (message) => {
         let user = message.mentions.users.first();
         if(!perms) return message.channel.send(":no_entry: `Error` :no_entry: `|` You don't have ADMINISTRATOR permssion.");
         let razon = args.slice(1).join(' ');
-        if(!razon) return message.channel.send('Write a reason, `.unwarn @username [reason]`');
+        if(!razon) return message.channel.send('Write a reason, `/unwarn @username [reason]`');
 
         if (message.mentions.users.size < 1) return message.reply('Who?.').catch(console.error);
 
@@ -790,8 +849,14 @@ client.on("message", (message) => {
 
         if(!userm){
           var user = message.author;
-              
-          const embed = new Discord.RichEmbed()
+               let usrid = user.id;
+            let sentencia = `SELECT * FROM usuarios WHERE idusuario = ${usrid}`;
+             db.get(sentencia, (err, filas) => {
+            if (err) return console.error(err.message)
+
+            if (filas){
+            
+            const embed = new Discord.RichEmbed()
             .setThumbnail(user.avatarURL)
             .setAuthor(user.username+'#'+user.discriminator, user.avatarURL)
             .addField('Playing', user.presence.game != null ? user.presence.game.name : "Nothing", true)
@@ -800,25 +865,64 @@ client.on("message", (message) => {
             .addField('Nickname', message.member.nickname, true)
             .addField('Created Account', user.createdAt.toDateString(), true)
             .addField('Join Date', message.member.joinedAt.toDateString())
+            .addField('Warns', `${filas.warns}`)
+            .addField('Roles', message.member.roles.map(roles => `\`${roles.name}\``).join(', '))
+            .setColor(0x66b3ff)
+            message.channel.send(embed);
+            } else {
+                const embed = new Discord.RichEmbed()
+            .setThumbnail(user.avatarURL)
+            .setAuthor(user.username+'#'+user.discriminator, user.avatarURL)
+            .addField('Playing', user.presence.game != null ? user.presence.game.name : "Nothing", true)
+            .addField('ID', user.id, true)
+            .addField('Status', user.presence.status, true)
+            .addField('Nickname', message.member.nickname, true)
+            .addField('Created Account', user.createdAt.toDateString(), true)
+            .addField('Join Date', message.member.joinedAt.toDateString())
+            .addField('Warns', `0`)
             .addField('Roles', message.member.roles.map(roles => `\`${roles.name}\``).join(', '))
             .setColor(0x66b3ff)
                 
           message.channel.send(embed);
+            }
+            
+
+        });
         
         } else {
 
-          const embed = new Discord.RichEmbed()
-            .setThumbnail(userm.avatarURL)
-            .setAuthor(userm.username+'#'+userm.discriminator, userm.avatarURL)
-            .addField('Playing', userm.presence.game != null ? userm.presence.game.name : "Nothing", true)
-            .addField('ID', userm.id, true)
-            .addField('Status', userm.presence.status, true)
-            .addField('Created Account', userm.createdAt.toDateString(), true)
-            .setColor(0x66b3ff)
+            let id = userm.id;
+            let sentencia = `SELECT * FROM usuarios WHERE idusuario = ${id}`;
+             db.get(sentencia, (err, filas) => {
+            if (err) return console.error(err.message)
+
+            if (filas){
+              const embed = new Discord.RichEmbed()
+                .setThumbnail(userm.avatarURL)
+                .setAuthor(userm.username+'#'+userm.discriminator, userm.avatarURL)
+                .addField('Playing', userm.presence.game != null ? userm.presence.game.name : "Nothing", true)
+                .addField('ID', userm.id, true)
+                .addField('Status', userm.presence.status, true)
+                .addField('Created Account', userm.createdAt.toDateString(), true)
+                .addField('Warns', `${filas.warns}`)
+                .setColor(0x66b3ff)
+                message.channel.send(embed);
+            } else {
+                const embed = new Discord.RichEmbed()
+                .setThumbnail(userm.avatarURL)
+                .setAuthor(userm.username+'#'+userm.discriminator, userm.avatarURL)
+                .addField('Playing', userm.presence.game != null ? userm.presence.game.name : "Nothing", true)
+                .addField('ID', userm.id, true)
+                .addField('Status', userm.presence.status, true)
+                .addField('Created Account', userm.createdAt.toDateString(), true)
+                .addField('Warns', `0`)
+                .setColor(0x66b3ff)
+                message.channel.send(embed);
+
+            }
             
-          message.channel.send(embed);
-
-
+          
+      });
         }
     }
     if (message.content.startsWith(prefix + "report")) {
@@ -851,27 +955,57 @@ client.on("message", (message) => {
     });
     }
     if (message.content.startsWith(prefix + "lock")) {
-        var perms = message.author.hasPermission('MANAGE_MESSAGES');
+        var perms = message.member.hasPermission('MANAGE_MESSAGES');
         if (!perms) return message.channel.send(":no_entry: `Error` :no_entry: `|` You haven't the MANAGE_MESSAGES permission.");
          message.delete(100);
          message.channel.overwritePermissions(message.guild.id, {
          SEND_MESSAGES: false
 
            }).then(() => {
-               message.reply(`:lock: This channel was **locked** by ${message.author.username}#${message.author.discriminator}`);
+               message.channel.send(`:lock: This channel was **locked** by ${message.author.username}#${message.author.discriminator}`);
            });
     }
     if (message.content.startsWith(prefix + "unlock")) {
-        var perms = message.author.hasPermission('MANAGE_MESSAGES');
+        var perms = message.member.hasPermission("ADMINISTRATOR");
         if (!perms) return message.channel.send(":no_entry: `Error` :no_entry: `|` You haven't the MANAGE_MESSAGES permission.");
          message.delete(100);
          message.channel.overwritePermissions(message.guild.id, {
          SEND_MESSAGES: true
 
            }).then(() => {
-               message.reply(`:unlock: This channel was **unlocked** by ${message.author.username}#${message.author.discriminator}`);
+               message.channel.send(`:unlock: This channel was **unlocked** by ${message.author.username}#${message.author.discriminator}`);
            });
     }
+    if (message.content.startsWith(prefix + "roles")) {
+        let id = message.guild.id;
+        const embed = new Discord.RichEmbed()
+         .setAuthor('Roles of: '+ message.guild.name)
+         .setThumbnail(message.guild.iconURL)
+         .setColor(0x00AE86)
+         .setDescription(`${client.guilds.get(id).roles.map(r => r.name).join(", ")}`)
+        
+        
+    message.channel.send(embed);
+    }
+
+    if (message.content.startsWith(prefix + "guild")) {
+    var server = message.guild;
+    let id = message.guild.id;
+    const embed = new Discord.RichEmbed()
+    .setThumbnail(server.iconURL)
+    .setAuthor(server.name, server.iconURL)
+    .addField('ID', server.id, true)
+    .addField('Region', server.region, true)
+    .addField('Created', server.joinedAt.toDateString(), true)
+    .addField('Guild Owner', server.owner.user.tag+' ('+server.owner.user.id +')', true)
+    .addField('Members', server.memberCount, true)
+    .addField('Roles', client.guilds.get(id).roles.map(r => r.name).join(", "), true)
+    .setColor(0x66b3ff)
+        
+    message.channel.send(embed);
+    }
+    
+        
 
 });
 client.login(process.env.TOKEN);
