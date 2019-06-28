@@ -6,7 +6,7 @@ A discord.js bot - #DISCORD HACK WEEK 2019
 For what is used for Hammer? (Use /hammer in a discord guild/server) Hammer is a moderation Bot, wich has lots of funtional commands, from the basically (warn, kick or ban) to advanced functions like automod, with about 100 blocked swear words. Also is 99.7% uptime. **#DiscordHackWeek Creation**
 
 
-What and how many commands has Hemmer? (User /help in a discord guild/server and check DM.) [Or scroll down](https://github.com/limusina10/hammer/blob/master/README.md#useful-comands)
+What and how many commands has Hemmer? (User /help in a discord guild/server and check DM.) [Or scroll down](https://github.com/limusina10/hammer#useful-comands)
 # Add the bot
 https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot
  
@@ -67,6 +67,10 @@ ________________
 /roles  - Displays all the guild's roles
 
 /log  - Sets the logging channel
+
+/rules  - Shows and accepts the rules
+
+/saverules  - Sets the server/guild rules
 
 # HAMMER'S TEAM
 limusina10#6341
