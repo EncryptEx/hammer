@@ -101,8 +101,9 @@ client.on("guildMemberRemove", (member) => {
     });
     
 });
+
 client.on("messageDelete", (message) => {
-    var id = member.guild.id
+    var id = message.guild.id
     //start search if the channel was configurated before
     let rm = `SELECT * FROM log WHERE idguild = ${id}`;
     db.get(rm, (err, filas) => {
@@ -111,10 +112,13 @@ client.on("messageDelete", (message) => {
             let dbcnhlid = `${filas.channelid}`;
             let canal = client.channels.get(`${dbcnhlid}`);
             const embed = new Discord.RichEmbed()
-            .setColor(0xbc1b0d)
-            .setAuthor("Message Deleted")
-            .addField('User:',`${message.author.username}`)
-            .addField('Mensaje Message:',`${message}`)
+            .setColor(0x28b7ff)
+            .setAuthor("Message Deleted", message.author.avatarURL)
+            .setThumbnail(message.author.avatarURL)
+            .addField('User:',`${message.author}`, true)
+            .addField('Channel:', `${message.channel}`, true)
+            .addField('Message Deleted:',`${message}`, true)
+
             .setTimestamp()
             canal.send({embed});
         } else {
@@ -122,19 +126,33 @@ client.on("messageDelete", (message) => {
         }
     });
 });
-/*MODO EDICIÓN EN PRACTICAS ------------------------------------------
+/*
 client.on('messageUpdate', (oldMessage, newMessage) => {
-     if (oldMessage.guild.id == "528741398292332554") {
-    let canal = client.channels.get('538233514047569932'); 
-    const embed = new Discord.RichEmbed()
-    .setColor(0xbc1b0d)
-    .setAuthor("Mensaje editado")
-    .addField('Mensaje Antiguo:',``)
-    .addField('Mensaje Nuevo:',``)
-    .setTimestamp()
-    canal.send({embed});
-     }
-}); // -------------------------------------------------------------*/
+    var id = oldMessage.guild.id
+    //start search if the channel was configurated before
+    let edit = `SELECT * FROM log WHERE idguild = ${id}`;
+    db.get(edit, (err, filas) => {
+       if (err) return console.error(err.message)
+        if (filas){
+            let dbcnhlids = `${filas.channelid}`;
+            let canals = client.channels.get(`${dbcnhlids}`);
+            const embed = new Discord.RichEmbed()
+            .setColor(0x28b7ff)
+            .setAuthor("Message Edited", oldMessage.author.avatarURL)
+            .setThumbnail(oldMessage.author.avatarURL)
+            .addField('User:',`${oldMessage.author}`, true)
+            .addField('Channel:', `${oldMessage.channel}`, true)
+            .addField('Old Message:',`${oldMessage}`, true)
+            .addField('New Message:',`${newMessage}`, true)
+
+            .setTimestamp()
+            canals.send({embed});
+        } else {
+
+        }
+    });
+});
+*/
 
 
 //check if is not DM
@@ -182,13 +200,13 @@ client.on("message", (message) => {
         .setAuthor(`Hammer Help`, client.user.avatarURL)
         .setThumbnail(client.user.avatarURL)
         .addField('**Prefix:**', "``/``")
-        .addField("**Hammer's Team:**", "``limusina10#6341, GashohFDEZ#3722, Mariete05#4835``")
-        .addField('**Status: **', "``Online, 99,7% uptime``")
-        .addField('**Moderator Commands:**', "``warn, uwnarn, topwarns, kick, ban, addrole, removerole, createrole, lock, unlock``")
-        .addField('**Automod:**', '``Blocks about 100 swear words``')
-        .addField('**Info Commands:**', "``help, hammer, ping, hello, assistance, whois, guild, roles``")
-        .addField('**Bot Customizing:**', "``log``")
-        .addField('**Invite:**', ":link:[Click Here](https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot)")
+        .addField("**Hammer's Team:**", "``limusina10#6341, GashohFDEZ#3722, Mariete05#4835``", true)
+        .addField('**Status: **', "``Online, 99,7% uptime``", true)
+        .addField('**Moderator Commands:**', "``warn, uwnarn, topwarns, kick, ban, addrole, removerole, createrole, lock, unlock``", true)
+        .addField('**Automod:**', '``Blocks about 100 swear words``', true)
+        .addField('**Info Commands:**', "``help, hammer, ping, hello, assistance, whois, guild, roles, rules``", true)
+        .addField('**Bot Customizing:**', "``log, saverules``", true)
+        .addField('**Invite:**', ":link:[Click Here](https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot)", true)
         .setTimestamp()
         .setFooter(`Comand executed by ${message.author.username}`, message.author.avatarURL)
         user.send({embed});
@@ -248,8 +266,8 @@ client.on("message", (message) => {
 
     }
     if (message.content.startsWith(prefix + "warn")) {
-        var perms = message.member.hasPermission("ADMINISTRATOR");
-        if(!perms) return message.channel.send(":no_entry: `Error` :no_entry: `|` You haven't the ADMINISTRATOR permssion.");
+        var perms = message.member.hasPermission("KICK_MEMBERS");
+        if(!perms) return message.channel.send(":no_entry: `Error` :no_entry: `|` You haven't the KICK_MEMBERS permssion.");
         const args = message.content.split(" ").slice(1);
         var user = message.author
         var server = message.guild;
@@ -261,9 +279,9 @@ client.on("message", (message) => {
         
         const embed = new Discord.RichEmbed()
         .setAuthor("User Warned", client.user.avatarURL)
-        .addField("Moderator: ", user)
-        .addField("User Warned: ", warned)
-        .addField("Reason: ", razon)
+        .addField("Moderator: ", user, true)
+        .addField("User Warned: ", warned, true)
+        .addField("Reason: ", razon, true)
         .setDescription("Be carefully, at the 3 warns you will be muted or kicked by Hammer BOT ")
         .setColor(0Xff0000)
         .setTimestamp()
@@ -373,9 +391,9 @@ client.on("message", (message) => {
 
     const embed = new Discord.RichEmbed()
     .setAuthor("User Kicked", client.user.avatarURL)
-    .addField("Moderator: ", admin)
-    .addField("User Kicked: ", banned)
-    .addField("Reason: ", razon)
+    .addField("Moderator: ", admin, true)
+    .addField("User Kicked: ", banned, true)
+    .addField("Reason: ", razon, true)
     .setColor(0Xff0000)
     .setTimestamp()
     
@@ -462,6 +480,17 @@ client.on("message", (message) => {
     db.run(SQL, function(err) {
         if (err) return console.error(err.message)
     })
+
+    let SQLs = "CREATE TABLE IF NOT EXISTS usersaccepted (idguild TEXT, iduser TEXT)";
+
+        db.run(SQLs, function(err) {
+            if (err) return console.error(err.message)
+        })
+    let SQLa = "CREATE TABLE IF NOT EXISTS rules (idguild TEXT, rules TEXT)";
+
+        db.run(SQLa, function(err) {
+            if (err) return console.error(err.message)
+        })
     message.channel.send("Succesfully DB");
     
   }
@@ -484,9 +513,9 @@ client.on("message", (message) => {
       
         const embed = new Discord.RichEmbed()
         .setAuthor("User Warned", client.user.avatarURL)
-        .addField("Moderator: ", user)
-        .addField("User Warned: ", warned)
-        .addField("Reason: ", razon)
+        .addField("Moderator: ", user, true)
+        .addField("User Warned: ", warned, true)
+        .addField("Reason: ", razon, true)
         .setDescription("Be carefully, at the 3 warns you will be muted or kicked by a server moderator, ")
         .setColor(0Xff0000)
         .setTimestamp()
@@ -701,9 +730,9 @@ client.on("message", (message) => {
 
         const embed = new Discord.RichEmbed()
         .setAuthor("User Banned", client.user.avatarURL)
-        .addField("Moderator: ", admin)
-        .addField("User Banned: ", user)
-        .addField("Reason: ", razon)
+        .addField("Moderator: ", admin, true)
+        .addField("User Banned: ", user, true)
+        .addField("Reason: ", razon, true)
         .setColor(0Xff0000)
         .setTimestamp()
         
@@ -711,11 +740,11 @@ client.on("message", (message) => {
         user.send({embed});
   }
     if (message.content.startsWith(prefix + "unwarn")) {
-        var perms = message.member.hasPermission("ADMINISTRATOR");
+        var perms = message.member.hasPermission("KICK_MEMBERS");
         const args = message.content.slice(prefix.length).trim().split(/ +/g);
         const command = args.shift().toLowerCase();
         let user = message.mentions.users.first();
-        if(!perms) return message.channel.send(":no_entry: `Error` :no_entry: `|` You don't have ADMINISTRATOR permssion.");
+        if(!perms) return message.channel.send(":no_entry: `Error` :no_entry: `|` You don't have KICK_MEMBERS permssion.");
         let razon = args.slice(1).join(' ');
         if(!razon) return message.channel.send('Write a reason, `/unwarn @username [reason]`');
 
@@ -739,9 +768,9 @@ client.on("message", (message) => {
             const admin = message.author;
             const embed = new Discord.RichEmbed()
                 .setAuthor("User Unwarned", client.user.avatarURL)
-                .addField("Moderator: ", admin)
-                .addField("User Unwarned: ", user)
-                .addField("Reason: ", razon)
+                .addField("Moderator: ", admin, true)
+                .addField("User Unwarned: ", user, true)
+                .addField("Reason: ", razon, true)
                 .setColor(0x0E83A)
                 .setTimestamp()
                     
@@ -821,8 +850,8 @@ client.on("message", (message) => {
                     .setColor(0x0E83A)
                     .setAuthor(`Hammer Logging Channel`, client.user.avatarURL)
                     .setThumbnail(client.user.avatarURL)
-                    .addField('**Actual Logging Channel**', `${dbchnl}`)
-                    .addField("**How to configure it:**", "``/log #channel``")
+                    .addField('**Actual Logging Channel**', `${dbchnl}`, true)
+                    .addField("**How to configure it:**", "``/log #channel``", true)
                     .setTimestamp()
                     .setFooter(`Comand executed by ${message.author.username}`, message.author.avatarURL)
                     message.channel.send({embed});
@@ -832,8 +861,8 @@ client.on("message", (message) => {
                     .setColor(0x0E83A)
                     .setAuthor(`Hammer Logging Channel`, client.user.avatarURL)
                     .setThumbnail(client.user.avatarURL)
-                    .addField('**Actual Logging Channel**', "``None``")
-                    .addField("**How to configure it:**", "``/log #channel``")
+                    .addField('**Actual Logging Channel**', "``None``", true)
+                    .addField("**How to configure it:**", "``/log #channel``", true)
                     .setTimestamp()
                     .setFooter(`Comand executed by ${message.author.username}`, message.author.avatarURL)
                     message.channel.send({embed});
@@ -864,9 +893,9 @@ client.on("message", (message) => {
             .addField('Status', user.presence.status, true)
             .addField('Nickname', message.member.nickname, true)
             .addField('Created Account', user.createdAt.toDateString(), true)
-            .addField('Join Date', message.member.joinedAt.toDateString())
-            .addField('Warns', `${filas.warns}`)
-            .addField('Roles', message.member.roles.map(roles => `\`${roles.name}\``).join(', '))
+            .addField('Join Date', message.member.joinedAt.toDateString(), true)
+            .addField('Warns', `${filas.warns}`, true)
+            .addField('Roles', message.member.roles.map(roles => `\`${roles.name}\``).join(', '), true)
             .setColor(0x66b3ff)
             message.channel.send(embed);
             } else {
@@ -878,9 +907,9 @@ client.on("message", (message) => {
             .addField('Status', user.presence.status, true)
             .addField('Nickname', message.member.nickname, true)
             .addField('Created Account', user.createdAt.toDateString(), true)
-            .addField('Join Date', message.member.joinedAt.toDateString())
-            .addField('Warns', `0`)
-            .addField('Roles', message.member.roles.map(roles => `\`${roles.name}\``).join(', '))
+            .addField('Join Date', message.member.joinedAt.toDateString(), true)
+            .addField('Warns', `0`, true)
+            .addField('Roles', message.member.roles.map(roles => `\`${roles.name}\``).join(', '), true)
             .setColor(0x66b3ff)
                 
           message.channel.send(embed);
@@ -915,7 +944,7 @@ client.on("message", (message) => {
                 .addField('ID', userm.id, true)
                 .addField('Status', userm.presence.status, true)
                 .addField('Created Account', userm.createdAt.toDateString(), true)
-                .addField('Warns', `0`)
+                .addField('Warns', `0`, true)
                 .setColor(0x66b3ff)
                 message.channel.send(embed);
 
@@ -966,7 +995,7 @@ client.on("message", (message) => {
            });
     }
     if (message.content.startsWith(prefix + "unlock")) {
-        var perms = message.member.hasPermission("ADMINISTRATOR");
+        var perms = message.member.hasPermission("MANAGE_MESSAGES");
         if (!perms) return message.channel.send(":no_entry: `Error` :no_entry: `|` You haven't the MANAGE_MESSAGES permission.");
          message.delete(100);
          message.channel.overwritePermissions(message.guild.id, {
@@ -1004,8 +1033,108 @@ client.on("message", (message) => {
         
     message.channel.send(embed);
     }
-    
+    if (message.content.startsWith(prefix + "rules")) {
+        let SQL = "CREATE TABLE IF NOT EXISTS rules (idguild TEXT, rules TEXT)";
+
+        db.run(SQL, function(err) {
+            if (err) return console.error(err.message)
+        })
+        let idguild = message.guild.id;
+        let search = `SELECT * FROM rules WHERE idguild = ${idguild}`;
         
+        db.get(search, (err, filas) => {
+            if (err) return console.error(err.message)
+            if (filas){
+                let dbrules = `${filas.rules}`;
+                const embed = new Discord.RichEmbed()
+                 .setThumbnail(message.guild.iconURL)
+                 .setColor(0x0E83A)
+                 .setAuthor(`Rules in ${message.guild.name}`, message.guild.iconURL)
+                 .setDescription(`${dbrules}`)
+                 .setTimestamp()
+                 .setFooter("Have fun in our server!")
+                message.channel.send({embed});
+                const args = message.content.split(" ").slice(1);
+                var accept = args.slice(1).join(' ');
+
+                let SQL = "CREATE TABLE IF NOT EXISTS usersaccepted (idguild TEXT, iduser TEXT)";
+
+                db.run(SQL, function(err) {
+                    if (err) return console.error(err.message)
+                })
+
+                
+
+                    
+                    let iduser = message.author.id;
+                    
+                    let searchos = `SELECT * FROM usersaccepted WHERE idguild = ${idguild} AND iduser = ${iduser}`;
+        
+                    db.get(searchos, (err, filas) => {
+                        if (err) return console.error(err.message)
+                        if (filas){
+                            //alredy accepted
+                            message.reply('You alredy accepted the rules');
+                        } else {
+                            //accepting INSERT
+                           let inserting = `INSERT INTO usersaccepted(idguild, iduser) VALUES(${idguild}, ${iduser})`;
+
+                          db.run(inserting, function(err) {
+                           if (err) return console.error(err.message)
+                          });
+                        }
+                    });
+
+
+                
+            } else {
+                //no rules set
+                message.channel.send(":no_entry: `Error` :no_entry: `|` To use that command, first you've to save the rules with /saverules.");
+            }
+        });
+
+    }
+    if (message.content.startsWith(prefix + "saverules")) {
+        var perms = message.member.hasPermission("MANAGE_MESSAGES");
+        if(!perms) return message.channel.send(":no_entry: `Error` :no_entry: `|` You haven't the MANAGE_MESSAGES permssion.");
+        let SQL = "CREATE TABLE IF NOT EXISTS rules (idguild TEXT, rules TEXT)";
+
+        db.run(SQL, function(err) {
+            if (err) return console.error(err.message)
+        })
+
+        var id = message.guild.id
+        const args = message.content.split(" ").slice(1);
+        var rules = args.slice(1).join(' ');
+        
+
+        if (!rules) return message.channel.send(":no_entry: `Error` :no_entry: `|` You've to write the server rules here. Use /saverules rules......");
+        let search = `SELECT * FROM rules WHERE idguild = ${id}`;
+
+        var rules = rules.replace(/'/g, "\\'");
+
+        var rules = "'" + rules + "'";
+
+        db.get(search, (err, filas) => {
+            if (err) return console.error(err.message)
+            if (filas){
+                //there're rules UPDATE
+                let update = `UPDATE rules SET rules = ${rules} WHERE idguild = ${id}`;
+                db.run(update, function(err) {
+                       if (err) return console.error(err.message)
+                      });
+                message.channel.send("Success!");
+            } else {
+                //there aren't rules
+            let insert = `INSERT INTO rules(idguild, rules) VALUES(${id}, ${rules})`;
+
+              db.run(insert, function(err) {
+               if (err) return console.error(err.message)
+              });
+              message.channel.send("Success!");
+            }
+        });
+    }  
 
 });
 client.login(process.env.TOKEN);
