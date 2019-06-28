@@ -27,11 +27,11 @@ First of all, use ``/db`` and wait for the ``Success DB!`` message
 If there's an error in the console about sqlite3 and node. please do the following cmd:
 ``npm i sqlite3 --save``
 
-# Configuring/Customising your bot
+# Configuring/Customizing your bot
 Use /log with ADMINISTRATOR perms in the server
 ________________
 
-# Useful Comands
+# Useful Commands
 /warn  -  Warns the user
 
 /unwarn  - Clear the user's warns
@@ -76,7 +76,7 @@ ________________
 
 /report  - Sends a message reporting something to server/guild's STAFF 
 
-# AUTOMATIC SERVICES
+# Automatic Services
 
 Kick a user when that user reaches 3 warns
 
