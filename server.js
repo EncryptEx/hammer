@@ -286,6 +286,19 @@ client.on("message", (message) => {
         .setColor(0Xff0000)
         .setTimestamp()
         
+        var idas = message.guild.id
+        //start search if the channel was configurated before
+        let joins = `SELECT * FROM log WHERE idguild = ${idas}`;
+        db.get(joins, (err, filas) => {
+            if (err) return console.error(err.message)
+            if (filas){
+                let asd = `${filas.channelid}`;
+                let canalsa = client.channels.get(`${asd}`); 
+
+                canalsa.send({embed});
+            } 
+        });
+
         message.channel.send({embed});
         warned.send({embed});
 
@@ -397,6 +410,19 @@ client.on("message", (message) => {
     .setColor(0Xff0000)
     .setTimestamp()
     
+    var idq = message.guild.id
+        //start search if the channel was configurated before
+        let joinas = `SELECT * FROM log WHERE idguild = ${idq}`;
+        db.get(joinas, (err, filas) => {
+            if (err) return console.error(err.message)
+            if (filas){
+                let asdasd = `${filas.channelid}`;
+                let canalsas = client.channels.get(`${asdasd}`); 
+
+                canalsas.send({embed});
+            } 
+        });
+
     message.channel.send({embed});
     banned.send({embed});
   }
@@ -471,8 +497,10 @@ client.on("message", (message) => {
     })
   }
   if (message.content.startsWith(prefix + "db")) {
-    if(message.author.id !== config.idOwner) return message.channel.send(":no_entry: `Error` :no_entry: `|` You aren't the owner.");
-    //ALERT! ONE USE COMMAND!
+    var perms = message.member.hasPermission("MANAGE_GUILD");
+    if(!perms) return message.channel.send(":no_entry: `Error` :no_entry: `|` You haven't the MANAGE_GUILD permssion.");
+
+        //ALERT! ONE USE COMMAND!
     const sqlite3 = require('sqlite3').verbose();
     const db = new sqlite3.Database("./mybotdata.sqlite");
     let SQL = "CREATE TABLE IF NOT EXISTS usuarios (idusuario TEXT, warns INTEGER)";
@@ -520,6 +548,19 @@ client.on("message", (message) => {
         .setColor(0Xff0000)
         .setTimestamp()
         
+        var idsa = message.guild.id;
+        //start search if the channel was configurated before
+        let logingchan = `SELECT * FROM log WHERE idguild = ${idsa}`;
+        db.get(logingchan, (err, filas) => {
+            if (err) return console.error(err.message)
+            if (filas){
+                let das = `${filas.channelid}`;
+                let chnlos = client.channels.get(`${das}`); 
+
+                chnlos.send({embed});
+            } 
+        });
+
         message.channel.send({embed});
         warned.send({embed});
 
@@ -735,6 +776,19 @@ client.on("message", (message) => {
         .addField("Reason: ", razon, true)
         .setColor(0Xff0000)
         .setTimestamp()
+
+        var idwq = message.guild.id
+        //start search if the channel was configurated before
+        let wer = `SELECT * FROM log WHERE idguild = ${idwq}`;
+        db.get(wer, (err, filas) => {
+            if (err) return console.error(err.message)
+            if (filas){
+                let qwe = `${filas.channelid}`;
+                let ewq = client.channels.get(`${qwe}`); 
+
+                ewq.send({embed});
+            } 
+        });
         
         message.channel.send({embed});
         user.send({embed});
@@ -774,6 +828,19 @@ client.on("message", (message) => {
                 .setColor(0x0E83A)
                 .setTimestamp()
                     
+            var idset = message.guild.id
+            //start search if the channel was configurated before
+            let cvb = `SELECT * FROM log WHERE idguild = ${idset}`;
+            db.get(cvb, (err, filas) => {
+                if (err) return console.error(err.message)
+                if (filas){
+                    let rty = `${filas.channelid}`;
+                    let uyt = client.channels.get(`${rty}`); 
+
+                    uyt.send({embed});
+                } 
+            });
+
             message.channel.send({embed});
             user.send({embed});
         }
@@ -1136,18 +1203,38 @@ client.on("message", (message) => {
         });
     }
 
-    //check if the user has accepted the rules each time a user messages someone
-        let guildis = message.guild.id;
-        let userids = message.author.id;
-        if (userids = client.user.id) return;
-        let searchingos = `SELECT * FROM usersaccepted WHERE idguild = ${guildis} AND iduser = ${userids}`;
-        
-        db.get(searchingos, (err, filas) => {
+        let SQL = "CREATE TABLE IF NOT EXISTS rules (idguild TEXT, rules TEXT)";
+
+        db.run(SQL, function(err) {
             if (err) return console.error(err.message)
-            if (!filas){
-                //non accepted
-                message.reply('You have to accept the rules using /rules'); 
-                           
+        })
+
+
+        let SQLs = "CREATE TABLE IF NOT EXISTS usersaccepted (idguild TEXT, iduser TEXT)";
+
+        db.run(SQLs, function(err) {
+            if (err) return console.error(err.message)
+        })
+        
+        var id = message.guild.id
+        let searchi = `SELECT * FROM rules WHERE idguild = ${id}`;
+        db.get(searchi, (err, filas) => {
+            if (err) return console.error(err.message)
+            if (filas){
+                //check if the user has accepted the rules each time a user messages someone
+                let guildis = message.guild.id;
+                let userids = message.author.id;
+                if (userids = client.user.id) return;
+                let searchingos = `SELECT * FROM usersaccepted WHERE idguild = ${guildis} AND iduser = ${userids}`;
+                
+                db.get(searchingos, (err, filas) => {
+                    if (err) return console.error(err.message)
+                    if (!filas){
+                        //non accepted
+                        message.reply('You have to accept the rules using /rules'); 
+                                   
+                    }
+                });
             }
         });
 
