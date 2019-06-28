@@ -20,6 +20,10 @@ ________________
 ________________
 4- To make the bot 24/7 uptime, you will need https://uptimerobot.com and put the glitch app link (html sample page)
 ________________
+
+If there's an error in the console about sqlite3 and node. please do the following cmd:
+``npm i sqlite3 --save``
+
 # Configuring/Customising your bot
 Use /log with ADMINISTRATOR perms in the server
 ________________
