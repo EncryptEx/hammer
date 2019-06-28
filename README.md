@@ -72,6 +72,14 @@ ________________
 
 /saverules  - Sets the server/guild rules
 
+# AUTOMATIC SERVICES
+
+Kick a user when that user reaches 3 warns
+
+Warn and delete a swear word (100 words list)
+
+Check if you've accepted the rules
+
 # HAMMER'S TEAM
 limusina10#6341
 =========
