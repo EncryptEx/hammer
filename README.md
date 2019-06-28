@@ -72,6 +72,8 @@ ________________
 
 /saverules  - Sets the server/guild rules
 
+/report  - Sends a message reporting something to server/guild's STAFF 
+
 # AUTOMATIC SERVICES
 
 Kick a user when that user reaches 3 warns
