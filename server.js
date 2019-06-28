@@ -204,7 +204,7 @@ client.on("message", (message) => {
         .addField('**Status: **', "``Online, 99,7% uptime``", true)
         .addField('**Moderator Commands:**', "``warn, uwnarn, topwarns, kick, ban, addrole, removerole, createrole, lock, unlock``", true)
         .addField('**Automod:**', '``Blocks about 100 swear words``', true)
-        .addField('**Info Commands:**', "``help, hammer, ping, hello, assistance, whois, guild, roles, rules``", true)
+        .addField('**Info Commands:**', "``help, hammer, ping, hello, assistance, whois, guild, roles, rules, report``", true)
         .addField('**Bot Customizing:**', "``log, saverules``", true)
         .addField('**Invite:**', ":link:[Click Here](https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot)", true)
         .setTimestamp()
@@ -1095,8 +1095,8 @@ client.on("message", (message) => {
 
     }
     if (message.content.startsWith(prefix + "saverules")) {
-        var perms = message.member.hasPermission("MANAGE_MESSAGES");
-        if(!perms) return message.channel.send(":no_entry: `Error` :no_entry: `|` You haven't the MANAGE_MESSAGES permssion.");
+        var perms = message.member.hasPermission("MANAGE_GUILD");
+        if(!perms) return message.channel.send(":no_entry: `Error` :no_entry: `|` You haven't the MANAGE_GUILD permssion.");
         let SQL = "CREATE TABLE IF NOT EXISTS rules (idguild TEXT, rules TEXT)";
 
         db.run(SQL, function(err) {
@@ -1134,7 +1134,23 @@ client.on("message", (message) => {
               message.channel.send("Success!");
             }
         });
-    }  
+    }
+
+    //check if the user has accepted the rules each time a user messages someone
+        let guildis = message.guild.id;
+        let userids = message.author.id;
+        if (userids = client.user.id) return;
+        let searchingos = `SELECT * FROM usersaccepted WHERE idguild = ${guildis} AND iduser = ${userids}`;
+        
+        db.get(searchingos, (err, filas) => {
+            if (err) return console.error(err.message)
+            if (!filas){
+                //non accepted
+                message.reply('You have to accept the rules using /rules'); 
+                           
+            }
+        });
+
 
 });
 client.login(process.env.TOKEN);
