@@ -1,8 +1,9 @@
 # Hammer Discord BOT
-![GitHub repo size](https://img.shields.io/github/repo-size/EncryptEx/hammer?style=plastic)
-![GitHub language count](https://img.shields.io/github/languages/count/EncryptEx/hammer?style=plastic)
-![GitHub top language](https://img.shields.io/github/languages/top/EncryptEx/hammer?style=plastic)
+![GitHub repo size](https://img.shields.io/github/repo-size/EncryptEx/hammer?style=plastic&color=green)
+![GitHub language count](https://img.shields.io/github/languages/count/EncryptEx/hammer?style=plastic&color=green)
+![GitHub top language](https://img.shields.io/github/languages/top/EncryptEx/hammer?style=plastic&color=green)
 ![GitHub last commit](https://img.shields.io/github/last-commit/EncryptEx/hammer?color=red&style=plastic)  
+![Code Dependencies](https://img.shields.io/david/EncryptEx/hammer?color=green)
 A discord.js bot - #DISCORD HACK WEEK 2019
 
 100% Pure JavaScript
