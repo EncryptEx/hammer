@@ -1,11 +1,14 @@
-# Hammer Discord BOT
-![GitHub repo size](https://img.shields.io/github/repo-size/EncryptEx/hammer)
-![GitHub language count](https://img.shields.io/github/languages/count/EncryptEx/hammer)
-![GitHub top language](https://img.shields.io/github/languages/top/EncryptEx/hammer)
-![GitHub last commit](https://img.shields.io/github/last-commit/EncryptEx/hammer?color=red)
-![Code Dependencies](https://img.shields.io/david/EncryptEx/hammer?color=green)
-![License](https://img.shields.io/badge/License-MIT-green)
-![Discord](https://img.shields.io/discord/729442309145493597)    
+<p align="center"><a href="https://github.com/nastyox/Rando.js#nastyox"><img src="https://thumbs.gfycat.com/LoathsomeWeirdElk-size_restricted.gif" alt="Hammer" height="60"/></a></p>
+<h1 align="center">Hammer Discord Bot</h1>
+<p align="center">The bot that keeps calmed down people.</p>
+<p align="center">
+	<img src="https://img.shields.io/github/repo-size/EncryptEx/hammer"/>
+	<img src="https://img.shields.io/github/languages/top/EncryptEx/hammer"/>
+	<img src="https://img.shields.io/github/last-commit/EncryptEx/hammer?color=red"/>
+	<img src="https://img.shields.io/david/EncryptEx/hammer?color=green"/>
+	<img src="https://img.shields.io/badge/License-MIT-green"/>
+	<img src="https://img.shields.io/discord/729442309145493597"/>
+
 A discord.js bot - #DISCORD HACK WEEK 2019
 
 100% Pure JavaScript
@@ -94,3 +97,5 @@ Check if you've accepted the rules
 # HAMMER'S TEAM
 > limusina10#6341  
 > Mariete05#4835  
+
+<p align="center"><a href="https://github.com/nastyox/Rando.js#nastyox"><img src="http://randojs.com/images/barsSmall.gif" alt="Animated footer bars" width="100%"/></a></p>
