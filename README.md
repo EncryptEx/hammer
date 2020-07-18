@@ -92,7 +92,5 @@ Warn and delete a swear word (100 words list)
 Check if you've accepted the rules
 
 # HAMMER'S TEAM
-limusina10#6341
-=========
-Mariete05#4835
-=========
+> limusina10#6341  
+> Mariete05#4835  
