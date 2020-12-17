@@ -1,4 +1,4 @@
-<p align="center"><a href="https://github.com/nastyox/Rando.js#nastyox"><img src="https://thumbs.gfycat.com/LoathsomeWeirdElk-size_restricted.gif" alt="Hammer" height="60"/></a></p>
+<p align="center"><a href="#"><img src="https://thumbs.gfycat.com/LoathsomeWeirdElk-size_restricted.gif" alt="Hammer" height="60"/></a></p>
 <h1 align="center">Hammer Discord Bot</h1>
 <p align="center">The bot that keeps calmed down people.</p>
 <p align="center">
