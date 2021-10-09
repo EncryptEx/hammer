@@ -101,4 +101,4 @@ Check if you've accepted the rules
 > Developer: EncryptEx#6341  
 > Logo Designer: Mariete05#4835  
 
-<p align="center"><a href="https://github.com/EncryptEx/hammer/"><img src="http://randojs.com/images/barsSmall.gif" alt="Animated footer bars" width="100%"/></a></p>
+<p align="center"><a href="https://github.com/EncryptEx/hammer/"><img src="http://randojs.com/images/barsSmallTransparentBackground.gif" alt="Animated footer bars" width="100%"/></a></p>
