@@ -1,4 +1,4 @@
-<p align="center"><a href="https://github.com/nastyox/Rando.js#nastyox"><img src="https://thumbs.gfycat.com/LoathsomeWeirdElk-size_restricted.gif" alt="Hammer" height="60"/></a></p>
+<p align="center"><a href="#"><img src="https://thumbs.gfycat.com/LoathsomeWeirdElk-size_restricted.gif" alt="Hammer" height="60"/></a></p>
 <h1 align="center">Hammer Discord Bot</h1>
 <p align="center">The bot that keeps calmed down people.</p>
 <p align="center">
@@ -19,6 +19,9 @@ For what is used for Hammer? (Use /hammer in a discord guild/server) Hammer is a
 What and how many commands has Hemmer? (User /help in a discord guild/server and check DM.) [Or scroll down](https://github.com/limusina10/hammer#useful-comands)
 # Add the bot
 https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot
+
+# ↳ Stargazers <br>
+[![Stargazers repo roster for @EncryptEx/hammer](https://reporoster.com/stars/EncryptEx/hammer)](https://github.com/EncryptEx/hammer/stargazers)
  
 Or you can create yours:
 
@@ -78,7 +81,7 @@ Warn and delete a swear word (100 words list)
 Check if you've accepted the rules
 -->
 # HAMMER'S TEAM
-> Programmer: EncryptEx#6341
-> Logo designer: Mariete05#4835
+> Developer: EncryptEx#6341  
+> Logo Designer: Mariete05#4835  
 
-<p align="center"><img src="http://randojs.com/images/barsSmallTransparentBackground.gif" alt="Animated footer bars" width="100%"/></p>
+<p align="center"><a href="https://github.com/EncryptEx/hammer/"><img src="http://randojs.com/images/barsSmallTransparentBackground.gif" alt="Animated footer bars" width="100%"/></a></p>
