@@ -9,9 +9,9 @@
 <img src="https://img.shields.io/badge/License-MIT-green"/>
 <img src="https://img.shields.io/discord/729442309145493597"/>
 
-A discord.js bot - #DISCORD HACK WEEK 2019
+A discord.py bot - #DISCORD HACK WEEK 2019
 
-100% Pure JavaScript
+100% Python
 
 For what is used for Hammer? (Use /hammer in a discord guild/server) Hammer is a moderation Bot, wich has lots of funtional commands, from the basically (warn, kick or ban) to advanced functions like automod, with about 100 blocked swear words. Also is 99.7% uptime. **#DiscordHackWeek Creation**
 
