@@ -3,17 +3,25 @@ name: flake8 Lint
 on: [push, pull_request]
 
 jobs:
-  flake8-lint:
+  run-linters:
+    name: Run linters
     runs-on: ubuntu-latest
-    name: Lint
+
     steps:
-      - name: Check out source repository
+      - name: Check out Git repository
         uses: actions/checkout@v2
-      - name: Set up Python environment
+
+      - name: Set up Python
         uses: actions/setup-python@v1
         with:
-          python-version: "3.8"
-      - name: flake8 Lint
-        uses: py-actions/flake8@v1 
+          python-version: 3.8
+
+      - name: Install Python dependencies
+        run: pip install black flake8
+
+      - name: Run linters
+        uses: wearerequired/lint-action@v1
         with:
-            ignore: "W601,F403"
+          black: true
+          flake8: true
+          auto_fix: true
