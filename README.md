@@ -6,8 +6,10 @@
 <img src="https://img.shields.io/github/languages/top/EncryptEx/hammer"/>
 <img src="https://img.shields.io/github/last-commit/EncryptEx/hammer?color=red"/>
 <img src="https://img.shields.io/badge/GitHub-Artic%20Vault%20Code-%2394fcfc"/>
+<a href="https://github.com/EncryptEx/hammer/actions/workflows/main.yml"><img src="https://github.com/EncryptEx/hammer/actions/workflows/main.yml/badge.svg"></img></a>
 <img src="https://img.shields.io/badge/License-MIT-green"/>
 <img src="https://img.shields.io/discord/729442309145493597"/>
+
 
 A discord.py bot - #DISCORD HACK WEEK 2019
 
