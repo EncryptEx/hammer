@@ -10,7 +10,6 @@ class HelloWorld(BaseCommand):
         self.author = author
         self.message = message
         self.channel = channel
-        
 
     async def apply(self):
         embed = Embed(title="Hello World!", description="I'm alive. Hello human.")
