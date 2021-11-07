@@ -25,8 +25,8 @@ async def on_ready():
     # sendNotifOwner("Bot UP:", OWNER)
     print("I'm on:")
     print(len(bot.guilds), "servers")
-    print(bot.get_all_channels(), "channels")
-    print(bot.get_all_members(), "members")
+    print(sum(1 for x in bot.get_all_channels()), "channels")
+    print(sum(1 for x in bot.get_all_members()), "members")
 
 
 debug = False
