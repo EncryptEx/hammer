@@ -8,16 +8,22 @@ import sys
 import os
 
 import datetime
+
 bot = commands.Bot(command_prefix=COMMAND_PREFIX)
 
+
 def sendNotifOwner(text, id):
-    discord.User(id).send(text)   
+    discord.User(id).send(text)
+
 
 @bot.event
 async def on_ready():
-    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="you"))
-    print("HAMMER BOT Ready!",datetime.datetime.now())
+    await bot.change_presence(
+        activity=discord.Activity(type=discord.ActivityType.watching, name="you")
+    )
+    print("HAMMER BOT Ready!", datetime.datetime.now())
     # sendNotifOwner("Bot UP:", OWNER)
+
 
 debug = False
 
