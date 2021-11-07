@@ -13,8 +13,8 @@ bot = commands.Bot(command_prefix=COMMAND_PREFIX)
 def sendNotifOwner(text, id):
     discord.User(id).send(text)   
 
-@bot.event			# Tells Discord that it's a event
-async def on_ready():	# Important that the 
+@bot.event
+async def on_ready():
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="you"))
     print("HAMMER BOT Ready!",datetime.datetime.now())
     # sendNotifOwner("Bot UP:", OWNER)
@@ -128,16 +128,9 @@ def resolve_variable(variable):
 
 @commands.command()
 async def evaluate(ctx, *, code):
-<<<<<<< HEAD
-    # sendNotifOwner("User "+ctx.message.author+" used eval", OWNER)
-    if(str(ctx.message.author.id) == str(OWNER)):
-        # print("RECIEVED:",code)
-        # t = ctx.message.author.id,"used the command eval at", datetime.now(), "CODE:", code
-=======
     if str(ctx.message.author.id) == str(OWNER):
         print("RECIEVED:", code)
         # t = ctx.message.author.id,"used the command eval at", datetime.now()
->>>>>>> 2a283a4b9b8b28033c76eabaeb9b92dadc685e2a
         # print(t)
         args = {
             "discord": discord,
