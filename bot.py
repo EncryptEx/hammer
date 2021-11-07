@@ -23,7 +23,20 @@ async def on_ready():
     )
     print("HAMMER BOT Ready!", datetime.datetime.now())
     # sendNotifOwner("Bot UP:", OWNER)
-
+    t = []
+    for s in bot.guilds:
+        for c in s.channels:
+            if str(c.type) == 'text':
+                t.append(c)
+    members_set = set()
+    for guild in guilds:
+        for member in guild.members:
+            members_set.add(member)
+    members = len(members_set)
+    print("I'm on:")
+    print(len(bot.guilds),"servers")
+    print(len(t),"channels")
+    print(members,"members")
 
 debug = False
 
