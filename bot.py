@@ -27,15 +27,16 @@ async def on_ready():
     members_set = set()
     for s in bot.guilds:
         for c in s.channels:
-            if str(c.type) == 'text':
+            if str(c.type) == "text":
                 t.append(c)
         for member in s.members:
             members_set.add(member)
     members = len(members_set)
     print("I'm on:")
-    print(len(bot.guilds),"servers")
-    print(len(t),"channels")
-    print(members,"members")
+    print(len(bot.guilds), "servers")
+    print(len(t), "channels")
+    print(members, "members")
+
 
 debug = False
 
