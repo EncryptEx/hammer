@@ -1,7 +1,6 @@
 import discord
 from get_enviroment import COMMAND_PREFIX, OWNER, TOKEN
 from discord import Embed
-from aioconsole import aexec
 from discord.ext import commands
 from discord.ext.commands.core import command
 from time import time
@@ -9,7 +8,16 @@ import sys
 import os
 
 import datetime
-bot = commands.Bot(command_prefix="/")
+bot = commands.Bot(command_prefix=COMMAND_PREFIX)
+
+def sendNotifOwner(text, id):
+    discord.User(id).send(text)   
+
+@bot.event			# Tells Discord that it's a event
+async def on_ready():	# Important that the 
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="you"))
+    print("HAMMER BOT Ready!",datetime.datetime.now())
+    # sendNotifOwner("Bot UP:", OWNER)
 
 debug = False
 
@@ -50,6 +58,7 @@ async def ban(ctx, member: discord.Member, *, reason=None):
         text=f"Hammer | {ctx.message.author}",
         icon_url="https://images-ext-2.discordapp.net/external/OKc8xu6AILGNFY3nSTt7wGbg-Mi1iQZonoLTFg85o-E/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/591633652493058068/e6011129c5169b29ed05a6dc873175cb.png?width=670&height=670",
     )
+
     embed.set_thumbnail(url=member.avatar_url)
     await ctx.send(embed=embed)
     await member.send(message)
@@ -114,9 +123,10 @@ def resolve_variable(variable):
 
 @commands.command()
 async def evaluate(ctx, *, code):
+    # sendNotifOwner("User "+ctx.message.author+" used eval", OWNER)
     if(str(ctx.message.author.id) == str(OWNER)):
-        print("RECIEVED:",code)
-        # t = ctx.message.author.id,"used the command eval at", datetime.now()
+        # print("RECIEVED:",code)
+        # t = ctx.message.author.id,"used the command eval at", datetime.now(), "CODE:", code
         # print(t)
         args = {
             "discord": discord,
