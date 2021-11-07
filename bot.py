@@ -1,14 +1,17 @@
-from discord.member import Member
-from get_enviroment import COMMAND_PREFIX, TOKEN
 import discord
+from get_enviroment import COMMAND_PREFIX, OWNER, TOKEN
 from discord import Embed
-
+from aioconsole import aexec
 from discord.ext import commands
 from discord.ext.commands.core import command
+from time import time
+import sys
+import os
 
+import datetime
 bot = commands.Bot(command_prefix="/")
 
-debug = True
+debug = False
 
 @commands.command()
 async def hello(ctx):
@@ -78,7 +81,43 @@ async def warn(ctx, member : discord.Member, *, reason = None):
     await ctx.send(embed=embed)
     await member.send(message)
 
+def resolve_variable(variable):
+        if hasattr(variable, "__iter__"):
+            var_length = len(list(variable))
+            if (var_length > 100) and (not isinstance(variable, str)):
+                return f"<a {type(variable).__name__} iterable with more than 100 values ({var_length})>"
+            elif (not var_length):
+                return f"<an empty {type(variable).__name__} iterable>"
+        
+        if (not variable) and (not isinstance(variable, bool)):
+            return f"<an empty {type(variable).__name__} object>"
+        return (variable if (len(f"{variable}") <= 1000) else f"<a long {type(variable).__name__} object with the length of {len(f'{variable}'):,}>")
 
+
+@commands.command()
+async def evaluate(ctx, *, code):
+    if(str(ctx.message.author.id) == str(OWNER)):
+        print("RECIEVED:",code)
+        # t = ctx.message.author.id,"used the command eval at", datetime.now()
+        # print(t)
+        args = {
+            "discord": discord,
+            "sys": sys,
+            "os": os,
+            "imp": __import__,
+            "ctx": ctx,
+            "bot":bot
+        }
+        try:
+            exec(f"async def func(): return {code}", args)
+            a = time()
+            response = await eval("func()", args)
+            await ctx.send(f"```py\n{response}```    |    ```{type(response).__name__}``` `| {(time() - a) / 1000} ms`")
+        except Exception as e:
+            await ctx.send(f"Error occurred:```\n{type(e).__name__}: {str(e)}```")
+    else:
+        return 
+bot.add_command(evaluate)
 bot.add_command(hello)
 bot.add_command(kick)
 bot.add_command(ban)
