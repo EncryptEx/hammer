@@ -1,16 +1,51 @@
 import discord
+from discord import embeds
 from get_enviroment import COMMAND_PREFIX, OWNER, TOKEN
 from discord import Embed
 from discord.ext import commands
 from discord.ext.commands.core import command
 from time import time
+import datetime
 import sys
 import os
 
 import datetime
 
-bot = commands.Bot(command_prefix=COMMAND_PREFIX)
+hammericon = "https://images-ext-2.discordapp.net/external/OKc8xu6AILGNFY3nSTt7wGbg-Mi1iQZonoLTFg85o-E/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/591633652493058068/e6011129c5169b29ed05a6dc873175cb.png?width=670&height=670"
 
+intents = discord.Intents.default()
+# intents.members = True
+# intents.messages = True
+
+bot = commands.Bot(command_prefix=COMMAND_PREFIX, intents=intents)
+
+bot.remove_command('help')
+
+#
+#   HELP SECITON
+#
+@commands.command(name='help')
+async def helpp(ctx):
+    # Define each page
+
+    descr= f"""Hammer is a multiuse bot focused on moderation, which its goal is to improve your discord community.    
+    For an extense command description, use ``{COMMAND_PREFIX}help [command name]``
+    **Hammer's commands:**
+    {COMMAND_PREFIX}help
+    {COMMAND_PREFIX}whois [user]
+    {COMMAND_PREFIX}ban [user] <reason>
+    {COMMAND_PREFIX}kick [user] <reason>
+    {COMMAND_PREFIX}warn [user] <reason>
+    """
+    embed = Embed(title="Hammer Bot Help", description=descr)
+    
+    embed.set_footer(
+        text=f"Hammer | Command executed by {ctx.message.author}",
+        icon_url="https://images-ext-2.discordapp.net/external/OKc8xu6AILGNFY3nSTt7wGbg-Mi1iQZonoLTFg85o-E/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/591633652493058068/e6011129c5169b29ed05a6dc873175cb.png?width=670&height=670",
+    )
+
+    await ctx.send(embed=embed)
+    
 
 def sendNotifOwner(text, id):
     discord.User(id).send(text)
@@ -45,9 +80,37 @@ async def on_command_error(ctx, error):
         )
     if isinstance(error, commands.MissingPermissions):
         await ctx.send(
-            "[**ERROR 403]** You dont the correct permission to do that :hammer:"
+            "[**ERROR 403]** You don't have the correct permission to do that :hammer:"
         )
 
+
+@commands.command()
+async def whois(ctx, member: discord.Member):
+    try: 
+        username, discriminator = str(member).split("#")
+        isbot = ":white_check_mark:" if member.bot else ":negative_squared_cross_mark:"
+        descr= f"""
+            **Nick:** {member.nick}
+            **Username:** {username}
+            **Discriminator:** {discriminator}
+            **Created account at:** {member.created_at}
+            **Joined server at:** {member.joined_at}
+            **Is bot:** {isbot}
+            **User ID:** {member.id}
+            **Avatar URL:** [Click Here]({member.avatar_url})
+            **Top role:** {member.top_role}
+            """
+        embed = Embed(title=f"Who is {member} ?", description=descr)
+        
+        embed.set_thumbnail(url=member.avatar_url)
+
+        embed.set_footer(
+            text=f"Hammer | Command executed by {ctx.message.author}",
+            icon_url=hammericon
+        )
+        await ctx.send(embed=embed)
+    except Exception as e: 
+        await ctx.send(e)
 
 @commands.command()
 @commands.has_permissions(ban_members=True)
@@ -65,8 +128,8 @@ async def ban(ctx, member: discord.Member, *, reason=None):
     embed = Embed(title=f"{member} has been banned! :hammer_pick:", description=descr)
     embed.set_image(url="https://i.imgflip.com/19zat3.jpg")
     embed.set_footer(
-        text=f"Hammer | {ctx.message.author}",
-        icon_url="https://images-ext-2.discordapp.net/external/OKc8xu6AILGNFY3nSTt7wGbg-Mi1iQZonoLTFg85o-E/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/591633652493058068/e6011129c5169b29ed05a6dc873175cb.png?width=670&height=670",
+        text=f"Hammer | Command executed by {ctx.message.author}",
+        icon_url=hammericon,
     )
 
     embed.set_thumbnail(url=member.avatar_url)
@@ -88,8 +151,8 @@ async def kick(ctx, member: discord.Member, *, reason=None):
     descr = f"The user {member} has been kicked for {reason}"
     embed = Embed(title=f"{member} has been kicked! :hammer_pick:", description=descr)
     embed.set_footer(
-        text=f"Hammer | {ctx.message.author}",
-        icon_url="https://images-ext-2.discordapp.net/external/OKc8xu6AILGNFY3nSTt7wGbg-Mi1iQZonoLTFg85o-E/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/591633652493058068/e6011129c5169b29ed05a6dc873175cb.png?width=670&height=670",
+        text=f"Hammer | Command executed by {ctx.message.author}",
+        icon_url=hammericon,
     )
     embed.set_thumbnail(url=member.avatar_url)
     # # embed.image = member.image
@@ -110,30 +173,13 @@ async def warn(ctx, member: discord.Member, *, reason=None):
     descr = f"The user {member} has been warned for {reason}"
     embed = Embed(title=f"{member} has been warned! :hammer_pick:", description=descr)
     embed.set_footer(
-        text=f"Hammer | {ctx.message.author}",
-        icon_url="https://images-ext-2.discordapp.net/external/OKc8xu6AILGNFY3nSTt7wGbg-Mi1iQZonoLTFg85o-E/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/591633652493058068/e6011129c5169b29ed05a6dc873175cb.png?width=670&height=670",
+        text=f"Hammer | Command executed by {ctx.message.author}",
+        icon_url=hammericon,
     )
     embed.set_thumbnail(url=member.avatar_url)
 
     await ctx.send(embed=embed)
     await member.send(message)
-
-
-def resolve_variable(variable):
-    if hasattr(variable, "__iter__"):
-        var_length = len(list(variable))
-        if (var_length > 100) and (not isinstance(variable, str)):
-            return f"<a {type(variable).__name__} iterable with more than 100 values ({var_length})>"
-        elif not var_length:
-            return f"<an empty {type(variable).__name__} iterable>"
-
-    if (not variable) and (not isinstance(variable, bool)):
-        return f"<an empty {type(variable).__name__} object>"
-    return (
-        variable
-        if (len(f"{variable}") <= 1000)
-        else f"<a long {type(variable).__name__} object with the length of {len(f'{variable}'):,}>"
-    )
 
 
 @commands.command()
@@ -168,4 +214,6 @@ bot.add_command(hello)
 bot.add_command(kick)
 bot.add_command(ban)
 bot.add_command(warn)
+bot.add_command(helpp)
+bot.add_command(whois)
 bot.run(TOKEN)
