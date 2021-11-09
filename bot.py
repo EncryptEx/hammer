@@ -28,7 +28,7 @@ bot.remove_command("help")
 async def helpp(ctx):
     # Define each page
 
-    descr= f"""Hammer is a multiuse bot focused on moderation, which its goal is to improve your discord community.    
+    descr = f"""Hammer is a multiuse bot focused on moderation, which its goal is to improve your discord community.    
     For an extense command description, use ``{COMMAND_PREFIX}help [command name]`` (comming soon)
     **Hammer's commands:**
     {COMMAND_PREFIX}help
@@ -40,8 +40,7 @@ async def helpp(ctx):
     embed = Embed(title="Hammer Bot Help", description=descr)
 
     embed.set_footer(
-        text=f"Hammer | Command executed by {ctx.message.author}",
-        icon_url=hammericon
+        text=f"Hammer | Command executed by {ctx.message.author}", icon_url=hammericon
     )
 
     await ctx.send(embed=embed)
@@ -63,7 +62,7 @@ async def on_ready():
     print(sum(1 for x in bot.get_all_channels()), "channels")
     print(sum(1 for x in bot.get_all_members()), "members")
     botname = await bot.application_info()
-    if(botname.name=="Hammer"):
+    if botname.name == "Hammer":
         chnl = discord.get_channel(ANNOUNCEMENTS_CHANNEL).send()
         await chnl.send("Bot UP!")
 
