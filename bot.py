@@ -1,6 +1,6 @@
 import discord
 from discord import embeds
-from get_enviroment import COMMAND_PREFIX, OWNER, TOKEN
+from get_enviroment import COMMAND_PREFIX, OWNER, TOKEN, ANNOUNCEMENTS_CHANNEL
 from discord import Embed
 from discord.ext import commands
 from discord.ext.commands.core import command
@@ -29,7 +29,7 @@ async def helpp(ctx):
     # Define each page
 
     descr= f"""Hammer is a multiuse bot focused on moderation, which its goal is to improve your discord community.    
-    For an extense command description, use ``{COMMAND_PREFIX}help [command name]``
+    For an extense command description, use ``{COMMAND_PREFIX}help [command name]`` (comming soon)
     **Hammer's commands:**
     {COMMAND_PREFIX}help
     {COMMAND_PREFIX}whois [user]
@@ -62,6 +62,10 @@ async def on_ready():
     print(len(bot.guilds), "servers")
     print(sum(1 for x in bot.get_all_channels()), "channels")
     print(sum(1 for x in bot.get_all_members()), "members")
+    botname = await bot.application_info()
+    if(botname.name=="Hammer"):
+        chnl = discord.get_channel(ANNOUNCEMENTS).send()
+        await chnl.send("Bot UP!")
 
 
 debug = False
