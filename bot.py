@@ -19,12 +19,12 @@ intents = discord.Intents.default()
 
 bot = commands.Bot(command_prefix=COMMAND_PREFIX, intents=intents)
 
-bot.remove_command('help')
+bot.remove_command("help")
 
 #
 #   HELP SECITON
 #
-@commands.command(name='help')
+@commands.command(name="help")
 async def helpp(ctx):
     # Define each page
 
@@ -38,14 +38,14 @@ async def helpp(ctx):
     {COMMAND_PREFIX}warn [user] <reason>
     """
     embed = Embed(title="Hammer Bot Help", description=descr)
-    
+
     embed.set_footer(
         text=f"Hammer | Command executed by {ctx.message.author}",
-        icon_url="https://images-ext-2.discordapp.net/external/OKc8xu6AILGNFY3nSTt7wGbg-Mi1iQZonoLTFg85o-E/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/591633652493058068/e6011129c5169b29ed05a6dc873175cb.png?width=670&height=670",
+        icon_url=hammericon
     )
 
     await ctx.send(embed=embed)
-    
+
 
 def sendNotifOwner(text, id):
     discord.User(id).send(text)
@@ -64,7 +64,7 @@ async def on_ready():
     print(sum(1 for x in bot.get_all_members()), "members")
     botname = await bot.application_info()
     if(botname.name=="Hammer"):
-        chnl = discord.get_channel(ANNOUNCEMENTS).send()
+        chnl = discord.get_channel(ANNOUNCEMENTS_CHANNEL).send()
         await chnl.send("Bot UP!")
 
 
@@ -90,10 +90,10 @@ async def on_command_error(ctx, error):
 
 @commands.command()
 async def whois(ctx, member: discord.Member):
-    try: 
+    try:
         username, discriminator = str(member).split("#")
         isbot = ":white_check_mark:" if member.bot else ":negative_squared_cross_mark:"
-        descr= f"""
+        descr = f"""
             **Nick:** {member.nick}
             **Username:** {username}
             **Discriminator:** {discriminator}
@@ -105,16 +105,17 @@ async def whois(ctx, member: discord.Member):
             **Top role:** {member.top_role}
             """
         embed = Embed(title=f"Who is {member} ?", description=descr)
-        
+
         embed.set_thumbnail(url=member.avatar_url)
 
         embed.set_footer(
             text=f"Hammer | Command executed by {ctx.message.author}",
-            icon_url=hammericon
+            icon_url=hammericon,
         )
         await ctx.send(embed=embed)
-    except Exception as e: 
+    except Exception as e:
         await ctx.send(e)
+
 
 @commands.command()
 @commands.has_permissions(ban_members=True)
