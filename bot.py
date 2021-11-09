@@ -63,7 +63,7 @@ async def on_ready():
     print(sum(1 for x in bot.get_all_members()), "members")
     botname = await bot.application_info()
     if botname.name == "Hammer":
-        chnl = discord.get_channel(ANNOUNCEMENTS_CHANNEL)
+        chnl = bot.get_channel(ANNOUNCEMENTS_CHANNEL)
         await chnl.send("Bot UP!")
 
 
