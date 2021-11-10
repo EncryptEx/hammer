@@ -62,11 +62,11 @@ async def on_ready():
     print(sum(1 for x in bot.get_all_channels()), "channels")
     print(sum(1 for x in bot.get_all_members()), "members")
     botname = await bot.application_info()
-    print("logged in as:",botname.name)
+    print("logged in as:", botname.name)
     if botname.name == "Hammer":
         chnl = bot.get_channel(int(ANNOUNCEMENTS_CHANNEL))
         await chnl.send("Bot UP!")
-        print("Sent message to #"+str(chnl))
+        print("Sent message to #" + str(chnl))
 
 
 debug = False
