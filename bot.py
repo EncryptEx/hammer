@@ -31,6 +31,7 @@ bot.remove_command("help")
 #   HELP SECITON
 #
 
+
 @bot.command()
 async def help(ctx):
     # Define each page
@@ -50,7 +51,9 @@ async def help(ctx):
     [Hammer Bot Support](https://discord.gg/fMSyQA6)
     [Hammer Invite Link](https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot)
     """
-    embed = Embed(title="Hammer Bot Help", description=descr, colour=discord.Colour.white())
+    embed = Embed(
+        title="Hammer Bot Help", description=descr, colour=discord.Colour.white()
+    )
 
     embed.set_footer(
         text=f"Hammer | Command executed by {ctx.message.author}", icon_url=hammericon
