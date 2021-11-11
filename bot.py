@@ -257,7 +257,7 @@ async def mute(ctx, member: discord.Member, *, reason=None):
     )
     await ctx.send(embed=embed)
     await member.add_roles(mutedRole, reason=reason)
-    
+
     try:
         await member.send(
             f":no_entry: You have been muted from: {ctx.guild.name} for {reason}"
@@ -270,7 +270,7 @@ async def mute(ctx, member: discord.Member, *, reason=None):
 @bot.command()
 @commands.has_permissions(manage_messages=True)
 async def unmute(ctx, member: discord.Member, *, reason=None):
-    
+
     mutedRole = discord.utils.get(ctx.guild.roles, name="Muted")
     if reason == None:
         reason = " "
@@ -278,7 +278,9 @@ async def unmute(ctx, member: discord.Member, *, reason=None):
         reason = "for " + reason
     await member.remove_roles(mutedRole)
     try:
-        await member.send(f":tada: You have been unmuted from: {ctx.guild.name} {reason}")
+        await member.send(
+            f":tada: You have been unmuted from: {ctx.guild.name} {reason}"
+        )
     except:
         await ctx.send(f"Could not sent a message to the user {member.mention}")
     embed = discord.Embed(
@@ -287,7 +289,6 @@ async def unmute(ctx, member: discord.Member, *, reason=None):
         colour=discord.Colour.light_gray(),
     )
     await ctx.send(embed=embed)
-    
 
 
 bot.run(TOKEN)
