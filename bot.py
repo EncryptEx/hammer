@@ -31,6 +31,7 @@ bot.remove_command("help")
 #   HELP SECITON
 #
 
+
 @bot.command()
 async def help(ctx):
     # Define each page
