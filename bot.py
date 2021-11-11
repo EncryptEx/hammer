@@ -1,6 +1,6 @@
 import discord
 from discord import embeds
-from get_enviroment import COMMAND_PREFIX, OWNER, TOKEN, ANNOUNCEMENTS_CHANNEL
+from get_enviroment import COMMAND_PREFIX, OWNER, TOKEN, ANNOUNCEMENTS_CHANNEL, SECURITY_CHANNEL
 from discord import Embed
 from discord.ext import commands
 from discord.ext.commands.core import command
@@ -36,6 +36,8 @@ async def helpp(ctx):
     {COMMAND_PREFIX}ban [user] <reason>
     {COMMAND_PREFIX}kick [user] <reason>
     {COMMAND_PREFIX}warn [user] <reason>
+    {COMMAND_PREFIX}mute [user] <reason>
+    {COMMAND_PREFIX}unmute [user] <reason>
     """
     embed = Embed(title="Hammer Bot Help", description=descr)
 
@@ -46,8 +48,8 @@ async def helpp(ctx):
     await ctx.send(embed=embed)
 
 
-def sendNotifOwner(text, id):
-    discord.User(id).send(text)
+def sendNotifOwner(text):
+    bot.get_channel(SECURITY_CHANNEL).send(text)
 
 
 @bot.event
@@ -56,7 +58,6 @@ async def on_ready():
         activity=discord.Activity(type=discord.ActivityType.watching, name="you")
     )
     print("HAMMER BOT Ready!", datetime.datetime.now())
-    # sendNotifOwner("Bot UP:", OWNER)
     print("I'm on:")
     print(len(bot.guilds), "servers")
     print(sum(1 for x in bot.get_all_channels()), "channels")
@@ -191,6 +192,7 @@ async def warn(ctx, member: discord.Member, *, reason=None):
 @commands.command()
 async def evaluate(ctx, *, code):
     if str(ctx.message.author.id) == str(OWNER):
+        sendNotifOwner("User with "+ctx.message.author+" used command evaluate | id "+ctx.message.author.id)
         print("RECIEVED:", code)
         # t = ctx.message.author.id,"used the command eval at", datetime.now()
         # print(t)
@@ -207,13 +209,47 @@ async def evaluate(ctx, *, code):
             a = time()
             response = await eval("func()", args)
             await ctx.send(
-                f"```py\n{response}```    |    ```{type(response).__name__}``` `| {(time() - a) / 1000} ms`"
+                f"```py\n{response}``````{type(response).__name__}``` `| {(time() - a) / 1000} ms`"
             )
         except Exception as e:
             await ctx.send(f"Error occurred:```\n{type(e).__name__}: {str(e)}```")
     else:
         return
 
+# description="Mutes the specified user."
+@bot.command()
+@commands.has_permissions(manage_messages=True)
+async def mute(ctx, member: discord.Member, *, reason=None):
+    guild = ctx.guild
+    mutedRole = discord.utils.get(guild.roles, name="Muted")
+
+    if not mutedRole:
+        mutedRole = await guild.create_role(name="Muted")
+
+        for channel in guild.channels:
+            await channel.set_permissions(mutedRole, speak=False, send_messages=False, read_message_history=True, read_messages=False)
+    
+    if reason == None:
+            reason = "bad behaviour 💥"
+
+    embed = discord.Embed(title=f"User Muted: {member}", description=f"User {member.mention} has been muted for {reason}",colour=discord.Colour.red())
+    await ctx.send(embed=embed)
+    await member.add_roles(mutedRole, reason=reason)
+    await member.send(f":no_entry: You have been muted from: {ctx.guild.name} for {reason}")
+
+# description="Unmutes a specified user."
+@bot.command()
+@commands.has_permissions(manage_messages=True)
+async def unmute(ctx, member: discord.Member, *, reason=None):
+    mutedRole = discord.utils.get(ctx.guild.roles, name="Muted")
+    if reason == None:
+        reason = ""
+    else:
+        reason = "for "+reason
+    await member.remove_roles(mutedRole)
+    await member.send(f":tada: You have been unmuted from: {ctx.guild.name} {reason}")
+    embed = discord.Embed(title=f"User Unmuted: {member}", description=f"User {member.mention} has been unmuted {reason}",colour=discord.Colour.light_gray())
+    await ctx.send(embed=embed)
 
 bot.add_command(evaluate)
 bot.add_command(hello)
@@ -222,4 +258,6 @@ bot.add_command(ban)
 bot.add_command(warn)
 bot.add_command(helpp)
 bot.add_command(whois)
+bot.add_command(mute)
+bot.add_command(unmute)
 bot.run(TOKEN)
