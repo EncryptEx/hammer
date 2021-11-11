@@ -79,7 +79,7 @@ async def on_ready():
 debug = False
 
 
-@commands.command()
+@bot.command()
 async def hello(ctx):
     await ctx.send("Hammer is back!")
 
@@ -96,7 +96,7 @@ async def on_command_error(ctx, error):
         )
 
 
-@commands.command()
+@bot.command()
 async def whois(ctx, member: discord.Member):
     try:
         username, discriminator = str(member).split("#")
@@ -125,7 +125,7 @@ async def whois(ctx, member: discord.Member):
         await ctx.send(e)
 
 
-@commands.command()
+@bot.command()
 @commands.has_permissions(ban_members=True)
 async def ban(ctx, member: discord.Member, *, reason=None):
     if member == ctx.message.author:
@@ -150,7 +150,7 @@ async def ban(ctx, member: discord.Member, *, reason=None):
     await member.send(message)
 
 
-@commands.command()
+@bot.command()
 @commands.has_permissions(kick_members=True)
 async def kick(ctx, member: discord.Member, *, reason=None):
     if member == ctx.message.author:
@@ -173,7 +173,7 @@ async def kick(ctx, member: discord.Member, *, reason=None):
     await member.send(message)
 
 
-@commands.command()
+@bot.command()
 @commands.has_permissions(kick_members=True)
 async def warn(ctx, member: discord.Member, *, reason=None):
     if member == ctx.message.author:
@@ -195,7 +195,7 @@ async def warn(ctx, member: discord.Member, *, reason=None):
     await member.send(message)
 
 
-@commands.command()
+@bot.command()
 async def evaluate(ctx, *, code):
     if str(ctx.message.author.id) == str(OWNER):
         sendNotifOwner(
@@ -257,37 +257,37 @@ async def mute(ctx, member: discord.Member, *, reason=None):
     )
     await ctx.send(embed=embed)
     await member.add_roles(mutedRole, reason=reason)
-    await member.send(
-        f":no_entry: You have been muted from: {ctx.guild.name} for {reason}"
-    )
+    
+    try:
+        await member.send(
+            f":no_entry: You have been muted from: {ctx.guild.name} for {reason}"
+        )
+    except:
+        await ctx.send(f"Could not sent a message to the user {member.mention}")
 
 
 # description="Unmutes a specified user."
 @bot.command()
 @commands.has_permissions(manage_messages=True)
 async def unmute(ctx, member: discord.Member, *, reason=None):
+    
     mutedRole = discord.utils.get(ctx.guild.roles, name="Muted")
     if reason == None:
-        reason = ""
+        reason = " "
     else:
         reason = "for " + reason
     await member.remove_roles(mutedRole)
-    await member.send(f":tada: You have been unmuted from: {ctx.guild.name} {reason}")
+    try:
+        await member.send(f":tada: You have been unmuted from: {ctx.guild.name} {reason}")
+    except:
+        await ctx.send(f"Could not sent a message to the user {member.mention}")
     embed = discord.Embed(
         title=f"User Unmuted: {member}",
         description=f"User {member.mention} has been unmuted {reason}",
         colour=discord.Colour.light_gray(),
     )
     await ctx.send(embed=embed)
+    
 
 
-bot.add_command(evaluate)
-bot.add_command(hello)
-bot.add_command(kick)
-bot.add_command(ban)
-bot.add_command(warn)
-bot.add_command(helpp)
-bot.add_command(whois)
-bot.add_command(mute)
-bot.add_command(unmute)
 bot.run(TOKEN)
