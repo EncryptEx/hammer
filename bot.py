@@ -44,6 +44,9 @@ async def helpp(ctx):
     {COMMAND_PREFIX}warn [user] <reason>
     {COMMAND_PREFIX}mute [user] <reason>
     {COMMAND_PREFIX}unmute [user] <reason>
+    
+    **Support Server:**
+    [Hammer Bot Support](https://discord.gg/fMSyQA6)
     """
     embed = Embed(title="Hammer Bot Help", description=descr)
 
