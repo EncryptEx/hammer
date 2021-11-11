@@ -30,9 +30,9 @@ bot.remove_command("help")
 #
 #   HELP SECITON
 #
+
 @bot.command()
-@commands.command(name="help")
-async def helpp(ctx):
+async def help(ctx):
     # Define each page
 
     descr = f"""Hammer is a multiuse bot focused on moderation, which its goal is to improve your discord community.    
@@ -50,7 +50,7 @@ async def helpp(ctx):
     [Hammer Bot Support](https://discord.gg/fMSyQA6)
     [Hammer Invite Link](https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot)
     """
-    embed = Embed(title="Hammer Bot Help", description=descr)
+    embed = Embed(title="Hammer Bot Help", description=descr, colour=discord.Colour.white())
 
     embed.set_footer(
         text=f"Hammer | Command executed by {ctx.message.author}", icon_url=hammericon
