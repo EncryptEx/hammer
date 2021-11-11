@@ -50,6 +50,7 @@ async def help(ctx):
     **Useful Link:**
     [Hammer Bot Support](https://discord.gg/fMSyQA6)
     [Hammer Invite Link](https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot)
+    [Vote Hammer](https://top.gg/bot/591633652493058068)
     """
     embed = Embed(
         title="Hammer Bot Help", description=descr, colour=discord.Colour.lighter_grey()
