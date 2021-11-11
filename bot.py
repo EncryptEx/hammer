@@ -62,8 +62,8 @@ async def help(ctx):
     await ctx.send(embed=embed)
 
 
-def sendNotifOwner(text):
-    bot.get_channel(SECURITY_CHANNEL).send(text)
+async def sendNotifOwner(text):
+    await bot.get_channel(int(SECURITY_CHANNEL)).send(text)
 
 
 @bot.event
@@ -206,32 +206,32 @@ async def warn(ctx, member: discord.Member, *, reason=None):
 @bot.command()
 async def evaluate(ctx, *, code):
     if str(ctx.message.author.id) == str(OWNER):
-        sendNotifOwner(
-            "User with "
-            + ctx.message.author
-            + " used command evaluate | id "
-            + ctx.message.author.id
-        )
-        print("RECIEVED:", code)
-        # t = ctx.message.author.id,"used the command eval at", datetime.now()
-        # print(t)
-        args = {
-            "discord": discord,
-            "sys": sys,
-            "os": os,
-            "imp": __import__,
-            "ctx": ctx,
-            "bot": bot,
-        }
         try:
-            exec(f"async def func(): return {code}", args)
-            a = time()
-            response = await eval("func()", args)
-            await ctx.send(
-                f"```py\n{response}``````{type(response).__name__}``` `| {(time() - a) / 1000} ms`"
+            await sendNotifOwner(
+                f"User {ctx.message.author} used command evaluate | id {ctx.message.author.id}"
             )
+            print("RECIEVED:", code)
+            # t = ctx.message.author.id,"used the command eval at", datetime.now()
+            # print(t)
+            args = {
+                "discord": discord,
+                "sys": sys,
+                "os": os,
+                "imp": __import__,
+                "ctx": ctx,
+                "bot": bot,
+            }
+            try:
+                exec(f"async def func(): return {code}", args)
+                a = time()
+                response = await eval("func()", args)
+                await ctx.send(
+                    f"```py\n{response}``````{type(response).__name__}``` `| {(time() - a) / 1000} ms`"
+                )
+            except Exception as e:
+                await ctx.send(f"Error occurred:```\n{type(e).__name__}: {str(e)}```")
         except Exception as e:
-            await ctx.send(f"Error occurred:```\n{type(e).__name__}: {str(e)}```")
+            await ctx.send(e)
     else:
         return
 
