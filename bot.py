@@ -45,31 +45,49 @@ async def help(ctx):
         title="Hammer Bot Help", description=descr, colour=discord.Colour.lighter_grey()
     )
 
-    embed.add_field("Moderation Commands",f"""
+    embed.add_field(
+        "Moderation Commands",
+        f"""
     {COMMAND_PREFIX}ban [user] <reason>
     {COMMAND_PREFIX}kick [user] <reason>
     {COMMAND_PREFIX}warn [user] <reason>
-    """, True)
-    
-    embed.add_field("Chat Moderation Commands",f"""
+    """,
+        True,
+    )
+
+    embed.add_field(
+        "Chat Moderation Commands",
+        f"""
     {COMMAND_PREFIX}mute [user] <reason>
     {COMMAND_PREFIX}unmute [user] <reason>
-    """, True)
+    """,
+        True,
+    )
 
-    embed.add_field("Various Utilities",f"""
+    embed.add_field(
+        "Various Utilities",
+        f"""
     {COMMAND_PREFIX}whois [user]
-    """, True)
+    """,
+        True,
+    )
 
-    embed.add_field("""**Useful Links:**
+    embed.add_field(
+        """**Useful Links:**
     [Hammer Bot Support](https://discord.gg/fMSyQA6)
     [Hammer Invite Link](https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot)
     [Vote Hammer](https://top.gg/bot/591633652493058068)
-    """)
+    """
+    )
 
-    embed.add_field("Help Commands",f"""
+    embed.add_field(
+        "Help Commands",
+        f"""
     {COMMAND_PREFIX}help
     {COMMAND_PREFIX}invite
-    """, True)
+    """,
+        True,
+    )
 
     embed.set_footer(
         text=f"Hammer | Command executed by {ctx.message.author}", icon_url=hammericon
