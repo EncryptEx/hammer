@@ -46,47 +46,48 @@ async def help(ctx):
     )
 
     embed.add_field(
-        "Moderation Commands",
-        f"""
+        name="Moderation Commands :tools:",
+        value=f"""
     {COMMAND_PREFIX}ban [user] <reason>
     {COMMAND_PREFIX}kick [user] <reason>
     {COMMAND_PREFIX}warn [user] <reason>
     """,
-        True,
+        inline=True,
     )
 
     embed.add_field(
-        "Chat Moderation Commands",
-        f"""
+        name="Chat Moderation Commands :file_folder:",
+        value=f"""
+    {COMMAND_PREFIX}setdelay <reason>
     {COMMAND_PREFIX}mute [user] <reason>
     {COMMAND_PREFIX}unmute [user] <reason>
     """,
-        True,
+        inline=True,
     )
 
     embed.add_field(
-        "Various Utilities",
-        f"""
+        name="Various Utilities :screwdriver:",
+        value=f"""
     {COMMAND_PREFIX}whois [user]
     """,
-        True,
+        inline=True,
     )
 
     embed.add_field(
-        """**Useful Links:**
-    [Hammer Bot Support](https://discord.gg/fMSyQA6)
-    [Hammer Invite Link](https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot)
-    [Vote Hammer](https://top.gg/bot/591633652493058068)
-    """
+        name="""Useful Links: :link:""", 
+    value=f"""[:classical_building: Hammer Bot Support](https://discord.gg/fMSyQA6)
+    [:link: Hammer Invite Link](https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot)
+    [:newspaper: Vote Hammer](https://top.gg/bot/591633652493058068)
+    """, inline=True
     )
 
     embed.add_field(
-        "Help Commands",
-        f"""
+        name="Help Commands",
+        value=f"""
     {COMMAND_PREFIX}help
     {COMMAND_PREFIX}invite
     """,
-        True,
+        inline=True,
     )
 
     embed.set_footer(
