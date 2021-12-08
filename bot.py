@@ -270,6 +270,18 @@ async def evaluate(ctx, *, code):
     else:
         return
 
+@bot.command()
+@commands.has_permissions(manage_messages=True)
+async def setdelay(ctx, seconds: int, *, reason=None):
+    await ctx.channel.edit(slowmode_delay=seconds)
+    r = reason if reason != None or reason != "" else ""
+    embed = Embed(title=f"Delay modified on <#{ctx.channel.id}> :hammer_pick:", description=f"This channel now has a delay of {seconds}"+r)
+    embed.set_footer(
+        text=f"Hammer | Command executed by {ctx.message.author}",
+        icon_url=hammericon,
+    )
+    
+    await ctx.send(embed)
 
 # description="Mutes the specified user."
 @bot.command()
