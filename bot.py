@@ -15,7 +15,13 @@ import datetime
 import sys
 import os
 
-import datetime
+# database import & connection
+import sqlite3
+conn = sqlite3.connect('maindatabase1.db')
+cur = conn.cursor()
+cur.execute("""CREATE TABLE IF NOT EXISTS `warns` (
+	`userid` INT(100) UNIQUE,
+	`warns` INT);""")
 
 hammericon = "https://images-ext-2.discordapp.net/external/OKc8xu6AILGNFY3nSTt7wGbg-Mi1iQZonoLTFg85o-E/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/591633652493058068/e6011129c5169b29ed05a6dc873175cb.png?width=670&height=670"
 
@@ -97,9 +103,47 @@ async def help(ctx):
 
     await ctx.send(embed=embed)
 
+#
+#   VARIOUS FUNCTIONS
+#
 
+# Function to alert the owner of something, normally to log use of eval command.
 async def sendNotifOwner(text):
     await bot.get_channel(int(SECURITY_CHANNEL)).send(text)
+
+
+# Function to add a warning and save it at the database
+async def AddWarning(userid: int):
+    cur.execute(f"""INSERT OR IGNORE INTO warns (userid, warns)
+        VALUES ({userid}, 1)
+    """)
+    # cur.execute(f"""BEGIN
+    # IF NOT EXISTS (SELECT * FROM warns 
+    #                 WHERE userid = {userid}
+    #                 LIMIT 1)
+    # BEGIN
+    #     INSERT INTO warns (userid, warns)
+    #     VALUES ({userid}, 1)
+    # END
+    # END""")
+    conn.commit()
+
+
+# Function to create a template for all errors. 
+def ErrorEmbed(error):
+    embed = Embed(title=f":no_entry_sign: Error!", description=error)
+
+    embed.set_thumbnail(url="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ficonsplace.com%2Fwp-content%2Fuploads%2F_icons%2Fff0000%2F256%2Fpng%2Ferror-icon-14-256.png&f=1&nofb=1")
+
+    embed.set_footer(
+        text=f"Hammer",
+        icon_url=hammericon,
+    )
+    return embed
+
+#
+# MAIN COMMANDS - BOT
+# 
 
 
 @bot.event
@@ -108,13 +152,13 @@ async def on_ready():
         activity=discord.Activity(type=discord.ActivityType.watching, name="you")
     )
     print("HAMMER BOT Ready!", datetime.datetime.now())
-    print("I'm on:")
-    print(len(bot.guilds), "servers")
-    print(sum(1 for x in bot.get_all_channels()), "channels")
-    print(sum(1 for x in bot.get_all_members()), "members")
     botname = await bot.application_info()
     print("logged in as:", botname.name)
     if botname.name == "Hammer":
+        print("I'm on:")
+        print(len(bot.guilds), "servers")
+        print(sum(1 for x in bot.get_all_channels()), "channels")
+        print(sum(1 for x in bot.get_all_members()), "members")
         chnl = bot.get_channel(int(ANNOUNCEMENTS_CHANNEL))
         await chnl.send("Bot UP!")
         print("Sent message to #" + str(chnl))
@@ -234,10 +278,14 @@ async def warn(ctx, member: discord.Member, *, reason=None):
         icon_url=hammericon,
     )
     embed.set_thumbnail(url=member.avatar_url)
-
+    await AddWarning(member.id)
     await ctx.send(embed=embed)
-    await member.send(message)
-
+    try: 
+        await member.send(message)
+    except: 
+        await ctx.send(embed=ErrorEmbed(f"Could not deliver the message to the user {member}\n This may be caused because the user is a bot, has blocked me or has the DMs turned off. \n\n**But the user is warned** and I have saved it into my beautiful unforgettable database"))
+    
+    
 
 @bot.command()
 async def evaluate(ctx, *, code):

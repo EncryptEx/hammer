@@ -3,4 +3,4 @@ env/
 env
 __pycache__
 modules/__pycache__/*
-.db
+*.db
