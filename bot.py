@@ -17,11 +17,14 @@ import os
 
 # database import & connection
 import sqlite3
-conn = sqlite3.connect('maindatabase1.db')
+
+conn = sqlite3.connect("maindatabase1.db")
 cur = conn.cursor()
-cur.execute("""CREATE TABLE IF NOT EXISTS `warns` (
+cur.execute(
+    """CREATE TABLE IF NOT EXISTS `warns` (
 	`userid` INT(100) UNIQUE,
-	`warns` INT);""")
+	`warns` INT);"""
+)
 
 hammericon = "https://images-ext-2.discordapp.net/external/OKc8xu6AILGNFY3nSTt7wGbg-Mi1iQZonoLTFg85o-E/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/591633652493058068/e6011129c5169b29ed05a6dc873175cb.png?width=670&height=670"
 
@@ -103,6 +106,7 @@ async def help(ctx):
 
     await ctx.send(embed=embed)
 
+
 #
 #   VARIOUS FUNCTIONS
 #
@@ -114,11 +118,13 @@ async def sendNotifOwner(text):
 
 # Function to add a warning and save it at the database
 async def AddWarning(userid: int):
-    cur.execute(f"""INSERT OR IGNORE INTO warns (userid, warns)
+    cur.execute(
+        f"""INSERT OR IGNORE INTO warns (userid, warns)
         VALUES ({userid}, 1)
-    """)
+    """
+    )
     # cur.execute(f"""BEGIN
-    # IF NOT EXISTS (SELECT * FROM warns 
+    # IF NOT EXISTS (SELECT * FROM warns
     #                 WHERE userid = {userid}
     #                 LIMIT 1)
     # BEGIN
@@ -129,11 +135,13 @@ async def AddWarning(userid: int):
     conn.commit()
 
 
-# Function to create a template for all errors. 
+# Function to create a template for all errors.
 def ErrorEmbed(error):
     embed = Embed(title=f":no_entry_sign: Error!", description=error)
 
-    embed.set_thumbnail(url="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ficonsplace.com%2Fwp-content%2Fuploads%2F_icons%2Fff0000%2F256%2Fpng%2Ferror-icon-14-256.png&f=1&nofb=1")
+    embed.set_thumbnail(
+        url="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ficonsplace.com%2Fwp-content%2Fuploads%2F_icons%2Fff0000%2F256%2Fpng%2Ferror-icon-14-256.png&f=1&nofb=1"
+    )
 
     embed.set_footer(
         text=f"Hammer",
@@ -141,9 +149,10 @@ def ErrorEmbed(error):
     )
     return embed
 
+
 #
 # MAIN COMMANDS - BOT
-# 
+#
 
 
 @bot.event
@@ -280,12 +289,15 @@ async def warn(ctx, member: discord.Member, *, reason=None):
     embed.set_thumbnail(url=member.avatar_url)
     await AddWarning(member.id)
     await ctx.send(embed=embed)
-    try: 
+    try:
         await member.send(message)
-    except: 
-        await ctx.send(embed=ErrorEmbed(f"Could not deliver the message to the user {member}\n This may be caused because the user is a bot, has blocked me or has the DMs turned off. \n\n**But the user is warned** and I have saved it into my beautiful unforgettable database"))
-    
-    
+    except:
+        await ctx.send(
+            embed=ErrorEmbed(
+                f"Could not deliver the message to the user {member}\n This may be caused because the user is a bot, has blocked me or has the DMs turned off. \n\n**But the user is warned** and I have saved it into my beautiful unforgettable database"
+            )
+        )
+
 
 @bot.command()
 async def evaluate(ctx, *, code):
