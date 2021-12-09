@@ -67,7 +67,7 @@ async def help(ctx):
     embed.add_field(
         name="Chat Moderation Commands :file_folder:",
         value=f"""
-    {COMMAND_PREFIX}setdelay <reason>
+    {COMMAND_PREFIX}setdelay [seconds] <reason>
     {COMMAND_PREFIX}mute [user] <reason>
     {COMMAND_PREFIX}unmute [user] <reason>
     """,
@@ -334,20 +334,21 @@ async def evaluate(ctx, *, code):
 
 @bot.command()
 @commands.has_permissions(manage_messages=True)
-async def setdelay(ctx, seconds: int, *, reason=None):
-    await ctx.channel.edit(slowmode_delay=seconds)
-    r = reason if reason != None or reason != "" else ""
+async def setdelay(ctx, seconds: float, *, reason=None): 
+    m = "modified" if seconds > 0.0 else "removed"
     embed = Embed(
-        title=f"Delay modified on <#{ctx.channel.id}> :hammer_pick:",
-        description=f"This channel now has a delay of {seconds}" + r,
+    title=f"Delay {m} on #{ctx.channel} :hammer_pick:",
+    description=f"This channel now has a delay of **{seconds}** seconds for {reason}" if reason != None and reason != "" else f"This channel now has a delay of **{seconds}** seconds"    
     )
     embed.set_footer(
         text=f"Hammer | Command executed by {ctx.message.author}",
         icon_url=hammericon,
     )
 
-    await ctx.send(embed)
-
+    await ctx.channel.edit(slowmode_delay=seconds)
+    await ctx.send(embed=embed)
+    
+    
 
 # description="Mutes the specified user."
 @bot.command()
