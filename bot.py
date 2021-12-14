@@ -222,11 +222,12 @@ async def on_ready():
 
 debug = False
 
+
 @bot.command()
 async def version(ctx):
     repo = git.Repo(search_parent_directories=True)
     sha = repo.head.object.hexsha
-    await ctx.send("My version is "+sha)
+    await ctx.send("My version is " + sha)
 
 
 @bot.command()
