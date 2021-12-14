@@ -14,6 +14,7 @@ from time import time
 import datetime
 import sys
 import os
+import git
 
 # database import & connection
 import sqlite3
@@ -220,6 +221,12 @@ async def on_ready():
 
 
 debug = False
+
+@bot.command()
+async def version(ctx):
+    repo = git.Repo(search_parent_directories=True)
+    sha = repo.head.object.hexsha
+    await ctx.send("My version is "+sha)
 
 
 @bot.command()
