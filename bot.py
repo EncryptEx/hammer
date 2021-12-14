@@ -1,11 +1,11 @@
 import discord
-from discord import embeds
 from get_enviroment import (
     COMMAND_PREFIX,
     OWNER,
     TOKEN,
     ANNOUNCEMENTS_CHANNEL,
     SECURITY_CHANNEL,
+    SWEAR_WORDS_LIST,
 )
 from discord import Embed
 from discord.ext import commands
@@ -153,6 +153,47 @@ def ErrorEmbed(error):
 #
 # MAIN COMMANDS - BOT
 #
+
+# # swear words detector
+@bot.event
+async def on_message(message):
+    await bot.process_commands(message)
+    # Skip bot messages
+    if message.author.bot: return
+    words = message.content.split()
+    for word in words:
+        # print("scanning word:",word)
+        word = str(word).lower()
+        if(word in SWEAR_WORDS_LIST):
+            # print("detected word:",word)
+            # print("user",message.author.name,"said",message.content)
+            member=message.author
+            # if member == .has perms :
+            # return # is admin so don't warn it
+            
+            #maybe new function to optionally say the word (settings)
+            descr = f"The user {member} has been warned because said a banned swear word"
+            embed = Embed(title=f"{member} has been warned! :hammer_pick:", description=descr)
+            embed.set_footer(
+                text=f"Hammer | Command executed by {message.author}",
+                icon_url=hammericon,
+            )
+            embed.set_thumbnail(url=member.avatar_url)
+            await AddWarning(member.id)
+            await message.channel.send(embed=embed)
+            await message.delete()
+            try:
+                channel = await member.create_dm()
+                await channel.send(embed=embed)
+                
+            except:
+                await message.channel.send(
+                    embed=ErrorEmbed(
+                        f"Could not deliver the message to the user {member}\n This may be caused because the user is a bot, has blocked me or has the DMs turned off. \n\n**But the user is warned** and I have saved it into my beautiful unforgettable database"
+                    )
+                )
+    # if(str(message.content).startswith(COMMAND_PREFIX)):
+    # print("command executed", message.content)
 
 
 @bot.event
