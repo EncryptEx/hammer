@@ -159,21 +159,26 @@ def ErrorEmbed(error):
 async def on_message(message):
     await bot.process_commands(message)
     # Skip bot messages
-    if message.author.bot: return
+    if message.author.bot:
+        return
     words = message.content.split()
     for word in words:
         # print("scanning word:",word)
         word = str(word).lower()
-        if(word in SWEAR_WORDS_LIST):
+        if word in SWEAR_WORDS_LIST:
             # print("detected word:",word)
             # print("user",message.author.name,"said",message.content)
-            member=message.author
+            member = message.author
             # if member == .has perms :
             # return # is admin so don't warn it
-            
-            #maybe new function to optionally say the word (settings)
-            descr = f"The user {member} has been warned because said a banned swear word"
-            embed = Embed(title=f"{member} has been warned! :hammer_pick:", description=descr)
+
+            # maybe new function to optionally say the word (settings)
+            descr = (
+                f"The user {member} has been warned because said a banned swear word"
+            )
+            embed = Embed(
+                title=f"{member} has been warned! :hammer_pick:", description=descr
+            )
             embed.set_footer(
                 text=f"Hammer | Command executed by {message.author}",
                 icon_url=hammericon,
@@ -185,7 +190,7 @@ async def on_message(message):
             try:
                 channel = await member.create_dm()
                 await channel.send(embed=embed)
-                
+
             except:
                 await message.channel.send(
                     embed=ErrorEmbed(
