@@ -124,7 +124,7 @@ async def AddWarning(userid: int):
     cur.execute(f"SELECT * FROM warns WHERE userid={userid} LIMIT 1")
     rows = cur.fetchall()
     # print(rows)
-    if(len(rows) > 0):
+    if len(rows) > 0:
         nwarns = rows[0][1]
         warn = nwarns+1
         cur.execute(f"UPDATE warns SET warns={warn} WHERE userid={userid}")
