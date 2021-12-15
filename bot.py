@@ -122,7 +122,7 @@ async def AddWarning(userid: int):
     cur.execute(f"SELECT * FROM warns WHERE userid={userid} LIMIT 1")
     rows = cur.fetchall()
     # print(rows)
-    if(len(rows) > 0):
+    if len(rows) > 0:
         nwarns = rows[0][1]
         cur.execute(f"UPDATE warns SET warns={nwarns+1} WHERE userid={userid}")
     else:
@@ -130,7 +130,7 @@ async def AddWarning(userid: int):
             f"""INSERT OR IGNORE INTO warns (userid, warns)
             VALUES ({userid}, 1)
         """
-    )
+        )
     # cur.execute(f"""BEGIN
     # IF NOT EXISTS (SELECT * FROM warns
     #                 WHERE userid = {userid}
