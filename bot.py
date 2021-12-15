@@ -1,4 +1,4 @@
-import discord
+import discord, datetime, sys, os, git
 from get_enviroment import (
     COMMAND_PREFIX,
     OWNER,
@@ -11,10 +11,6 @@ from discord import Embed
 from discord.ext import commands
 from discord.ext.commands.core import command
 from time import time
-import datetime
-import sys
-import os
-import git
 
 # database import & connection
 import sqlite3
@@ -62,6 +58,12 @@ async def help(ctx):
     {COMMAND_PREFIX}kick [user] <reason>
     {COMMAND_PREFIX}warn [user] <reason>
     """,
+        inline=True,
+    )
+
+    embed.add_field(
+        name="AutoMod Services :robot:",
+        value=f"Swear Word Detector and wuto warn.\n Using a +880 swear word database",
         inline=True,
     )
 
@@ -124,23 +126,17 @@ async def AddWarning(userid: int):
     # print(rows)
     if(len(rows) > 0):
         nwarns = rows[0][1]
-        cur.execute(f"UPDATE warns SET warns={nwarns+1} WHERE userid={userid}")
+        warn = nwarns+1
+        cur.execute(f"UPDATE warns SET warns={warn} WHERE userid={userid}")
     else:
+        warn = 1
         cur.execute(
             f"""INSERT OR IGNORE INTO warns (userid, warns)
             VALUES ({userid}, 1)
         """
     )
-    # cur.execute(f"""BEGIN
-    # IF NOT EXISTS (SELECT * FROM warns
-    #                 WHERE userid = {userid}
-    #                 LIMIT 1)
-    # BEGIN
-    #     INSERT INTO warns (userid, warns)
-    #     VALUES ({userid}, 1)
-    # END
-    # END""")
     conn.commit()
+    return warn
 
 
 # Function to create a template for all errors.
@@ -192,7 +188,11 @@ async def on_message(message):
                 icon_url=hammericon,
             )
             embed.set_thumbnail(url=member.avatar_url)
-            await AddWarning(member.id)
+            warn = await AddWarning(member.id)
+            s = "s" if warn > 1 else ""
+            embed.add_field(name="Warn count", value=f"The user {member} has {warn} warn{s}. Be careful.", inline=True)
+            bannedmessage = message.content[:message.content.find(word)]+"~~"+word+"~~"+message.content[message.content.find(word)+len(word):]
+            embed.add_field(name="Message Removed:", value=f"The removed message was \n||{bannedmessage}||", inline=True)
             await message.channel.send(embed=embed)
             await message.delete()
             try:
@@ -348,7 +348,9 @@ async def warn(ctx, member: discord.Member, *, reason=None):
         icon_url=hammericon,
     )
     embed.set_thumbnail(url=member.avatar_url)
-    await AddWarning(member.id)
+    warn = await AddWarning(member.id)
+    s = "s" if warn > 1 else ""
+    embed.add_field(name="Warn count", value=f"The user {member} has {warn} warn{s}. Be careful.", inline=True)
     await ctx.send(embed=embed)
     try:
         await member.send(message)
