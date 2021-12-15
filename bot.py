@@ -126,7 +126,7 @@ async def AddWarning(userid: int):
     # print(rows)
     if len(rows) > 0:
         nwarns = rows[0][1]
-        warn = nwarns+1
+        warn = nwarns + 1
         cur.execute(f"UPDATE warns SET warns={warn} WHERE userid={userid}")
     else:
         warn = 1
@@ -134,7 +134,7 @@ async def AddWarning(userid: int):
             f"""INSERT OR IGNORE INTO warns (userid, warns)
             VALUES ({userid}, 1)
         """
-    )
+        )
     conn.commit()
     return warn
 
@@ -190,9 +190,23 @@ async def on_message(message):
             embed.set_thumbnail(url=member.avatar_url)
             warn = await AddWarning(member.id)
             s = "s" if warn > 1 else ""
-            embed.add_field(name="Warn count", value=f"The user {member} has {warn} warn{s}. Be careful.", inline=True)
-            bannedmessage = message.content[:message.content.find(word)]+"~~"+word+"~~"+message.content[message.content.find(word)+len(word):]
-            embed.add_field(name="Message Removed:", value=f"The removed message was \n||{bannedmessage}||", inline=True)
+            embed.add_field(
+                name="Warn count",
+                value=f"The user {member} has {warn} warn{s}. Be careful.",
+                inline=True,
+            )
+            bannedmessage = (
+                message.content[: message.content.find(word)]
+                + "~~"
+                + word
+                + "~~"
+                + message.content[message.content.find(word) + len(word) :]
+            )
+            embed.add_field(
+                name="Message Removed:",
+                value=f"The removed message was \n||{bannedmessage}||",
+                inline=True,
+            )
             await message.channel.send(embed=embed)
             await message.delete()
             try:
@@ -350,7 +364,11 @@ async def warn(ctx, member: discord.Member, *, reason=None):
     embed.set_thumbnail(url=member.avatar_url)
     warn = await AddWarning(member.id)
     s = "s" if warn > 1 else ""
-    embed.add_field(name="Warn count", value=f"The user {member} has {warn} warn{s}. Be careful.", inline=True)
+    embed.add_field(
+        name="Warn count",
+        value=f"The user {member} has {warn} warn{s}. Be careful.",
+        inline=True,
+    )
     await ctx.send(embed=embed)
     try:
         await member.send(message)
