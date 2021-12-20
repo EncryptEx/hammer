@@ -126,7 +126,7 @@ async def SetWarning(userid: int, substractMode: bool):
     # print(rows)
     if len(rows) > 0:
         nwarns = rows[0][1]
-        warn = nwarns+1 if substractMode else nwarns-1
+        warn = nwarns + 1 if substractMode else nwarns-1
         warn = 0 if warn <= 0 else warn
         cur.execute(f"UPDATE warns SET warns={warn} WHERE userid={userid}")
     else:
@@ -135,7 +135,7 @@ async def SetWarning(userid: int, substractMode: bool):
             f"""INSERT OR IGNORE INTO warns (userid, warns)
             VALUES ({userid}, {initialwarn})
         """
-    )
+        )
     conn.commit()
     return warn
 
@@ -191,9 +191,23 @@ async def on_message(message):
             embed.set_thumbnail(url=member.avatar_url)
             warn = await SetWarning(member.id, True)
             s = "s" if warn > 1 else ""
-            embed.add_field(name="Warn count", value=f"The user {member} has {warn} warn{s}. Be careful.", inline=True)
-            bannedmessage = message.content[:message.content.find(word)]+"~~"+word+"~~"+message.content[message.content.find(word)+len(word):]
-            embed.add_field(name="Message Removed:", value=f"The removed message was \n||{bannedmessage}||", inline=True)
+            embed.add_field(
+                name="Warn count",
+                value=f"The user {member} has {warn} warn{s}. Be careful.",
+                inline=True,
+            )
+            bannedmessage = (
+                message.content[: message.content.find(word)]
+                + "~~"
+                + word
+                + "~~"
+                + message.content[message.content.find(word) + len(word) :]
+            )
+            embed.add_field(
+                name="Message Removed:",
+                value=f"The removed message was \n||{bannedmessage}||",
+                inline=True,
+            )
             await message.channel.send(embed=embed)
             await message.delete()
             try:
@@ -351,7 +365,11 @@ async def warn(ctx, member: discord.Member, *, reason=None):
     embed.set_thumbnail(url=member.avatar_url)
     warn = await SetWarning(member.id, True)
     s = "s" if warn > 1 else ""
-    embed.add_field(name="Warn count", value=f"The user {member} has {warn} warn{s}. Be careful.", inline=True)
+    embed.add_field(
+        name="Warn count",
+        value=f"The user {member} has {warn} warn{s}. Be careful.",
+        inline=True,
+    )
     await ctx.send(embed=embed)
     try:
         await member.send(message)
