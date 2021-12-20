@@ -126,7 +126,7 @@ async def SetWarning(userid: int, substractMode: bool):
     # print(rows)
     if len(rows) > 0:
         nwarns = rows[0][1]
-        warn = nwarns + 1 if substractMode else nwarns-1
+        warn = nwarns + 1 if substractMode else nwarns - 1
         warn = 0 if warn <= 0 else warn
         cur.execute(f"UPDATE warns SET warns={warn} WHERE userid={userid}")
     else:
@@ -380,6 +380,7 @@ async def warn(ctx, member: discord.Member, *, reason=None):
             )
         )
 
+
 @bot.command()
 @commands.has_permissions(kick_members=True)
 async def unwarn(ctx, member: discord.Member, *, reason=None):
@@ -397,7 +398,11 @@ async def unwarn(ctx, member: discord.Member, *, reason=None):
     warn = await SetWarning(member.id, substractMode=False)
     s = "s" if warn > 1 else ""
     congrats = "Yey! :tada:" if warn == 0 else ""
-    embed.add_field(name="Warn count", value=f"The user {member} has now {warn} warn{s}. {congrats}", inline=True)
+    embed.add_field(
+        name="Warn count",
+        value=f"The user {member} has now {warn} warn{s}. {congrats}",
+        inline=True,
+    )
     await ctx.send(embed=embed)
     try:
         await member.send(message)
@@ -407,6 +412,7 @@ async def unwarn(ctx, member: discord.Member, *, reason=None):
                 f"Could not deliver the message to the user {member}\n This may be caused because the user is a bot, has blocked me or has the DMs turned off. \n\n**But the user is unwarned** and I have saved it into my beautiful unforgettable database"
             )
         )
+
 
 @bot.command()
 async def evaluate(ctx, *, code):
