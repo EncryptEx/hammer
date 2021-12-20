@@ -120,19 +120,20 @@ async def sendNotifOwner(text):
 
 
 # Function to add a warning and save it at the database
-async def AddWarning(userid: int):
+async def SetWarning(userid: int, substractMode: bool):
     cur.execute(f"SELECT * FROM warns WHERE userid={userid} LIMIT 1")
     rows = cur.fetchall()
     # print(rows)
     if len(rows) > 0:
         nwarns = rows[0][1]
-        warn = nwarns+1
+        warn = nwarns+1 if substractMode else nwarns-1
+        warn = 0 if warn <= 0 else warn
         cur.execute(f"UPDATE warns SET warns={warn} WHERE userid={userid}")
     else:
-        warn = 1
+        initialwarn = 1 if (substractMode) else 0
         cur.execute(
             f"""INSERT OR IGNORE INTO warns (userid, warns)
-            VALUES ({userid}, 1)
+            VALUES ({userid}, {initialwarn})
         """
     )
     conn.commit()
@@ -188,7 +189,7 @@ async def on_message(message):
                 icon_url=hammericon,
             )
             embed.set_thumbnail(url=member.avatar_url)
-            warn = await AddWarning(member.id)
+            warn = await SetWarning(member.id, True)
             s = "s" if warn > 1 else ""
             embed.add_field(name="Warn count", value=f"The user {member} has {warn} warn{s}. Be careful.", inline=True)
             bannedmessage = message.content[:message.content.find(word)]+"~~"+word+"~~"+message.content[message.content.find(word)+len(word):]
@@ -348,7 +349,7 @@ async def warn(ctx, member: discord.Member, *, reason=None):
         icon_url=hammericon,
     )
     embed.set_thumbnail(url=member.avatar_url)
-    warn = await AddWarning(member.id)
+    warn = await SetWarning(member.id, True)
     s = "s" if warn > 1 else ""
     embed.add_field(name="Warn count", value=f"The user {member} has {warn} warn{s}. Be careful.", inline=True)
     await ctx.send(embed=embed)
@@ -361,6 +362,33 @@ async def warn(ctx, member: discord.Member, *, reason=None):
             )
         )
 
+@bot.command()
+@commands.has_permissions(kick_members=True)
+async def unwarn(ctx, member: discord.Member, *, reason=None):
+    if reason == None:
+        reason = "good behaviour ✅"
+    message = f"You have been unwarned for {reason}"
+
+    descr = f"The user {member} has been unwarned for {reason}"
+    embed = Embed(title=f"{member} has been unwarned! :hammer_pick:", description=descr)
+    embed.set_footer(
+        text=f"Hammer | Command executed by {ctx.message.author}",
+        icon_url=hammericon,
+    )
+    embed.set_thumbnail(url=member.avatar_url)
+    warn = await SetWarning(member.id, substractMode=False)
+    s = "s" if warn > 1 else ""
+    congrats = "Yey! :tada:" if warn == 0 else ""
+    embed.add_field(name="Warn count", value=f"The user {member} has now {warn} warn{s}. {congrats}", inline=True)
+    await ctx.send(embed=embed)
+    try:
+        await member.send(message)
+    except:
+        await ctx.send(
+            embed=ErrorEmbed(
+                f"Could not deliver the message to the user {member}\n This may be caused because the user is a bot, has blocked me or has the DMs turned off. \n\n**But the user is unwarned** and I have saved it into my beautiful unforgettable database"
+            )
+        )
 
 @bot.command()
 async def evaluate(ctx, *, code):
