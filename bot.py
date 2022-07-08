@@ -19,8 +19,8 @@ conn = sqlite3.connect("maindatabase1.db")
 cur = conn.cursor()
 cur.execute(
     """CREATE TABLE IF NOT EXISTS `warns` (
-	`userid` INT(100) UNIQUE,
-	`warns` INT);"""
+        `userid` INT(100) UNIQUE,
+        `warns` INT);"""
 )
 
 hammericon = "https://images-ext-2.discordapp.net/external/OKc8xu6AILGNFY3nSTt7wGbg-Mi1iQZonoLTFg85o-E/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/591633652493058068/e6011129c5169b29ed05a6dc873175cb.png?width=670&height=670"
@@ -42,7 +42,7 @@ bot.remove_command("help")
 async def help(ctx):
     # Define each page
 
-    descr = f"""Hammer is a multiuse bot focused on moderation, which its goal is to improve your discord community.    
+    descr = f"""Hammer is a multiuse bot focused on moderation, which its goal is to improve your discord community.
     For an extense command description, use ``{COMMAND_PREFIX}help [command name]`` (comming soon)
     **Hammer's commands:**
     """
@@ -136,6 +136,7 @@ async def SetWarning(userid: int, substractMode: bool):
             VALUES ({userid}, {initialwarn})
         """
         )
+        warn = 1
     conn.commit()
     return warn
 
