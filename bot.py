@@ -10,7 +10,7 @@ from get_enviroment import (
     SWEAR_WORDS_LIST,
 )
 from discord import Embed, guild_only
-from discord.ext import commands, bridge
+from discord.ext import commands
 from discord.ext.commands.core import command
 from time import time
 
@@ -31,7 +31,7 @@ intents = discord.Intents.default()
 # intents.members = True
 # intents.messages = True
 
-bot = bridge.AutoShardedBot(command_prefix=COMMAND_PREFIX, intents=intents)
+bot = commands.AutoShardedBot(command_prefix=COMMAND_PREFIX, intents=intents)
 
 
 bot.remove_command("help")
@@ -41,7 +41,7 @@ bot.remove_command("help")
 #
 
 
-@bot.bridge_command(guild_only=True, name="help", description="Displays all the available commands for Hammer")
+@bot.slash_command(name="help", description="Displays all the available commands for Hammer")
 async def help(ctx):
     # Define each page
 
@@ -60,6 +60,8 @@ async def help(ctx):
     {COMMAND_PREFIX}ban [user] <reason>
     {COMMAND_PREFIX}kick [user] <reason>
     {COMMAND_PREFIX}warn [user] <reason>
+    {COMMAND_PREFIX}unwarn [user] <reason>
+    {COMMAND_PREFIX}clearwarns [user] <reason>
     """,
         inline=True,
     )
@@ -77,6 +79,7 @@ async def help(ctx):
     {COMMAND_PREFIX}mute [user] <reason>
     {COMMAND_PREFIX}unmute [user] <reason>
     {COMMAND_PREFIX}lock <channel> <reason>
+    {COMMAND_PREFIX}unlock <channel> <reason>
     """,
         inline=True,
     )
@@ -122,6 +125,15 @@ async def help(ctx):
 async def respondNotifOwner(text):
     await bot.get_channel(int(SECURITY_CHANNEL)).respond(text)
 
+async def GetWarnings(userid: int):
+    cur.execute(f"SELECT * FROM warns WHERE userid={userid} LIMIT 1")
+    rows = cur.fetchall()
+    # print(rows)
+    if len(rows) > 0:
+        return rows[0][1]
+    else: 
+        return 0
+
 
 # Function to add a warning and save it at the database
 async def SetWarning(userid: int, substractMode: bool, wantsToWipeAllWarns: bool = False):
@@ -154,7 +166,7 @@ async def SendMessageTo(ctx, member, message):
             embed=ErrorEmbed(
                 f"Could not deliver the message to the user {member}\n This may be caused because the user is a bot, has blocked me or has the DMs turned off. \n\n**But the user is warned** and I have saved it into my beautiful unforgettable database"
             )
-        , f=True)
+        , ephemeral=True)
 
 
 # Function to create a template for all errors.
@@ -264,7 +276,7 @@ debug = False
 
 
 
-@bot.bridge_command(guild_only=True, name="hello", guild_ids=[int(SECURITY_GUILD)])
+@bot.slash_command(guild_only=True, name="hello", guild_ids=[int(SECURITY_GUILD)])
 async def hello(ctx):
     await ctx.respond("Hammer is back!")
 
@@ -286,8 +298,9 @@ async def on_command_error(ctx, error):
             "[**ERROR 403**] You don't have the correct permission to do that :hammer:,  You need {fmt} permission(s) to perform this action"
         , ephemeral=True)
 
-@bot.bridge_command(guild_only=True, name="whois", description="Displays all the public info from a specific user")
+@bot.slash_command(guild_only=True, name="whois", description="Displays all the public info from a specific user")
 async def whois(ctx, member: discord.Member):
+
     try:
         username, discriminator = str(member).split("#")
         isbot = ":white_check_mark:" if member.bot else ":negative_squared_cross_mark:"
@@ -301,9 +314,10 @@ async def whois(ctx, member: discord.Member):
             **User ID:** {member.id}
             **Avatar URL:** [Click Here]({member.display_avatar})
             **Top role:** {member.top_role}
+            **Warns:** {await GetWarnings(member.id)}
             """
         embed = Embed(title=f"Who is {member} ?", description=descr)
-
+        
         embed.set_thumbnail(url=member.display_avatar)
 
         embed.set_footer(
@@ -316,11 +330,12 @@ async def whois(ctx, member: discord.Member):
 
 
 
-@bot.bridge_command(guild_only=True, name="ban", description="Keeps out a user permanently, forbidding its entry")
+@bot.slash_command(guild_only=True, name="ban", description="Keeps out a user permanently, forbidding its entry")
 @discord.default_permissions(
     ban_members=True,
 )
 async def ban(ctx, member: discord.Member, *, reason=None):
+
     if member == ctx.author:
         await ctx.respond("You cannot ban yourself", ephemeral=True)
         return
@@ -349,11 +364,12 @@ async def ban(ctx, member: discord.Member, *, reason=None):
     await SendMessageTo(ctx, member,message)
 
 
-@bot.bridge_command(guild_only=True, name="kick", description="Kicks out a member from the server")
+@bot.slash_command(guild_only=True, name="kick", description="Kicks out a member from the server")
 @discord.default_permissions(
     kick_members=True,
 )
 async def kick(ctx, member: discord.Member, *, reason=None):
+
     if member == ctx.author:
         await ctx.respond("You cannot kick yourself", ephemeral=True)
         return
@@ -380,11 +396,12 @@ async def kick(ctx, member: discord.Member, *, reason=None):
     await SendMessageTo(ctx, member,message)
 
 
-@bot.bridge_command(guild_only=True, name="warn", description="Sets a warning for a user, at 3 warns/strikes they get kicked")
+@bot.slash_command(guild_only=True, name="warn", description="Sets a warning for a user, at 3 warns/strikes they get kicked")
 @discord.default_permissions(
     administrator=True,
 )
 async def warn(ctx, member: discord.Member, reason=None):
+
     if member == ctx.author:
         await ctx.respond("You cannot warn yourself :(", ephemeral=True)
         return
@@ -414,11 +431,12 @@ async def warn(ctx, member: discord.Member, reason=None):
         await kick(ctx,member=member, reason="having too much warns")
         SetWarning(member.id,True, True) # Wipe all warns
 
-@bot.bridge_command(guild_only=True, name="unwarn", description="Removes a strike from a user")
+@bot.slash_command(guild_only=True, name="unwarn", description="Removes a strike from a user")
 @discord.default_permissions(
     kick_members=True,
 )
 async def unwarn(ctx, member: discord.Member, *, reason=None):
+
     if reason == None:
         reason = "good behaviour ✅"
     message = f"You have been unwarned for {reason}"
@@ -442,8 +460,35 @@ async def unwarn(ctx, member: discord.Member, *, reason=None):
     await SendMessageTo(ctx, member,message)
 
 
-@bot.bridge_command(guild_only=True, guild_ids=[int(SECURITY_GUILD)])
+@bot.slash_command(guild_only=True, name="clearwarns", description="Removes all strikes from a user")
+@discord.default_permissions(
+    kick_members=True,
+)
+async def clearwarns(ctx, member: discord.Member, *, reason=None):
+
+    if reason == None:
+        reason = "good behaviour ✅"
+    message = f"Your warns have been cleared for {reason}"
+
+    descr = f"The user {member} has 0 warns for {reason}"
+    embed = Embed(title=f"The warns of {member} have been removed! :hammer_pick:", description=descr)
+    embed.set_footer(
+        text=f"Hammer | Command executed by {ctx.author}",
+        icon_url=hammericon,
+    )
+    embed.set_thumbnail(url=member.display_avatar)
+    warn = await SetWarning(member.id, substractMode=True, wantsToWipeAllWarns=True)
+    embed.add_field(
+        name="Warn count",
+        value=f"The user {member} has now {warn} warns. Yey! :tada:",
+        inline=True,
+    )
+    await ctx.respond(embed=embed, ephemeral=False)
+    await SendMessageTo(ctx, member,message)
+
+@bot.slash_command(guild_only=True, guild_ids=[int(SECURITY_GUILD)])
 async def evaluate(ctx, code):
+
     if str(ctx.author.id) == str(OWNER):
         try:
             # await respondNotifOwner(
@@ -475,11 +520,12 @@ async def evaluate(ctx, code):
         await ctx.respond("you're not allowed to do that")
 
 
-@bot.bridge_command(guild_only=True, name="setdelay", description="Updates the message delay in a channel with a set of custom time interval")
+@bot.slash_command(guild_only=True, name="setdelay", description="Updates the message delay in a channel with a set of custom time interval")
 @discord.default_permissions(
     manage_messages=True,
 )
 async def setdelay(ctx, seconds: float, reason: str=''):
+
     m = "modified" if seconds > 0.0 else "removed"
     embed = Embed(
         title=f"Delay {m} on #{ctx.channel} :hammer_pick:",
@@ -497,11 +543,12 @@ async def setdelay(ctx, seconds: float, reason: str=''):
 
 
 # description="Mutes the specified user."
-@bot.bridge_command(guild_only=True, name="mute", description="Removes the hability to talk or join voice channels to a user")
+@bot.slash_command(guild_only=True, name="mute", description="Removes the hability to talk or join voice channels to a user")
 @discord.default_permissions(
     manage_messages=True,
 )
 async def mute(ctx, member: discord.Member, *, reason=None):
+
     guild = ctx.guild
     mutedRole = discord.utils.get(guild.roles, name="Muted")
 
@@ -537,7 +584,7 @@ async def mute(ctx, member: discord.Member, *, reason=None):
 
 
 # description="Unmutes a specified user."
-@bot.bridge_command(guild_only=True, name="unmute", description="Restores the hability to talk or join voice channels to a user")
+@bot.slash_command(guild_only=True, name="unmute", description="Restores the hability to talk or join voice channels to a user")
 @discord.default_permissions(
     manage_messages=True,
 )
@@ -563,8 +610,9 @@ async def unmute(ctx, member: discord.Member, *, reason=None):
     await ctx.respond(embed=embed)
 
 @discord.default_permissions(manage_channels=True)
-@bot.bridge_command(guild_only=True, name="lock", description="Blocks a channel from being used as a chat.")
+@bot.slash_command(guild_only=True, name="lock", description="Blocks a channel from being used as a chat.")
 async def lock(ctx, channel : discord.TextChannel=None, reason=None):
+
     channel = channel or ctx.channel
     reason = "for "+reason if reason else ""
     overwrite = channel.overwrites_for(ctx.guild.default_role)
@@ -581,8 +629,9 @@ async def lock(ctx, channel : discord.TextChannel=None, reason=None):
     await ctx.respond(embed=embed)
 
 @discord.default_permissions(manage_channels=True)
-@bot.bridge_command(guild_only=True, name="unlock", description="Removes the blocking in a channel from not being used as a chat.")
+@bot.slash_command(guild_only=True, name="unlock", description="Removes the blocking in a channel from not being used as a chat.")
 async def unlock(ctx, channel : discord.TextChannel=None, reason=None):
+
     channel = channel or ctx.channel
     reason = "for "+reason if reason else ""
     overwrite = channel.overwrites_for(ctx.guild.default_role)
