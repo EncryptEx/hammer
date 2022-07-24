@@ -1,14 +1,16 @@
-import discord, datetime, sys, os, git
+from pydoc import describe
+import discord, datetime, sys, os
 from get_enviroment import (
     COMMAND_PREFIX,
     OWNER,
     TOKEN,
     ANNOUNCEMENTS_CHANNEL,
     SECURITY_CHANNEL,
+    SECURITY_GUILD,
     SWEAR_WORDS_LIST,
 )
-from discord import Embed
-from discord.ext import commands
+from discord import Embed, guild_only
+from discord.ext import commands, bridge
 from discord.ext.commands.core import command
 from time import time
 
@@ -29,7 +31,8 @@ intents = discord.Intents.default()
 # intents.members = True
 # intents.messages = True
 
-bot = commands.Bot(command_prefix=COMMAND_PREFIX, intents=intents)
+bot = bridge.AutoShardedBot(command_prefix=COMMAND_PREFIX, intents=intents)
+
 
 bot.remove_command("help")
 
@@ -38,7 +41,7 @@ bot.remove_command("help")
 #
 
 
-@bot.command()
+@bot.bridge_command(guild_only=True, name="help", description="Displays all the available commands for Hammer")
 async def help(ctx):
     # Define each page
 
@@ -73,6 +76,7 @@ async def help(ctx):
     {COMMAND_PREFIX}setdelay [seconds] <reason>
     {COMMAND_PREFIX}mute [user] <reason>
     {COMMAND_PREFIX}unmute [user] <reason>
+    {COMMAND_PREFIX}lock <channel> <reason>
     """,
         inline=True,
     )
@@ -104,10 +108,10 @@ async def help(ctx):
     )
 
     embed.set_footer(
-        text=f"Hammer | Command executed by {ctx.message.author}", icon_url=hammericon
+        text=f"Hammer | Command executed by {ctx.author}", icon_url=hammericon
     )
 
-    await ctx.send(embed=embed)
+    await ctx.respond(embed=embed)
 
 
 #
@@ -115,18 +119,19 @@ async def help(ctx):
 #
 
 # Function to alert the owner of something, normally to log use of eval command.
-async def sendNotifOwner(text):
-    await bot.get_channel(int(SECURITY_CHANNEL)).send(text)
+async def respondNotifOwner(text):
+    await bot.get_channel(int(SECURITY_CHANNEL)).respond(text)
 
 
 # Function to add a warning and save it at the database
-async def SetWarning(userid: int, substractMode: bool):
+async def SetWarning(userid: int, substractMode: bool, wantsToWipeAllWarns: bool = False):
     cur.execute(f"SELECT * FROM warns WHERE userid={userid} LIMIT 1")
     rows = cur.fetchall()
     # print(rows)
     if len(rows) > 0:
         nwarns = rows[0][1]
         warn = nwarns + 1 if substractMode else nwarns - 1
+        warn = 0 if wantsToWipeAllWarns else warn
         warn = 0 if warn <= 0 else warn
         cur.execute(f"UPDATE warns SET warns={warn} WHERE userid={userid}")
     else:
@@ -139,6 +144,17 @@ async def SetWarning(userid: int, substractMode: bool):
         warn = 1
     conn.commit()
     return warn
+
+#Function to try to send a message to a user
+async def SendMessageTo(ctx, member, message):
+    try:
+        await member.send(message)
+    except:
+        await ctx.respond(
+            embed=ErrorEmbed(
+                f"Could not deliver the message to the user {member}\n This may be caused because the user is a bot, has blocked me or has the DMs turned off. \n\n**But the user is warned** and I have saved it into my beautiful unforgettable database"
+            )
+        , f=True)
 
 
 # Function to create a template for all errors.
@@ -189,7 +205,7 @@ async def on_message(message):
                 text=f"Hammer | Command executed by {message.author}",
                 icon_url=hammericon,
             )
-            embed.set_thumbnail(url=member.avatar_url)
+            embed.set_thumbnail(url=member.display_avatar)
             warn = await SetWarning(member.id, True)
             s = "s" if warn > 1 else ""
             embed.add_field(
@@ -209,18 +225,18 @@ async def on_message(message):
                 value=f"The removed message was \n||{bannedmessage}||",
                 inline=True,
             )
-            await message.channel.send(embed=embed)
+            await message.channel.respond(embed=embed)
             await message.delete()
             try:
                 channel = await member.create_dm()
-                await channel.send(embed=embed)
+                await channel.respond(embed=embed)
 
             except:
-                await message.channel.send(
                     embed=ErrorEmbed(
+                await message.channel.send             (
                         f"Could not deliver the message to the user {member}\n This may be caused because the user is a bot, has blocked me or has the DMs turned off. \n\n**But the user is warned** and I have saved it into my beautiful unforgettable database"
-                    )
-                )
+                    ),
+                ephemeral=True)
     # if(str(message.content).startswith(COMMAND_PREFIX)):
     # print("command executed", message.content)
 
@@ -239,38 +255,38 @@ async def on_ready():
         print(sum(1 for x in bot.get_all_channels()), "channels")
         print(sum(1 for x in bot.get_all_members()), "members")
         chnl = bot.get_channel(int(ANNOUNCEMENTS_CHANNEL))
-        await chnl.send("Bot UP!")
+        await chnl.respond("Bot UP!")
         print("Sent message to #" + str(chnl))
 
 
 debug = False
 
 
-@bot.command()
-async def version(ctx):
-    repo = git.Repo(search_parent_directories=True)
-    sha = repo.head.object.hexsha
-    await ctx.send("My version is " + sha)
 
 
-@bot.command()
+@bot.bridge_command(guild_only=True, name="hello", guild_ids=[int(SECURITY_GUILD)])
 async def hello(ctx):
-    await ctx.send("Hammer is back!")
+    await ctx.respond("Hammer is back!")
 
 
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send(
+        await ctx.respond(
             f"**[ERROR 404]** Please pass in all requirements :hammer_pick:. ```{error}```\nDo  {COMMAND_PREFIX}help command for more help"
-        )
+        , ephemeral=True)
     if isinstance(error, commands.MissingPermissions):
-        await ctx.send(
-            "[**ERROR 403]** You don't have the correct permission to do that :hammer:"
-        )
+        error = getattr(error, 'original', error)
+        missing = [perm.replace('_', ' ').replace('guild', 'server').title() for perm in error.missing_perms]
+        if len(missing) > 2:
+            fmt = '{}, and {}'.format("**, **".join(missing[:-1]), missing[-1])
+        else:
+            fmt = ' and '.join(missing)
+        await ctx.respond(
+            "[**ERROR 403**] You don't have the correct permission to do that :hammer:,  You need {fmt} permission(s) to perform this action"
+        , ephemeral=True)
 
-
-@bot.command()
+@bot.bridge_command(guild_only=True, name="whois", description="Displays all the public info from a specific user")
 async def whois(ctx, member: discord.Member):
     try:
         username, discriminator = str(member).split("#")
@@ -283,75 +299,94 @@ async def whois(ctx, member: discord.Member):
             **Joined server at:** {member.joined_at}
             **Is bot:** {isbot}
             **User ID:** {member.id}
-            **Avatar URL:** [Click Here]({member.avatar_url})
+            **Avatar URL:** [Click Here]({member.display_avatar})
             **Top role:** {member.top_role}
             """
         embed = Embed(title=f"Who is {member} ?", description=descr)
 
-        embed.set_thumbnail(url=member.avatar_url)
+        embed.set_thumbnail(url=member.display_avatar)
 
         embed.set_footer(
-            text=f"Hammer | Command executed by {ctx.message.author}",
+            text=f"Hammer | Command executed by {ctx.author}",
             icon_url=hammericon,
         )
-        await ctx.send(embed=embed)
+        await ctx.respond(embed=embed)
     except Exception as e:
-        await ctx.send(e)
+        await ctx.respond(e)
 
 
-@bot.command()
-@commands.has_permissions(ban_members=True)
+
+@bot.bridge_command(guild_only=True, name="ban", description="Keeps out a user permanently, forbidding its entry")
+@discord.default_permissions(
+    ban_members=True,
+)
 async def ban(ctx, member: discord.Member, *, reason=None):
-    if member == ctx.message.author:
-        await ctx.channel.send("You cannot ban yourself")
+    if member == ctx.author:
+        await ctx.respond("You cannot ban yourself", ephemeral=True)
         return
     if reason == None:
         reason = "bad behaviour 💥"
     message = f"You have been banned from {ctx.guild.name} for {reason}"
-
-    if not debug:
-        await member.ban(reason=reason)
+    
     descr = f"The user {member} has been banned for {reason}"
     embed = Embed(title=f"{member} has been banned! :hammer_pick:", description=descr)
     embed.set_image(url="https://i.imgflip.com/19zat3.jpg")
     embed.set_footer(
-        text=f"Hammer | Command executed by {ctx.message.author}",
+        text=f"Hammer | Command executed by {ctx.author}",
         icon_url=hammericon,
     )
+    if not debug:
+        try: 
+            await member.ban(reason=reason)
+        except: 
+            ctx.respond(embed=ErrorEmbed(
+                f"Could not ban the user {member}\n This may be caused because I do not have the permission to do that or the user has a higher role than me."
+            ), ephemeral=True)
+        return
 
-    embed.set_thumbnail(url=member.avatar_url)
-    await ctx.send(embed=embed)
-    await member.send(message)
+    embed.set_thumbnail(url=member.display_avatar)
+    await ctx.respond(embed=embed)
+    await SendMessageTo(ctx, member,message)
 
 
-@bot.command()
-@commands.has_permissions(kick_members=True)
+@bot.bridge_command(guild_only=True, name="kick", description="Kicks out a member from the server")
+@discord.default_permissions(
+    kick_members=True,
+)
 async def kick(ctx, member: discord.Member, *, reason=None):
-    if member == ctx.message.author:
-        await ctx.channel.send("You cannot kick yourself")
+    if member == ctx.author:
+        await ctx.respond("You cannot kick yourself", ephemeral=True)
         return
     if reason == None:
         reason = "bad behaviour 💥"
     message = f"You have been kicked from {ctx.guild.name} for {reason}"
     if not debug:
-        await member.kick(reason=reason)
+        try:
+            await member.kick(reason=reason)
+        except: 
+            ctx.respond(embed=ErrorEmbed(
+                f"Could not kick the user {member}\n This may be caused because I do not have the permission to do that or the user has a higher role than me."
+            ), ephemeral=True)
+            return
     descr = f"The user {member} has been kicked for {reason}"
     embed = Embed(title=f"{member} has been kicked! :hammer_pick:", description=descr)
     embed.set_footer(
-        text=f"Hammer | Command executed by {ctx.message.author}",
+        text=f"Hammer | Command executed by {ctx.author}",
         icon_url=hammericon,
     )
-    embed.set_thumbnail(url=member.avatar_url)
+    embed.set_thumbnail(url=member.display_avatar)
     # # embed.image = member.image
-    await ctx.send(embed=embed)
-    await member.send(message)
+    await ctx.respond(embed=embed)
+    await SendMessageTo(ctx, member,message)
 
 
-@bot.command()
-@commands.has_permissions(kick_members=True)
-async def warn(ctx, member: discord.Member, *, reason=None):
-    if member == ctx.message.author:
-        await ctx.channel.send("You cannot warn yourself :(")
+@bot.bridge_command(guild_only=True, name="warn", description="Sets a warning for a user, at 3 warns/strikes they get kicked")
+@discord.default_permissions(
+    administrator=True,
+)
+async def warn(ctx, member: discord.Member, reason=None):
+    if member == ctx.author:
+        await ctx.respond("You cannot warn yourself :(", ephemeral=True)
         return
     if reason == None:
         reason = "bad behaviour 💥"
@@ -360,10 +395,10 @@ async def warn(ctx, member: discord.Member, *, reason=None):
     descr = f"The user {member} has been warned for {reason}"
     embed = Embed(title=f"{member} has been warned! :hammer_pick:", description=descr)
     embed.set_footer(
-        text=f"Hammer | Command executed by {ctx.message.author}",
+        text=f"Hammer | Command executed by {ctx.author}",
         icon_url=hammericon,
     )
-    embed.set_thumbnail(url=member.avatar_url)
+    embed.set_thumbnail(url=member.display_avatar)
     warn = await SetWarning(member.id, True)
     s = "s" if warn > 1 else ""
     embed.add_field(
@@ -371,19 +406,18 @@ async def warn(ctx, member: discord.Member, *, reason=None):
         value=f"The user {member} has {warn} warn{s}. Be careful.",
         inline=True,
     )
-    await ctx.send(embed=embed)
-    try:
-        await member.send(message)
-    except:
-        await ctx.send(
-            embed=ErrorEmbed(
-                f"Could not deliver the message to the user {member}\n This may be caused because the user is a bot, has blocked me or has the DMs turned off. \n\n**But the user is warned** and I have saved it into my beautiful unforgettable database"
-            )
-        )
+    await ctx.respond(embed=embed)
 
+    await SendMessageTo(ctx, member,message)
+    
+    if(warn>=3):
+        await kick(ctx,member=member, reason="having too much warns")
+        SetWarning(member.id,True, True) # Wipe all warns
 
-@bot.command()
-@commands.has_permissions(kick_members=True)
+@bot.bridge_command(guild_only=True, name="unwarn", description="Removes a strike from a user")
+@discord.default_permissions(
+    kick_members=True,
+)
 async def unwarn(ctx, member: discord.Member, *, reason=None):
     if reason == None:
         reason = "good behaviour ✅"
@@ -392,10 +426,10 @@ async def unwarn(ctx, member: discord.Member, *, reason=None):
     descr = f"The user {member} has been unwarned for {reason}"
     embed = Embed(title=f"{member} has been unwarned! :hammer_pick:", description=descr)
     embed.set_footer(
-        text=f"Hammer | Command executed by {ctx.message.author}",
+        text=f"Hammer | Command executed by {ctx.author}",
         icon_url=hammericon,
     )
-    embed.set_thumbnail(url=member.avatar_url)
+    embed.set_thumbnail(url=member.display_avatar)
     warn = await SetWarning(member.id, substractMode=False)
     s = "s" if warn > 1 else ""
     congrats = "Yey! :tada:" if warn == 0 else ""
@@ -404,26 +438,19 @@ async def unwarn(ctx, member: discord.Member, *, reason=None):
         value=f"The user {member} has now {warn} warn{s}. {congrats}",
         inline=True,
     )
-    await ctx.send(embed=embed)
-    try:
-        await member.send(message)
-    except:
-        await ctx.send(
-            embed=ErrorEmbed(
-                f"Could not deliver the message to the user {member}\n This may be caused because the user is a bot, has blocked me or has the DMs turned off. \n\n**But the user is unwarned** and I have saved it into my beautiful unforgettable database"
-            )
-        )
+    await ctx.respond(embed=embed)
+    await SendMessageTo(ctx, member,message)
 
 
-@bot.command()
-async def evaluate(ctx, *, code):
-    if str(ctx.message.author.id) == str(OWNER):
+@bot.bridge_command(guild_only=True, guild_ids=[int(SECURITY_GUILD)])
+async def evaluate(ctx, code):
+    if str(ctx.author.id) == str(OWNER):
         try:
-            await sendNotifOwner(
-                f"User {ctx.message.author} used command evaluate | id {ctx.message.author.id}"
-            )
+            # await respondNotifOwner(
+            #     f"User {ctx.author} used command evaluate | id {ctx.author.id}"
+            # )
             print("RECIEVED:", code)
-            # t = ctx.message.author.id,"used the command eval at", datetime.now()
+            # t = ctx.author.id,"used the command eval at", datetime.now()
             # print(t)
             args = {
                 "discord": discord,
@@ -437,20 +464,22 @@ async def evaluate(ctx, *, code):
                 exec(f"async def func(): return {code}", args)
                 a = time()
                 response = await eval("func()", args)
-                await ctx.send(
+                await ctx.respond(
                     f"```py\n{response}``````{type(response).__name__}``` `| {(time() - a) / 1000} ms`"
-                )
+                , ephemeral=True)
             except Exception as e:
-                await ctx.send(f"Error occurred:```\n{type(e).__name__}: {str(e)}```")
+                await ctx.respond(f"Error occurred:```\n{type(e).__name__}: {str(e)}```", ephemeral=True)
         except Exception as e:
-            await ctx.send(e)
+            await ctx.respond(e, ephemeral=True)
     else:
-        return
+        await ctx.respond("you're not allowed to do that")
 
 
-@bot.command()
-@commands.has_permissions(manage_messages=True)
-async def setdelay(ctx, seconds: float, *, reason=None):
+@bot.bridge_command(guild_only=True, name="setdelay", description="Updates the message delay in a channel with a set of custom time interval")
+@discord.default_permissions(
+    manage_messages=True,
+)
+async def setdelay(ctx, seconds: float, reason: str=''):
     m = "modified" if seconds > 0.0 else "removed"
     embed = Embed(
         title=f"Delay {m} on #{ctx.channel} :hammer_pick:",
@@ -459,17 +488,19 @@ async def setdelay(ctx, seconds: float, *, reason=None):
         else f"This channel now has a delay of **{seconds}** seconds",
     )
     embed.set_footer(
-        text=f"Hammer | Command executed by {ctx.message.author}",
+        text=f"Hammer | Command executed by {ctx.author}",
         icon_url=hammericon,
     )
 
     await ctx.channel.edit(slowmode_delay=seconds)
-    await ctx.send(embed=embed)
+    await ctx.respond(embed=embed)
 
 
 # description="Mutes the specified user."
-@bot.command()
-@commands.has_permissions(manage_messages=True)
+@bot.bridge_command(guild_only=True, name="mute", description="Removes the hability to talk or join voice channels to a user")
+@discord.default_permissions(
+    manage_messages=True,
+)
 async def mute(ctx, member: discord.Member, *, reason=None):
     guild = ctx.guild
     mutedRole = discord.utils.get(guild.roles, name="Muted")
@@ -481,7 +512,7 @@ async def mute(ctx, member: discord.Member, *, reason=None):
             await channel.set_permissions(
                 mutedRole,
                 speak=False,
-                send_messages=False,
+                respond_messages=False,
                 read_message_history=True,
                 read_messages=False,
             )
@@ -494,20 +525,22 @@ async def mute(ctx, member: discord.Member, *, reason=None):
         description=f"User {member.mention} has been muted for {reason}",
         colour=discord.Colour.red(),
     )
-    await ctx.send(embed=embed)
+    await ctx.respond(embed=embed)
     await member.add_roles(mutedRole, reason=reason)
 
     try:
-        await member.send(
+        await member.respond(
             f":no_entry: You have been muted from: {ctx.guild.name} for {reason}"
         )
     except:
-        await ctx.send(f"Could not sent a message to the user {member.mention}")
+        await ctx.respond(f"Could not sent a message to the user {member.mention}", ephemeral=True)
 
 
 # description="Unmutes a specified user."
-@bot.command()
-@commands.has_permissions(manage_messages=True)
+@bot.bridge_command(guild_only=True, name="unmute", description="Restores the hability to talk or join voice channels to a user")
+@discord.default_permissions(
+    manage_messages=True,
+)
 async def unmute(ctx, member: discord.Member, *, reason=None):
 
     mutedRole = discord.utils.get(ctx.guild.roles, name="Muted")
@@ -517,17 +550,52 @@ async def unmute(ctx, member: discord.Member, *, reason=None):
         reason = "for " + reason
     await member.remove_roles(mutedRole)
     try:
-        await member.send(
+        await member.respond(
             f":tada: You have been unmuted from: {ctx.guild.name} {reason}"
         )
     except:
-        await ctx.send(f"Could not sent a message to the user {member.mention}")
+        await ctx.respond(f"Could not sent a message to the user {member.mention}", ephemeral=True)
     embed = discord.Embed(
         title=f"User Unmuted: {member}",
         description=f"User {member.mention} has been unmuted {reason}",
         colour=discord.Colour.light_gray(),
     )
-    await ctx.send(embed=embed)
+    await ctx.respond(embed=embed)
 
+@discord.default_permissions(manage_channels=True)
+@bot.bridge_command(guild_only=True, name="lock", description="Blocks a channel from being used as a chat.")
+async def lock(ctx, channel : discord.TextChannel=None, reason=None):
+    channel = channel or ctx.channel
+    reason = "for "+reason if reason else ""
+    overwrite = channel.overwrites_for(ctx.guild.default_role)
+    overwrite.send_messages = False
+    await channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
+    embed = Embed(
+        title=f"The channel #{ctx.channel} has been locked! :hammer_pick:",
+        description=f"This channel is now locked {reason}"
+    )
+    embed.set_footer(
+        text=f"Hammer | Command executed by {ctx.author}",
+        icon_url=hammericon,
+    )
+    await ctx.respond(embed=embed)
+
+@discord.default_permissions(manage_channels=True)
+@bot.bridge_command(guild_only=True, name="unlock", description="Removes the blocking in a channel from not being used as a chat.")
+async def unlock(ctx, channel : discord.TextChannel=None, reason=None):
+    channel = channel or ctx.channel
+    reason = "for "+reason if reason else ""
+    overwrite = channel.overwrites_for(ctx.guild.default_role)
+    overwrite.send_messages = True
+    await channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
+    embed = Embed(
+        title=f"The channel #{ctx.channel} has been unlocked! :hammer_pick:",
+        description=f"This channel is now unlocked {reason}"
+    )
+    embed.set_footer(
+        text=f"Hammer | Command executed by {ctx.author}",
+        icon_url=hammericon,
+    )
+    await ctx.respond(embed=embed)
 
 bot.run(TOKEN)
