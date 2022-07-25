@@ -22,9 +22,7 @@ What and how many commands has Hemmer? (User /help in a discord guild/server and
 # Add the bot
 https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot
 
-# ↳ Stargazers <br>
-[![Stargazers repo roster for @EncryptEx/hammer](https://reporoster.com/stars/EncryptEx/hammer)](https://github.com/EncryptEx/hammer/stargazers)
- 
+
 Or you can create yours:
 
 # Starting your bot
