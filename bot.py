@@ -194,16 +194,25 @@ async def SaveSetting(guildid: int, module: str, value: int):
     rows = cur.fetchall()
     # print(rows)
     if len(rows) > 0:  # cur.execute('INSERT INTO foo (a,b) values (?,?)', (strA, strB))
-        cur.execute("""UPDATE settings 
+        cur.execute(
+            """UPDATE settings 
         SET ?=? 
         WHERE guildid=? """,
-        (module, value, guildid,))
+            (
+                module,
+                value,
+                guildid,
+            ),
+        )
     else:
         cur.execute(
             """INSERT OR IGNORE INTO settings (guildid, automod)
             VALUES (?,?) 
             """,
-            (guildid, value,),
+            (
+                guildid,
+                value,
+            ),
         )
 
     conn.commit()
