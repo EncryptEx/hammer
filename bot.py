@@ -562,6 +562,11 @@ async def evaluate(ctx, code):
         await ctx.respond("you're not allowed to do that")
 
 
+import sys
+def restart_bot(): 
+    os.execv(sys.executable, ['python'] + sys.argv)
+
+
 @bot.slash_command(guild_only=True, guild_ids=[int(SECURITY_GUILD)])
 async def restart(ctx):
 
@@ -574,18 +579,23 @@ async def restart(ctx):
             # t = ctx.author.id,"used the command eval at", datetime.now()
             # print(t)
             print("CLOSING SESSION")
-            await client.close()
+            
+            await bot.close()
             print("FETCHING NEW CHANGES IN GITHUB")
             import subprocess
 
             try:
-                res = subprocess.check_output(["git", "reset", "--hard"])
-                for line in res.splitlines():
-                    print(line)
+                if not debug:
+                    res = subprocess.check_output(["git", "reset", "--hard"])
+                    for line in res.splitlines():
+                        print(line)
             except Exception as e:
                 await ctx.respond(e, ephemeral=True)
             print("===== STARTING BOT AGAIN =====")
-            await client.login(TOKEN)
+            try:
+                restart_bot()
+            except Exception as e:
+                print(e)
             await ctx.respond("Bot restarted successfully!", ephemeral=True)
         except Exception as e:
             await ctx.respond(e, ephemeral=True)
