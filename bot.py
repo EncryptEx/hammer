@@ -1,3 +1,4 @@
+from email import message
 from pydoc import describe
 import discord, datetime, sys, os
 from get_enviroment import (
@@ -12,6 +13,7 @@ from get_enviroment import (
 )
 from discord import Embed, guild_only
 from discord.ext import commands
+from discord.commands import option
 from discord.ext.commands.core import command
 from time import time
 
@@ -25,12 +27,18 @@ cur.execute(
         `userid` INT(100) UNIQUE,
         `warns` INT);"""
 )
+cur.execute(
+    """CREATE TABLE IF NOT EXISTS `settings` (
+        `guildid` INT(100) UNIQUE,
+        `automod` INT);
+        """
+)
 
 hammericon = "https://images-ext-2.discordapp.net/external/OKc8xu6AILGNFY3nSTt7wGbg-Mi1iQZonoLTFg85o-E/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/591633652493058068/e6011129c5169b29ed05a6dc873175cb.png?width=670&height=670"
 
 intents = discord.Intents.default()
-# intents.members = True
-# intents.messages = True
+intents.members = True
+intents.message_content = True
 
 bot = commands.AutoShardedBot(command_prefix=COMMAND_PREFIX, intents=intents)
 client = discord.Client()
@@ -131,7 +139,7 @@ async def respondNotifOwner(text):
 
 
 async def GetWarnings(userid: int):
-    cur.execute(f"SELECT * FROM warns WHERE userid={userid} LIMIT 1")
+    cur.execute("SELECT * FROM warns WHERE userid={userid} LIMIT 1")
     rows = cur.fetchall()
     # print(rows)
     if len(rows) > 0:
@@ -139,12 +147,20 @@ async def GetWarnings(userid: int):
     else:
         return 0
 
+async def GetSettings(guildid: int):
+    cur.execute("SELECT * FROM settings WHERE guildid={guildid} LIMIT 1")
+    rows = cur.fetchall()
+    # print(rows)
+    if len(rows) > 0:
+        return rows[0][1]
+    else:
+        return 1 #By default is on
 
 # Function to add a warning and save it at the database
 async def SetWarning(
     userid: int, substractMode: bool, wantsToWipeAllWarns: bool = False
 ):
-    cur.execute(f"SELECT * FROM warns WHERE userid={userid} LIMIT 1")
+    cur.execute("SELECT * FROM warns WHERE userid=? LIMIT 1", (userid))
     rows = cur.fetchall()
     # print(rows)
     if len(rows) > 0:
@@ -152,17 +168,36 @@ async def SetWarning(
         warn = nwarns + 1 if substractMode else nwarns - 1
         warn = 0 if wantsToWipeAllWarns else warn
         warn = 0 if warn <= 0 else warn
-        cur.execute(f"UPDATE warns SET warns={warn} WHERE userid={userid}")
+        cur.execute("UPDATE warns SET warns=? WHERE userid=?", (warn, userid))
     else:
         initialwarn = 1 if (substractMode) else 0
         cur.execute(
-            f"""INSERT OR IGNORE INTO warns (userid, warns)
-            VALUES ({userid}, {initialwarn})
-        """
+            """INSERT OR IGNORE INTO warns (userid, warns)
+            VALUES (?, ?)
+        """, (userid, initialwarn)
         )
         warn = 1
     conn.commit()
     return warn
+async def SaveSetting(
+    guildid: int, module:str, value:int
+):
+    # escape data
+    module = module.encode('string_escape')
+    cur.execute("SELECT * FROM settings WHERE guildid=? LIMIT 1", (guildid))
+    rows = cur.fetchall()
+    # print(rows)
+    if len(rows) > 0: # cur.execute('INSERT INTO foo (a,b) values (?,?)', (strA, strB))
+        cur.execute(f"UPDATE settings SET ?=? WHERE guildid=?", (module, value, guildid))
+    else:
+        cur.execute(
+            f"""INSERT OR IGNORE INTO settings (guildid, automod)
+            VALUES (?,?) 
+            """,(guildid, value))
+        
+        
+    conn.commit()
+    return
 
 
 # Function to try to send a message to a user
@@ -205,6 +240,7 @@ async def on_message(message):
     if message.author.bot:
         return
     words = message.content.split()
+    print("scanned: ",message.content)
     for word in words:
         # print("scanning word:",word)
         word = str(word).lower()
@@ -223,7 +259,7 @@ async def on_message(message):
                 title=f"{member} has been warned! :hammer_pick:", description=descr
             )
             embed.set_footer(
-                text=f"Hammer | Command executed by {message.author}",
+                text=f"Hammer | Automod service",
                 icon_url=hammericon,
             )
             embed.set_thumbnail(url=member.display_avatar)
@@ -246,18 +282,17 @@ async def on_message(message):
                 value=f"The removed message was \n||{bannedmessage}||",
                 inline=True,
             )
-            await message.channel.respond(embed=embed)
+            await message.channel.send(embed=embed)
             await message.delete()
             try:
                 channel = await member.create_dm()
-                await channel.respond(embed=embed)
+                await channel.send(embed=embed)
 
             except:
                 embed = ErrorEmbed(
                     await message.channel.send(
                         f"Could not deliver the message to the user {member}\n This may be caused because the user is a bot, has blocked me or has the DMs turned off. \n\n**But the user is warned** and I have saved it into my beautiful unforgettable database"
                     ),
-                    ephemeral=True,
                 )
     # if(str(message.content).startswith(COMMAND_PREFIX)):
     # print("command executed", message.content)
@@ -783,6 +818,52 @@ async def invite(ctx):
     embed = Embed(
         title=f"Invite Hammer Bot to your server! :hammer_pick:",
         description=f"[**🔗 Hammer Invite Link**](https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot)",
+    )
+    embed.set_footer(
+        text=f"Hammer | Command executed by {ctx.author}",
+        icon_url=hammericon,
+    )
+    await ctx.respond(embed=embed)
+
+
+modules = ['automod']
+
+@discord.default_permissions(administrator=True)
+@bot.slash_command(name='settings', description="Modifies some Hammer config values", guild_only=True)
+@option(
+    "module",
+    description="Pick a module to switch!",
+    autocomplete=discord.utils.basic_autocomplete(modules),
+)
+@option(
+    "value",
+    description="Select on/off",
+    autocomplete=discord.utils.basic_autocomplete(['on','off']),
+)
+async def settings(ctx, module: str=None, value: str=None):
+    if (module != None  and value != None):
+        if(module in modules and value=="on" or value=="off"):
+            print("lets go")
+            value = 1 if value=="on" else 0
+            await SaveSetting(ctx.guild.id,module,value)
+            action = "enabled" if value else "disabled"
+            await ctx.respond(f"Module {module} {action} successfully!", ephemeral=True)
+            return
+        else:
+            await ctx.respond("Use: ``/settings module on/off``", ephemeral=True)
+            return 
+    embed = Embed(
+        title=f"Hammer Bot Settings :hammer_pick:",
+        description=f"Here you can enable or disable some modules",
+    )
+    print("getting settings from discord.Guild.id", ctx.guild.id)
+    automodStatus = await GetSettings(ctx.guild.id)
+    automodStatustr = "**✅ ON**" if automodStatus else "**❌ OFF**"
+    recommendedactivityAutomod = f"Disable it by doing: ``{COMMAND_PREFIX}settings automod off``" if automodStatus else f"Enable it by doing ``{COMMAND_PREFIX}settings automod on``"
+    embed.add_field(
+        name="AutoMod Services :robot:",
+        value=f"Actual status: {automodStatustr}\n {recommendedactivityAutomod}",
+        inline=True,
     )
     embed.set_footer(
         text=f"Hammer | Command executed by {ctx.author}",
