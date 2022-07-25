@@ -183,7 +183,6 @@ async def SaveSetting(
     guildid: int, module:str, value:int
 ):
     # escape data
-    module = module.encode('string_escape')
     cur.execute("SELECT * FROM settings WHERE guildid=? LIMIT 1", (guildid))
     rows = cur.fetchall()
     # print(rows)
