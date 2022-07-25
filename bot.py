@@ -184,6 +184,13 @@ async def SetWarning(
     return warn
 
 
+async def GetSettings(guildid: int):
+    cur.execute("SELECT * FROM settings WHERE guildid = ? LIMIT 1", (guildid,))
+    rows = cur.fetchall()
+    if len(rows) > 0:
+        return rows[0][1]
+    else: return 1 # default is on
+
 async def SaveSetting(guildid: int, module: str, value: int):
     cur.execute("SELECT * FROM settings WHERE guildid = ? LIMIT 1", (guildid,))
     rows = cur.fetchall()
@@ -247,6 +254,7 @@ async def on_message(message):
     # Skip bot messages
     if message.author.bot:
         return
+    if(int(await GetSettings(message.guild.id)) != 1): return # user has disabled Automod 
     words = message.content.split()
     print("scanned: ", message.content)
     for word in words:
