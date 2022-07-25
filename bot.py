@@ -147,6 +147,7 @@ async def GetWarnings(userid: int):
     else:
         return 0
 
+
 async def GetSettings(guildid: int):
     cur.execute("SELECT * FROM settings WHERE guildid={guildid} LIMIT 1")
     rows = cur.fetchall()
@@ -154,7 +155,8 @@ async def GetSettings(guildid: int):
     if len(rows) > 0:
         return rows[0][1]
     else:
-        return 1 #By default is on
+        return 1  # By default is on
+
 
 # Function to add a warning and save it at the database
 async def SetWarning(
@@ -174,28 +176,32 @@ async def SetWarning(
         cur.execute(
             """INSERT OR IGNORE INTO warns (userid, warns)
             VALUES (?, ?)
-        """, (userid, initialwarn)
+        """,
+            (userid, initialwarn),
         )
         warn = 1
     conn.commit()
     return warn
-async def SaveSetting(
-    guildid: int, module:str, value:int
-):
+
+
+async def SaveSetting(guildid: int, module: str, value: int):
     # escape data
-    module = module.encode('string_escape')
+    module = module.encode("string_escape")
     cur.execute("SELECT * FROM settings WHERE guildid=? LIMIT 1", (guildid))
     rows = cur.fetchall()
     # print(rows)
-    if len(rows) > 0: # cur.execute('INSERT INTO foo (a,b) values (?,?)', (strA, strB))
-        cur.execute(f"UPDATE settings SET ?=? WHERE guildid=?", (module, value, guildid))
+    if len(rows) > 0:  # cur.execute('INSERT INTO foo (a,b) values (?,?)', (strA, strB))
+        cur.execute(
+            f"UPDATE settings SET ?=? WHERE guildid=?", (module, value, guildid)
+        )
     else:
         cur.execute(
             f"""INSERT OR IGNORE INTO settings (guildid, automod)
             VALUES (?,?) 
-            """,(guildid, value))
-        
-        
+            """,
+            (guildid, value),
+        )
+
     conn.commit()
     return
 
@@ -240,7 +246,7 @@ async def on_message(message):
     if message.author.bot:
         return
     words = message.content.split()
-    print("scanned: ",message.content)
+    print("scanned: ", message.content)
     for word in words:
         # print("scanning word:",word)
         word = str(word).lower()
@@ -829,10 +835,13 @@ async def invite(ctx):
     await ctx.respond(embed=embed)
 
 
-modules = ['automod']
+modules = ["automod"]
+
 
 @discord.default_permissions(administrator=True)
-@bot.slash_command(name='settings', description="Modifies some Hammer config values", guild_only=True)
+@bot.slash_command(
+    name="settings", description="Modifies some Hammer config values", guild_only=True
+)
 @option(
     "module",
     description="Pick a module to switch!",
@@ -841,20 +850,20 @@ modules = ['automod']
 @option(
     "value",
     description="Select on/off",
-    autocomplete=discord.utils.basic_autocomplete(['on','off']),
+    autocomplete=discord.utils.basic_autocomplete(["on", "off"]),
 )
-async def settings(ctx, module: str=None, value: str=None):
-    if (module != None  and value != None):
-        if(module in modules and value=="on" or value=="off"):
+async def settings(ctx, module: str = None, value: str = None):
+    if module != None and value != None:
+        if module in modules and value == "on" or value == "off":
             print("lets go")
-            value = 1 if value=="on" else 0
-            await SaveSetting(ctx.guild.id,module,value)
+            value = 1 if value == "on" else 0
+            await SaveSetting(ctx.guild.id, module, value)
             action = "enabled" if value else "disabled"
             await ctx.respond(f"Module {module} {action} successfully!", ephemeral=True)
             return
         else:
             await ctx.respond("Use: ``/settings module on/off``", ephemeral=True)
-            return 
+            return
     embed = Embed(
         title=f"Hammer Bot Settings :hammer_pick:",
         description=f"Here you can enable or disable some modules",
@@ -862,7 +871,11 @@ async def settings(ctx, module: str=None, value: str=None):
     print("getting settings from discord.Guild.id", ctx.guild.id)
     automodStatus = await GetSettings(ctx.guild.id)
     automodStatustr = "**✅ ON**" if automodStatus else "**❌ OFF**"
-    recommendedactivityAutomod = f"Disable it by doing: ``{COMMAND_PREFIX}settings automod off``" if automodStatus else f"Enable it by doing ``{COMMAND_PREFIX}settings automod on``"
+    recommendedactivityAutomod = (
+        f"Disable it by doing: ``{COMMAND_PREFIX}settings automod off``"
+        if automodStatus
+        else f"Enable it by doing ``{COMMAND_PREFIX}settings automod on``"
+    )
     embed.add_field(
         name="AutoMod Services :robot:",
         value=f"Actual status: {automodStatustr}\n {recommendedactivityAutomod}",
@@ -873,5 +886,6 @@ async def settings(ctx, module: str=None, value: str=None):
         icon_url=hammericon,
     )
     await ctx.respond(embed=embed)
+
 
 bot.run(TOKEN)
