@@ -32,7 +32,7 @@ intents = discord.Intents.default()
 # intents.messages = True
 
 bot = commands.AutoShardedBot(command_prefix=COMMAND_PREFIX, intents=intents)
-
+client = discord.Client()
 
 bot.remove_command("help")
 
@@ -554,6 +554,35 @@ async def evaluate(ctx, code):
                     f"Error occurred:```\n{type(e).__name__}: {str(e)}```",
                     ephemeral=True,
                 )
+        except Exception as e:
+            await ctx.respond(e, ephemeral=True)
+    else:
+        await ctx.respond("you're not allowed to do that")
+
+
+@bot.slash_command(guild_only=True, guild_ids=[int(SECURITY_GUILD)])
+async def restart(ctx):
+
+    if str(ctx.author.id) == str(OWNER):
+        try:
+            # await respondNotifOwner(
+            #     f"User {ctx.author} used command evaluate | id {ctx.author.id}"
+            # )
+            print("RESTART asked by", ctx.author)
+            # t = ctx.author.id,"used the command eval at", datetime.now()
+            # print(t)
+            print("CLOSING SESSION")
+            await client.close()
+            print("FETCHING NEW CHANGES IN GITHUB")
+            import subprocess
+            try:
+                res = subprocess.check_output(["git", "pull"])
+                for line in res.splitlines():
+                    print(line)
+            except Exception as e: 
+                await ctx.respond(e, ephemeral=True)
+            print("STARTING BOT AGAIN")
+            await client.login(TOKEN)
         except Exception as e:
             await ctx.respond(e, ephemeral=True)
     else:
