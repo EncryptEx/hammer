@@ -739,14 +739,12 @@ async def unlock(ctx, channel: discord.TextChannel = None, reason=None):
     await ctx.respond(embed=embed)
 
 
-
 @bot.slash_command(
     name="suggest",
     description="Sends a suggestion to the developer of Hammer.",
 )
 async def unlock(ctx, suggestion: str):
 
-    
     embed = Embed(
         title=f"The user {ctx.author} has posted a suggestion! :hammer_pick:",
         description=f"{suggestion}",
