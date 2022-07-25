@@ -26,6 +26,25 @@ https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permiss
 Or you can create yours:
 
 # Starting your bot
+Clone and enter repo folder
+```sh
+git clone https://github.com/EncryptEx/hammer && cd hammer
+```
+Crete virtual enviroment
+```sh
+python -m venv env && source env/bin/activate
+```
+Install dependencies
+```sh
+pip install -r requirements.txt
+```
+Run the bot
+```sh
+chmod +x ./bot.py && python ./bot.py
+```
+
+I do poersonally recommend to use a bot hosting service to handle the bot, I suggest to use a vps and the ``screen`` command to run it in background.
+
 
 <!--# Useful Commands
 /warn  -  Warns the user
