@@ -5,6 +5,7 @@ from get_enviroment import (
     OWNER,
     TOKEN,
     ANNOUNCEMENTS_CHANNEL,
+    DEV_SUGGESTIONS_CHANNEL,
     SECURITY_CHANNEL,
     SECURITY_GUILD,
     SWEAR_WORDS_LIST,
@@ -108,6 +109,7 @@ async def help(ctx):
         value=f"""
     {COMMAND_PREFIX}help
     {COMMAND_PREFIX}invite
+    {COMMAND_PREFIX}suggest [suggestion]
     """,
         inline=True,
     )
@@ -568,7 +570,7 @@ async def restart(ctx):
             # await respondNotifOwner(
             #     f"User {ctx.author} used command evaluate | id {ctx.author.id}"
             # )
-            print("RESTART asked by", ctx.author)
+            print("===== RESTART asked by", ctx.author, "=====")
             # t = ctx.author.id,"used the command eval at", datetime.now()
             # print(t)
             print("CLOSING SESSION")
@@ -582,7 +584,7 @@ async def restart(ctx):
                     print(line)
             except Exception as e:
                 await ctx.respond(e, ephemeral=True)
-            print("STARTING BOT AGAIN")
+            print("===== STARTING BOT AGAIN =====")
             await client.login(TOKEN)
             await ctx.respond("Bot restarted successfully!", ephemeral=True)
         except Exception as e:
@@ -735,6 +737,26 @@ async def unlock(ctx, channel: discord.TextChannel = None, reason=None):
         icon_url=hammericon,
     )
     await ctx.respond(embed=embed)
+
+
+
+@bot.slash_command(
+    name="suggest",
+    description="Sends a suggestion to the developer of Hammer.",
+)
+async def unlock(ctx, suggestion: str):
+
+    
+    embed = Embed(
+        title=f"The user {ctx.author} has posted a suggestion! :hammer_pick:",
+        description=f"{suggestion}",
+    )
+    embed.set_footer(
+        text=f"Hammer | Command executed by {ctx.author}",
+        icon_url=hammericon,
+    )
+    suggestionChannel = bot.get_channel(int(DEV_SUGGESTIONS_CHANNEL))
+    await suggestionChannel.respond(embed=embed)
 
 
 bot.run(TOKEN)
