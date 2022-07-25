@@ -185,25 +185,14 @@ async def SetWarning(
 
 
 async def SaveSetting(guildid: int, module: str, value: int):
-
-    # parse data
-    guildid = str(guildid)
-    module = str(module)
-    value = str(value)
-    cur.execute("SELECT * FROM settings WHERE guildid=? LIMIT 1", (guildid,))
+    cur.execute("SELECT * FROM settings WHERE guildid = ? LIMIT 1", (guildid,))
     rows = cur.fetchall()
     # print(rows)
     if len(rows) > 0:  # cur.execute('INSERT INTO foo (a,b) values (?,?)', (strA, strB))
-        cur.execute(
-            """UPDATE settings 
-        SET ?=? 
-        WHERE guildid=? """,
-            (
-                module,
-                value,
-                guildid,
-            ),
-        )
+        query = f"""UPDATE settings 
+        SET automod = {value}
+        WHERE guildid={guildid} """
+        cur.execute(query)
     else:
         cur.execute(
             """INSERT OR IGNORE INTO settings (guildid, automod)
@@ -868,7 +857,6 @@ modules = ["automod"]
 async def settings(ctx, module: str = None, value: str = None):
     if module != None and value != None:
         if module in modules and value == "on" or value == "off":
-            print("lets go")
             value = 1 if value == "on" else 0
             await SaveSetting(ctx.guild.id, module, value)
             action = "enabled" if value else "disabled"
