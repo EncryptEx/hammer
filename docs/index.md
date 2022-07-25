@@ -1,37 +1,75 @@
-## Welcome to GitHub Pages
+<h1>Privacy Policy for Hammer Bot</h1>
 
-You can use the [editor on GitHub](https://github.com/EncryptEx/hammer/edit/master/docs/index.md) to maintain and preview the content for your website in Markdown files.
+<p>At Hammer, accessible from discord.com, one of our main priorities is the privacy of our users. This Privacy Policy document contains types of information that is collected and recorded by Hammer and how we use it.</p>
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+<p>If you have additional questions or require more information about our Privacy Policy, do not hesitate to contact us via discord: EncryptEx#6341.</p>
 
-### Markdown
+<p>This Privacy Policy applies only to our online activities and is valid for visitors to our bot with regards to the information that they shared and/or collect in Hammer. This policy is not applicable to any information collected offline. </p>
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+<h2>Consent</h2>
 
-```markdown
-Syntax highlighted code block
+<p>By using our bot, you hereby consent to our Privacy Policy and agree to its terms.</p>
 
-# Header 1
-## Header 2
-### Header 3
+<h2>Information we collect</h2>
 
-- Bulleted
-- List
+<p>The personal information that you are asked to provide, and the reasons why you are asked to provide it, will be made clear to you at the point we ask you to provide your personal information.</p>
+<p>If you contact us directly, we may receive additional information about you such as your userid, warns, and any other information you may choose to provide.</p>
 
-1. Numbered
-2. List
+<h2>How we use your information</h2>
 
-**Bold** and _Italic_ and `Code` text
+<p>We use the information we collect in various ways, including to:</p>
 
-[Link](url) and ![Image](src)
-```
+<ul>
+<li>Provide, operate, and maintain our bot</li>
+<li>Improve, personalize, and expand our bot</li>
+<li>Understand and analyze how you use our bot</li>
+<li>Develop new products, services, features, and functionality</li>
+<li>Communicate with you, either directly or through one of our partners, including for customer service, to provide you with updates and other information relating to the bot, and for marketing and promotional purposes</li>
+<li>Find and prevent fraud</li>
+</ul>
 
-For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
+<h2>Log Files</h2>
 
-### Jekyll Themes
+<p>Hammer follows a standard procedure of using log files. These files log visitors when they visit bots. All hosting companies do this and a part of hosting services' analytics. The information collected by log files include hashed userid, date and time stamp. These are not linked to any information that is personally identifiable. The purpose of the information is for analyzing trends, administering the bot, tracking users' movement on the bot.</p>
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/EncryptEx/hammer/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
 
-### Support or Contact
 
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+
+<h2>Advertising Partners Privacy Policies</h2>
+
+<p>Hammer has not any partner or adverteisement behind. Your data is stored safely. </p>
+
+<!-- <P>You may consult this list to find the Privacy Policy for each of the advertising partners of Hammer.</p> -->
+<!-- 
+<p>Third-party ad servers or ad networks uses technologies like cookies, JavaScript, or Web Beacons that are used in their respective advertisements and links that appear on Hammer, which are sent directly to users' browser. They automatically receive your IP address when this occurs. These technologies are used to measure the effectiveness of their advertising campaigns and/or to personalize the advertising content that you see on bots that you visit.</p>
+
+<p>Note that Hammer has no access to or control over these cookies that are used by third-party advertisers.</p> -->
+
+<h2>Third Party Privacy Policies</h2>
+
+<p>Hammer's Privacy Policy does not apply to other advertisers or websites. Thus, we are advising you to consult the respective Privacy Policies of these third-party ad servers for more detailed information. It may include their practices and instructions about how to opt-out of certain options. </p>
+
+<h2>CCPA Privacy Rights (Do Not Sell My Personal Information)</h2>
+
+<p>Under the CCPA, among other rights, California consumers have the right to:</p>
+<p>Request that a business that collects a consumer's personal data disclose the categories and specific pieces of personal data that a business has collected about consumers.</p>
+<p>Request that a business delete any personal data about the consumer that a business has collected.</p>
+<p>Request that a business that sells a consumer's personal data, not sell the consumer's personal data.</p>
+<p>If you make a request, we have one month to respond to you. If you would like to exercise any of these rights, please contact us.</p>
+
+<h2>GDPR Data Protection Rights</h2>
+
+<p>We would like to make sure you are fully aware of all of your data protection rights. Every user is entitled to the following:</p>
+<p>The right to access – You have the right to request copies of your personal data. We may charge you a small fee for this service.</p>
+<p>The right to rectification – You have the right to request that we correct any information you believe is inaccurate. You also have the right to request that we complete the information you believe is incomplete.</p>
+<p>The right to erasure – You have the right to request that we erase your personal data, under certain conditions.</p>
+<p>The right to restrict processing – You have the right to request that we restrict the processing of your personal data, under certain conditions.</p>
+<p>The right to object to processing – You have the right to object to our processing of your personal data, under certain conditions.</p>
+<p>The right to data portability – You have the right to request that we transfer the data that we have collected to another organization, or directly to you, under certain conditions.</p>
+<p>If you make a request, we have one month to respond to you. If you would like to exercise any of these rights, please contact us.</p>
+
+<h2>Children's Information</h2>
+
+<p>Another part of our priority is adding protection for children while using the internet. We encourage parents and guardians to observe, participate in, and/or monitor and guide their online activity.</p>
+
+<p>Hammer does not knowingly collect any Personal Identifiable Information from children under the age of 13. If you think that your child provided this kind of information on our bot, we strongly encourage you to contact us immediately and we will do our best efforts to promptly remove such information from our records.</p>
