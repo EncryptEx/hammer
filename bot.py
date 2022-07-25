@@ -577,7 +577,7 @@ async def restart(ctx):
             import subprocess
 
             try:
-                res = subprocess.check_output(["git", "pull"])
+                res = subprocess.check_output(["git", "reset", "--hard"])
                 for line in res.splitlines():
                     print(line)
             except Exception as e:
