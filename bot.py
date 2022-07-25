@@ -586,7 +586,12 @@ async def restart(ctx):
 
             try:
                 if not debug:
+                    # Remove any changes done
                     res = subprocess.check_output(["git", "reset", "--hard"])
+                    for line in res.splitlines():
+                        print(line)
+                    # Update files
+                    res = subprocess.check_output(["git", "pull"])
                     for line in res.splitlines():
                         print(line)
             except Exception as e:
