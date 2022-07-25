@@ -807,7 +807,10 @@ async def suggest(ctx, suggestion: str):
     )
     suggestionChannel = bot.get_channel(int(DEV_SUGGESTIONS_CHANNEL))
     await suggestionChannel.send(embed=embed)
-    await ctx.respond("[200 OK] ✅ Your suggestion has been successfully recieved! \n Join our support server to see how does it progress! (in /help you'll find the link)", ephemeral=True)
+    await ctx.respond(
+        "[200 OK] ✅ Your suggestion has been successfully recieved! \n Join our support server to see how does it progress! (in /help you'll find the link)",
+        ephemeral=True,
+    )
 
 
 @bot.slash_command(
