@@ -590,14 +590,8 @@ async def mute(ctx, member: discord.Member, *, reason=None):
     await ctx.respond(embed=embed)
     await member.add_roles(mutedRole, reason=reason)
 
-    try:
-        await member.respond(
-            f":no_entry: You have been muted from: {ctx.guild.name} for {reason}"
-        )
-    except:
-        await ctx.respond(
-            f"Could not sent a message to the user {member.mention}", ephemeral=True
-        )
+    SendMessageTo(ctx, member, f":no_entry: You have been muted from: {ctx.guild.name} for {reason}")
+
 
 
 # description="Unmutes a specified user."
@@ -613,14 +607,7 @@ async def unmute(ctx, member: discord.Member, *, reason=None):
     else:
         reason = "for " + reason
     await member.remove_roles(mutedRole)
-    try:
-        await member.respond(
-            f":tada: You have been unmuted from: {ctx.guild.name} {reason}"
-        )
-    except:
-        await ctx.respond(
-            f"Could not sent a message to the user {member.mention}", ephemeral=True
-        )
+    SendMessageTo(ctx, member, f":tada: You have been unmuted from: {ctx.guild.name} {reason}")
     embed = discord.Embed(
         title=f"User Unmuted: {member}",
         description=f"User {member.mention} has been unmuted {reason}",
