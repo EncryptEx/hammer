@@ -563,8 +563,10 @@ async def evaluate(ctx, code):
 
 
 import sys
-def restart_bot(): 
-    os.execv(sys.executable, ['python'] + sys.argv)
+
+
+def restart_bot():
+    os.execv(sys.executable, ["python"] + sys.argv)
 
 
 @bot.slash_command(guild_only=True, guild_ids=[int(SECURITY_GUILD)])
@@ -579,7 +581,7 @@ async def restart(ctx):
             # t = ctx.author.id,"used the command eval at", datetime.now()
             # print(t)
             print("CLOSING SESSION")
-            
+
             await bot.close()
             print("FETCHING NEW CHANGES IN GITHUB")
             import subprocess
