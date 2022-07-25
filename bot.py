@@ -772,6 +772,22 @@ async def suggest(ctx, suggestion: str):
     )
     suggestionChannel = bot.get_channel(int(DEV_SUGGESTIONS_CHANNEL))
     await suggestionChannel.send(embed=embed)
+    await ctx.respond("[200 OK] ✅ Your suggestion has been successfully recieved! \n Join our support server to see how does it progress! (in /help you'll find the link)", ephemeral=True)
 
+
+@bot.slash_command(
+    name="invite",
+    description="Returns the bot's invitation link.",
+)
+async def invite(ctx):
+    embed = Embed(
+        title=f"Invite Hammer Bot to your server! :hammer_pick:",
+        description=f"[**🔗 Hammer Invite Link**](https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot)",
+    )
+    embed.set_footer(
+        text=f"Hammer | Command executed by {ctx.author}",
+        icon_url=hammericon,
+    )
+    await ctx.respond(embed=embed)
 
 bot.run(TOKEN)
