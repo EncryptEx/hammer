@@ -256,6 +256,7 @@ async def on_message(message):
     # Skip bot messages
     if message.author.bot:
         return
+    if(message.content == "" or message.content ==None): return
     if int(await GetSettings(message.guild.id)) != 1:
         return  # user has disabled Automod
     words = message.content.split()
