@@ -760,7 +760,7 @@ async def unlock(ctx, channel: discord.TextChannel = None, reason=None):
     name="suggest",
     description="Sends a suggestion to the developer of Hammer.",
 )
-async def unlock(ctx, suggestion: str):
+async def suggest(ctx, suggestion: str):
 
     embed = Embed(
         title=f"The user {ctx.author} has posted a suggestion! :hammer_pick:",
@@ -771,7 +771,7 @@ async def unlock(ctx, suggestion: str):
         icon_url=hammericon,
     )
     suggestionChannel = bot.get_channel(int(DEV_SUGGESTIONS_CHANNEL))
-    await suggestionChannel.respond(embed=embed)
+    await suggestionChannel.send(embed=embed)
 
 
 bot.run(TOKEN)
