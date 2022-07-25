@@ -575,11 +575,12 @@ async def restart(ctx):
             await client.close()
             print("FETCHING NEW CHANGES IN GITHUB")
             import subprocess
+
             try:
                 res = subprocess.check_output(["git", "pull"])
                 for line in res.splitlines():
                     print(line)
-            except Exception as e: 
+            except Exception as e:
                 await ctx.respond(e, ephemeral=True)
             print("STARTING BOT AGAIN")
             await client.login(TOKEN)
