@@ -139,7 +139,7 @@ async def respondNotifOwner(text):
 
 
 async def GetWarnings(userid: int):
-    cur.execute("SELECT * FROM warns WHERE userid={userid} LIMIT 1")
+    cur.execute("SELECT * FROM warns WHERE userid=? LIMIT 1", (userid,))
     rows = cur.fetchall()
     # print(rows)
     if len(rows) > 0:
@@ -149,7 +149,7 @@ async def GetWarnings(userid: int):
 
 
 async def GetSettings(guildid: int):
-    cur.execute("SELECT * FROM settings WHERE guildid={guildid} LIMIT 1")
+    cur.execute("SELECT * FROM settings WHERE guildid=? LIMIT 1", (guildid,))
     rows = cur.fetchall()
     # print(rows)
     if len(rows) > 0:
@@ -162,7 +162,7 @@ async def GetSettings(guildid: int):
 async def SetWarning(
     userid: int, substractMode: bool, wantsToWipeAllWarns: bool = False
 ):
-    cur.execute("SELECT * FROM warns WHERE userid=? LIMIT 1", (userid))
+    cur.execute("SELECT * FROM warns WHERE userid=? LIMIT 1", (userid,))
     rows = cur.fetchall()
     # print(rows)
     if len(rows) > 0:
@@ -185,20 +185,25 @@ async def SetWarning(
 
 
 async def SaveSetting(guildid: int, module: str, value: int):
-    # escape data
-    cur.execute("SELECT * FROM settings WHERE guildid=? LIMIT 1", (guildid))
+
+    # parse data
+    guildid = str(guildid)
+    module = str(module)
+    value = str(value)
+    cur.execute("SELECT * FROM settings WHERE guildid=? LIMIT 1", (guildid,))
     rows = cur.fetchall()
     # print(rows)
     if len(rows) > 0:  # cur.execute('INSERT INTO foo (a,b) values (?,?)', (strA, strB))
-        cur.execute(
-            f"UPDATE settings SET ?=? WHERE guildid=?", (module, value, guildid)
-        )
+        cur.execute("""UPDATE settings 
+        SET ?=? 
+        WHERE guildid=? """,
+        (module, value, guildid,))
     else:
         cur.execute(
-            f"""INSERT OR IGNORE INTO settings (guildid, automod)
+            """INSERT OR IGNORE INTO settings (guildid, automod)
             VALUES (?,?) 
             """,
-            (guildid, value),
+            (guildid, value,),
         )
 
     conn.commit()
