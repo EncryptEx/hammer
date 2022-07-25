@@ -275,7 +275,7 @@ async def on_ready():
         print(sum(1 for x in bot.get_all_channels()), "channels")
         print(sum(1 for x in bot.get_all_members()), "members")
         chnl = bot.get_channel(int(ANNOUNCEMENTS_CHANNEL))
-        await chnl.respond("Bot UP!")
+        await chnl.send("Bot UP!")
         print("Sent message to #" + str(chnl))
 
 
@@ -583,6 +583,7 @@ async def restart(ctx):
                 await ctx.respond(e, ephemeral=True)
             print("STARTING BOT AGAIN")
             await client.login(TOKEN)
+            await ctx.respond("Bot restarted successfully!", ephemeral=True)
         except Exception as e:
             await ctx.respond(e, ephemeral=True)
     else:
