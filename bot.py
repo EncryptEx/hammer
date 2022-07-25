@@ -41,7 +41,9 @@ bot.remove_command("help")
 #
 
 
-@bot.slash_command(name="help", description="Displays all the available commands for Hammer")
+@bot.slash_command(
+    name="help", description="Displays all the available commands for Hammer"
+)
 async def help(ctx):
     # Define each page
 
@@ -125,13 +127,14 @@ async def help(ctx):
 async def respondNotifOwner(text):
     await bot.get_channel(int(SECURITY_CHANNEL)).respond(text)
 
+
 async def GetWarnings(userid: int):
     cur.execute(f"SELECT * FROM warns WHERE userid={userid} LIMIT 1")
     rows = cur.fetchall()
     # print(rows)
     if len(rows) > 0:
         return rows[0][1]
-    else: 
+    else:
         return 0
 
 
@@ -168,8 +171,9 @@ async def SendMessageTo(ctx, member, message):
         await ctx.respond(
             embed=ErrorEmbed(
                 f"Could not deliver the message to the user {member}\n This may be caused because the user is a bot, has blocked me or has the DMs turned off. \n\n**But the user is warned** and I have saved it into my beautiful unforgettable database"
-            )
-        , ephemeral=True)
+            ),
+            ephemeral=True,
+        )
 
 
 # Function to create a template for all errors.
@@ -278,8 +282,6 @@ async def on_ready():
 debug = False
 
 
-
-
 @bot.slash_command(guild_only=True, name="hello", guild_ids=[int(SECURITY_GUILD)])
 async def hello(ctx):
     await ctx.respond("Hammer is back!")
@@ -307,7 +309,12 @@ async def on_command_error(ctx, error):
             ephemeral=True,
         )
 
-@bot.slash_command(guild_only=True, name="whois", description="Displays all the public info from a specific user")
+
+@bot.slash_command(
+    guild_only=True,
+    name="whois",
+    description="Displays all the public info from a specific user",
+)
 async def whois(ctx, member: discord.Member):
 
     try:
@@ -326,7 +333,7 @@ async def whois(ctx, member: discord.Member):
             **Warns:** {await GetWarnings(member.id)}
             """
         embed = Embed(title=f"Who is {member} ?", description=descr)
-        
+
         embed.set_thumbnail(url=member.display_avatar)
 
         embed.set_footer(
@@ -338,8 +345,11 @@ async def whois(ctx, member: discord.Member):
         await ctx.respond(e)
 
 
-
-@bot.slash_command(guild_only=True, name="ban", description="Keeps out a user permanently, forbidding its entry")
+@bot.slash_command(
+    guild_only=True,
+    name="ban",
+    description="Keeps out a user permanently, forbidding its entry",
+)
 @discord.default_permissions(
     ban_members=True,
 )
@@ -376,7 +386,9 @@ async def ban(ctx, member: discord.Member, *, reason=None):
     await SendMessageTo(ctx, member, message)
 
 
-@bot.slash_command(guild_only=True, name="kick", description="Kicks out a member from the server")
+@bot.slash_command(
+    guild_only=True, name="kick", description="Kicks out a member from the server"
+)
 @discord.default_permissions(
     kick_members=True,
 )
@@ -411,7 +423,11 @@ async def kick(ctx, member: discord.Member, *, reason=None):
     await SendMessageTo(ctx, member, message)
 
 
-@bot.slash_command(guild_only=True, name="warn", description="Sets a warning for a user, at 3 warns/strikes they get kicked")
+@bot.slash_command(
+    guild_only=True,
+    name="warn",
+    description="Sets a warning for a user, at 3 warns/strikes they get kicked",
+)
 @discord.default_permissions(
     administrator=True,
 )
@@ -442,7 +458,10 @@ async def warn(ctx, member: discord.Member, reason=None):
 
     await SendMessageTo(ctx, member, message)
 
-@bot.slash_command(guild_only=True, name="unwarn", description="Removes a strike from a user")
+
+@bot.slash_command(
+    guild_only=True, name="unwarn", description="Removes a strike from a user"
+)
 @discord.default_permissions(
     kick_members=True,
 )
@@ -471,7 +490,9 @@ async def unwarn(ctx, member: discord.Member, *, reason=None):
     await SendMessageTo(ctx, member, message)
 
 
-@bot.slash_command(guild_only=True, name="clearwarns", description="Removes all strikes from a user")
+@bot.slash_command(
+    guild_only=True, name="clearwarns", description="Removes all strikes from a user"
+)
 @discord.default_permissions(
     kick_members=True,
 )
@@ -482,7 +503,10 @@ async def clearwarns(ctx, member: discord.Member, *, reason=None):
     message = f"Your warns have been cleared for {reason}"
 
     descr = f"The user {member} has 0 warns for {reason}"
-    embed = Embed(title=f"The warns of {member} have been removed! :hammer_pick:", description=descr)
+    embed = Embed(
+        title=f"The warns of {member} have been removed! :hammer_pick:",
+        description=descr,
+    )
     embed.set_footer(
         text=f"Hammer | Command executed by {ctx.author}",
         icon_url=hammericon,
@@ -495,7 +519,8 @@ async def clearwarns(ctx, member: discord.Member, *, reason=None):
         inline=True,
     )
     await ctx.respond(embed=embed, ephemeral=False)
-    await SendMessageTo(ctx, member,message)
+    await SendMessageTo(ctx, member, message)
+
 
 @bot.slash_command(guild_only=True, guild_ids=[int(SECURITY_GUILD)])
 async def evaluate(ctx, code):
@@ -535,11 +560,15 @@ async def evaluate(ctx, code):
         await ctx.respond("you're not allowed to do that")
 
 
-@bot.slash_command(guild_only=True, name="setdelay", description="Updates the message delay in a channel with a set of custom time interval")
+@bot.slash_command(
+    guild_only=True,
+    name="setdelay",
+    description="Updates the message delay in a channel with a set of custom time interval",
+)
 @discord.default_permissions(
     manage_messages=True,
 )
-async def setdelay(ctx, seconds: float, reason: str=''):
+async def setdelay(ctx, seconds: float, reason: str = ""):
 
     m = "modified" if seconds > 0.0 else "removed"
     embed = Embed(
@@ -558,7 +587,11 @@ async def setdelay(ctx, seconds: float, reason: str=''):
 
 
 # description="Mutes the specified user."
-@bot.slash_command(guild_only=True, name="mute", description="Removes the hability to talk or join voice channels to a user")
+@bot.slash_command(
+    guild_only=True,
+    name="mute",
+    description="Removes the hability to talk or join voice channels to a user",
+)
 @discord.default_permissions(
     manage_messages=True,
 )
@@ -595,7 +628,11 @@ async def mute(ctx, member: discord.Member, *, reason=None):
 
 
 # description="Unmutes a specified user."
-@bot.slash_command(guild_only=True, name="unmute", description="Restores the hability to talk or join voice channels to a user")
+@bot.slash_command(
+    guild_only=True,
+    name="unmute",
+    description="Restores the hability to talk or join voice channels to a user",
+)
 @discord.default_permissions(
     manage_messages=True,
 )
@@ -617,8 +654,12 @@ async def unmute(ctx, member: discord.Member, *, reason=None):
 
 
 @discord.default_permissions(manage_channels=True)
-@bot.slash_command(guild_only=True, name="lock", description="Blocks a channel from being used as a chat.")
-async def lock(ctx, channel : discord.TextChannel=None, reason=None):
+@bot.slash_command(
+    guild_only=True,
+    name="lock",
+    description="Blocks a channel from being used as a chat.",
+)
+async def lock(ctx, channel: discord.TextChannel = None, reason=None):
 
     channel = channel or ctx.channel
     reason = "for " + reason if reason else ""
@@ -637,8 +678,12 @@ async def lock(ctx, channel : discord.TextChannel=None, reason=None):
 
 
 @discord.default_permissions(manage_channels=True)
-@bot.slash_command(guild_only=True, name="unlock", description="Removes the blocking in a channel from not being used as a chat.")
-async def unlock(ctx, channel : discord.TextChannel=None, reason=None):
+@bot.slash_command(
+    guild_only=True,
+    name="unlock",
+    description="Removes the blocking in a channel from not being used as a chat.",
+)
+async def unlock(ctx, channel: discord.TextChannel = None, reason=None):
 
     channel = channel or ctx.channel
     reason = "for " + reason if reason else ""
