@@ -153,7 +153,7 @@ async def GetWarnings(userid: int):
         return 0
 
 
-async def GetSettings(guildid: int, fullData: bool=True):
+async def GetSettings(guildid: int, fullData: bool = True):
     cur.execute("SELECT * FROM settings WHERE guildid=?", (guildid,))
     rows = cur.fetchall()
     if len(rows) > 0:
@@ -301,7 +301,7 @@ async def on_message(message):
                 + "~~"
                 + word
                 + "~~"
-                + message.content[message.content.find(word) + len(word) :]
+                + message.content[message.content.find(word) + len(word):]
             )
             embed.add_field(
                 name="Message Removed:",
