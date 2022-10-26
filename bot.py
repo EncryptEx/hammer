@@ -82,8 +82,7 @@ async def help(ctx):
 
     embed.add_field(
         name="AutoMod Services :robot:",
-        value=
-        f"Swear Word Detector and wuto warn.\n Using a +880 swear word database",
+        value=f"Swear Word Detector and wuto warn.\n Using a +880 swear word database",
         inline=True,
     )
 
@@ -109,8 +108,7 @@ async def help(ctx):
 
     embed.add_field(
         name="""Useful Links: :link:""",
-        value=
-        f"""[:classical_building: Hammer Bot Support](https://discord.gg/fMSyQA6)
+        value=f"""[:classical_building: Hammer Bot Support](https://discord.gg/fMSyQA6)
     [:link: Hammer Invite Link](https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot)
     [:newspaper: Vote Hammer](https://top.gg/bot/591633652493058068)
     """,
@@ -263,8 +261,7 @@ def ErrorEmbed(error):
     embed = Embed(title=f":no_entry_sign: Error!", description=error)
 
     embed.set_thumbnail(
-        url=
-        "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ficonsplace.com%2Fwp-content%2Fuploads%2F_icons%2Fff0000%2F256%2Fpng%2Ferror-icon-14-256.png&f=1&nofb=1"
+        url="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ficonsplace.com%2Fwp-content%2Fuploads%2F_icons%2Fff0000%2F256%2Fpng%2Ferror-icon-14-256.png&f=1&nofb=1"
     )
 
     embed.set_footer(
@@ -344,8 +341,7 @@ async def on_message(message):
             s = "s" if warn > 1 else ""
             embed.add_field(
                 name="Warn count",
-                value=
-                f"The user {member} has {warn} warn{s}. Be careful. Run /seewarns @user to check its warnhistory",
+                value=f"The user {member} has {warn} warn{s}. Be careful. Run /seewarns @user to check its warnhistory",
                 inline=True,
             )
             bannedmessage = (
@@ -753,8 +749,7 @@ async def restart(ctx):
 @bot.slash_command(
     guild_only=True,
     name="setdelay",
-    description=
-    "Updates the message delay in a channel with a set of custom time interval",
+    description="Updates the message delay in a channel with a set of custom time interval",
 )
 @discord.default_permissions(
     manage_messages=True, )
@@ -763,8 +758,7 @@ async def setdelay(ctx, seconds: float, reason: str = ""):
     m = "modified" if seconds > 0.0 else "removed"
     embed = Embed(
         title=f"Delay {m} on #{ctx.channel} :hammer_pick:",
-        description=
-        f"This channel now has a delay of **{seconds}** seconds for {reason}"
+        description=f"This channel now has a delay of **{seconds}** seconds for {reason}"
         if reason != None and reason != "" else
         f"This channel now has a delay of **{seconds}** seconds",
     )
@@ -824,8 +818,7 @@ async def mute(ctx, member: discord.Member, *, reason=None):
 @bot.slash_command(
     guild_only=True,
     name="unmute",
-    description=
-    "Restores the hability to talk or join voice channels to a user",
+    description="Restores the hability to talk or join voice channels to a user",
 )
 @discord.default_permissions(
     manage_messages=True, )
@@ -876,8 +869,7 @@ async def lock(ctx, channel: discord.TextChannel = None, reason=None):
 @bot.slash_command(
     guild_only=True,
     name="unlock",
-    description=
-    "Removes the blocking in a channel from not being used as a chat.",
+    description="Removes the blocking in a channel from not being used as a chat.",
 )
 async def unlock(ctx, channel: discord.TextChannel = None, reason=None):
 
@@ -926,8 +918,7 @@ async def suggest(ctx, suggestion: str):
 async def invite(ctx):
     embed = Embed(
         title=f"Invite Hammer Bot to your server! :hammer_pick:",
-        description=
-        f"[**🔗 Hammer Invite Link**](https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot)",
+        description=f"[**🔗 Hammer Invite Link**](https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot)",
     )
     embed.set_footer(
         text=f"Hammer | Command executed by {ctx.author}",
@@ -979,8 +970,7 @@ async def settings(ctx, module: str = None, value: str = None):
         f"Enable it by doing ``{COMMAND_PREFIX}settings automod on``")
     embed.add_field(
         name="AutoMod Services :robot:",
-        value=
-        f"Actual status: {automodStatustr}\n {recommendedactivityAutomod}",
+        value=f"Actual status: {automodStatustr}\n {recommendedactivityAutomod}",
         inline=True,
     )
     embed.set_footer(
