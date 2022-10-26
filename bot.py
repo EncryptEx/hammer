@@ -1,6 +1,10 @@
+import sys
 from email import message
 from pydoc import describe
-import discord, datetime, sys, os
+import discord
+import datetime
+import sys
+import os
 from get_enviroment import (
     COMMAND_PREFIX,
     OWNER,
@@ -296,7 +300,7 @@ async def on_message(message):
                 + "~~"
                 + word
                 + "~~"
-                + message.content[message.content.find(word) + len(word) :]
+                + message.content[message.content.find(word) + len(word):]
             )
             embed.add_field(
                 name="Message Removed:",
@@ -615,9 +619,6 @@ async def evaluate(ctx, code):
             await ctx.respond(e, ephemeral=True)
     else:
         await ctx.respond("you're not allowed to do that")
-
-
-import sys
 
 
 def restart_bot():
