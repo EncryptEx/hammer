@@ -75,7 +75,7 @@ async def help(ctx):
     {COMMAND_PREFIX}ban [user] <reason>
     {COMMAND_PREFIX}kick [user] <reason>
     {COMMAND_PREFIX}warn [user] <reason>
-    {COMMAND_PREFIX}unwarn [user] <reason>
+    {COMMAND_PREFIX}unwarn [user] [id] <reason> 
     {COMMAND_PREFIX}clearwarns [user] <reason>
     """,
         inline=True,
@@ -186,7 +186,6 @@ async def Clearwarns(
 ):
     # delete all rows
     cur.execute("DELETE FROM warns WHERE userid=? AND guildid=?", (userid,guildId))
-    c=c+1
     conn.commit()
     return
 async def getAllWarns(
@@ -564,8 +563,9 @@ async def warn(ctx, member: discord.Member, reason=None):
 )
 async def seewarns(ctx, member: discord.Member):
     allwarns = await getAllWarns(member.id)
+    if(len(allwarns) == 0): allwarns = ['User had no warns at the moment']
     message = '\n'.join(allwarns)
-    embed = Embed(title=f"**Historic of {member.name}**", description=message)
+    embed = Embed(title=f"**Historic of {member}**", description=message)
     embed.set_footer(
         text=f"Hammer | Command executed by {ctx.author}",
         icon_url=hammericon,
