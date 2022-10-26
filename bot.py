@@ -1,35 +1,35 @@
-import datetime
-import os
-import sqlite3
-import sys
 from email import message
 from pydoc import describe
+import discord, datetime, sys, os
+from get_enviroment import (
+    COMMAND_PREFIX,
+    OWNER,
+    TOKEN,
+    ANNOUNCEMENTS_CHANNEL,
+    DEV_SUGGESTIONS_CHANNEL,
+    SECURITY_CHANNEL,
+    SECURITY_GUILD,
+    SWEAR_WORDS_LIST,
+)
+from discord import Embed, guild_only
+from discord.ext import commands
+from discord.commands import option
+from discord.ext.commands.core import command
 from time import time
 
-import discord
-from discord import Embed
-from discord import guild_only
-from discord.commands import option
-from discord.ext import commands
-from discord.ext.commands.core import command
-
-from get_enviroment import ANNOUNCEMENTS_CHANNEL
-from get_enviroment import COMMAND_PREFIX
-from get_enviroment import DEV_SUGGESTIONS_CHANNEL
-from get_enviroment import OWNER
-from get_enviroment import SECURITY_CHANNEL
-from get_enviroment import SECURITY_GUILD
-from get_enviroment import SWEAR_WORDS_LIST
-from get_enviroment import TOKEN
-
 # database import & connection
+import sqlite3
 
 conn = sqlite3.connect("maindatabase1.db")
 cur = conn.cursor()
 cur.execute(
     """CREATE TABLE IF NOT EXISTS `warns` (
-        `userid` INT(100) UNIQUE,
-        `warns` INT);"""
+        `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+        `userid` INT(100),
+        `guildid` INT,
+        `reason` TEXT,
+        `timestamp` INT);
+        """
 )
 cur.execute(
     """CREATE TABLE IF NOT EXISTS `settings` (
@@ -137,56 +137,76 @@ async def help(ctx):
 #   VARIOUS FUNCTIONS
 #
 
-
 # Function to alert the owner of something, normally to log use of eval command.
 async def respondNotifOwner(text):
     await bot.get_channel(int(SECURITY_CHANNEL)).respond(text)
 
 
-async def GetWarnings(userid: int):
-    cur.execute("SELECT * FROM warns WHERE userid=? LIMIT 1", (userid,))
+async def GetWarnings(userid: int, fullData: bool=False):
+    cur.execute("SELECT * FROM warns WHERE userid=?", (userid,))
     rows = cur.fetchall()
-    # print(rows)
-    if len(rows) > 0:
-        return rows[0][1]
+    if(not fullData):
+        return len(rows)
     else:
-        return 0
-
-
-async def GetSettings(guildid: int, fullData: bool=True):
-    cur.execute("SELECT * FROM settings WHERE guildid=?", (guildid,))
-    rows = cur.fetchall()
-    if len(rows) > 0:
-        return rows[0][1]
-    else:
-        return 1  # By default is on
+        if(len(rows) == 1):
+            return [rows]
+        else:
+            return rows
 
 
 # Function to add a warning and save it at the database
-async def SetWarning(
-    userid: int, substractMode: bool, wantsToWipeAllWarns: bool = False
+async def AddWarning(
+    userid: int, guildid:int, reason
 ):
-    cur.execute("SELECT * FROM warns WHERE userid=? LIMIT 1", (userid,))
-    rows = cur.fetchall()
-    # print(rows)
-    if len(rows) > 0:
-        nwarns = rows[0][1]
-        warn = nwarns + 1 if substractMode else nwarns - 1
-        warn = 0 if wantsToWipeAllWarns else warn
-        warn = 0 if warn <= 0 else warn
-        cur.execute("UPDATE warns SET warns=? WHERE userid=?", (warn, userid))
-    else:
-        initialwarn = 1 if (substractMode) else 0
-        cur.execute(
-            """INSERT OR IGNORE INTO warns (userid, warns)
-            VALUES (?, ?)
-        """,
-            (userid, initialwarn),
-        )
-        warn = 1
+    warncount = await GetWarnings(userid)
+    cur.execute(
+        """INSERT OR IGNORE INTO warns (userid, guildid, reason, timestamp)
+        VALUES (?, ?, ?, ?)
+    """,
+        (userid, guildid, reason, datetime.datetime.now()),
+    )
     conn.commit()
-    return warn
+    return warncount+1
 
+async def Removewarn(
+    userid: int, guildId:int, relativeWarnId:int
+):
+    c=0
+    for warn in await GetWarnings(userid, fullData=True):
+        warnRealId, _, _, SubReason, _ = warn
+        if(c==relativeWarnId):
+            # delete that row
+            cur.execute("DELETE FROM warns WHERE userid=? AND guildid=? AND id=? LIMIT 1", (userid, guildId, warnRealId))
+        c=c+1
+    conn.commit()
+    return c-1
+
+async def Clearwarns(
+    userid: int, guildId:int
+):
+    # delete all rows
+    cur.execute("DELETE FROM warns WHERE userid=? AND guildid=?", (userid,guildId))
+    c=c+1
+    conn.commit()
+    return
+async def getAllWarns(
+    userid: int
+):
+    allwarns = []
+    c=0
+    for warn in await GetWarnings(userid, fullData=True):
+        _, _, _, SubReason, timestamp = warn
+        dt = timestamp
+        if(c<=9):
+            emojis = ":"+numToEmoji(c)+":"
+        else:
+            
+            emojis = str(c)
+        allwarns.append(f"- **ID: {emojis}** Reason: ``{SubReason}`` at: {dt}")
+        
+        c=c+1
+    return allwarns
+    
 
 async def GetSettings(guildid: int):
     cur.execute("SELECT * FROM settings WHERE guildid = ? LIMIT 1", (guildid,))
@@ -202,14 +222,14 @@ async def SaveSetting(guildid: int, module: str, value: int):
     rows = cur.fetchall()
     # print(rows)
     if len(rows) > 0:  # cur.execute('INSERT INTO foo (a,b) values (?,?)', (strA, strB))
-        query = f"""UPDATE settings
+        query = f"""UPDATE settings 
         SET automod = {value}
         WHERE guildid={guildid} """
         cur.execute(query)
     else:
         cur.execute(
             """INSERT OR IGNORE INTO settings (guildid, automod)
-            VALUES (?,?)
+            VALUES (?,?) 
             """,
             (
                 guildid,
@@ -249,10 +269,22 @@ def ErrorEmbed(error):
     return embed
 
 
+def numToEmoji(num):
+    v=""
+    if(num == 0): v = "zero"
+    if(num == 1): v = "one"
+    if(num == 2): v = "two"
+    if(num == 3): v = "three"
+    if(num == 4): v = "four"
+    if(num == 5): v = "five"
+    if(num == 6): v = "six"
+    if(num == 7): v = "seven"
+    if(num == 8): v = "eight"
+    if(num == 9): v = "nine" 
+    return v
 #
 # MAIN COMMANDS - BOT
 #
-
 
 # # swear words detector
 @bot.event
@@ -289,11 +321,11 @@ async def on_message(message):
                 icon_url=hammericon,
             )
             embed.set_thumbnail(url=member.display_avatar)
-            warn = await SetWarning(member.id, True)
+            warn = await AddWarning(member.id, message.guild.id, "Said a banned swear word")
             s = "s" if warn > 1 else ""
             embed.add_field(
                 name="Warn count",
-                value=f"The user {member} has {warn} warn{s}. Be careful.",
+                value=f"The user {member} has {warn} warn{s}. Be careful. Run /seewarns @user to check its warnhistory",
                 inline=True,
             )
             bannedmessage = (
@@ -384,15 +416,16 @@ async def whois(ctx, member: discord.Member):
         username, discriminator = str(member).split("#")
         isbot = ":white_check_mark:" if member.bot else ":negative_squared_cross_mark:"
         descr = f"""
-            **:detective: Nick:** {member.nick}
-            **:bust_in_silhouette: Username:** {username}
-            **:ticket: Discriminator:** #{discriminator}
-            **:heavy_plus_sign: Created account at:** {member.created_at}
-            **:date: Joined server at:** {member.joined_at}
-            **:robot: Is bot:** {isbot}
-            **:id: User ID:** {member.id}
-            **:link: Avatar URL:** [Click Here]({member.display_avatar})
-            **:top: Top role:** {member.top_role}
+            **Nick:** {member.nick}
+            **Username:** {username}
+            **Discriminator:** {discriminator}
+            **Created account at:** {member.created_at}
+            **Joined server at:** {member.joined_at}
+            **Is bot:** {isbot}
+            **User ID:** {member.id}
+            **Avatar URL:** [Click Here]({member.display_avatar})
+            **Top role:** {member.top_role}
+            **Warns:** {await GetWarnings(member.id)}
             """
         embed = Embed(title=f"Who is {member} ?", description=descr)
 
@@ -473,7 +506,7 @@ async def kick(ctx, member: discord.Member, *, reason=None):
                 ephemeral=True,
             )
             return
-    descr = f":hammer: The user {member} has been kicked for {reason}"
+    descr = f"The user {member} has been kicked for {reason}"
     embed = Embed(title=f"{member} has been kicked! :hammer_pick:", description=descr)
     embed.set_footer(
         text=f"Hammer | Command executed by {ctx.author}",
@@ -500,7 +533,7 @@ async def warn(ctx, member: discord.Member, reason=None):
         return
     if reason == None:
         reason = "bad behaviour 💥"
-    message = f":exclamation: You have been warned for {reason}"
+    message = f"You have been warned for {reason}"
 
     descr = f"The user {member} has been warned for {reason}"
     embed = Embed(title=f"{member} has been warned! :hammer_pick:", description=descr)
@@ -509,7 +542,7 @@ async def warn(ctx, member: discord.Member, reason=None):
         icon_url=hammericon,
     )
     embed.set_thumbnail(url=member.display_avatar)
-    warn = await SetWarning(member.id, True)
+    warn = await AddWarning(member.id, ctx.guild.id, reason)
     s = "s" if warn > 1 else ""
     embed.add_field(
         name="Warn count",
@@ -522,13 +555,44 @@ async def warn(ctx, member: discord.Member, reason=None):
 
 
 @bot.slash_command(
+    guild_only=True,
+    name="seewarns",
+    description="Displays the warn history of a user in the guild",
+)
+@discord.default_permissions(
+    administrator=True,
+)
+async def seewarns(ctx, member: discord.Member):
+    allwarns = await getAllWarns(member.id)
+    message = '\n'.join(allwarns)
+    embed = Embed(title=f"**Historic of {member.name}**", description=message)
+    embed.set_footer(
+        text=f"Hammer | Command executed by {ctx.author}",
+        icon_url=hammericon,
+    )
+    return await ctx.respond(embed=embed)
+
+
+@bot.slash_command(
     guild_only=True, name="unwarn", description="Removes a strike from a user"
 )
 @discord.default_permissions(
     kick_members=True,
 )
-async def unwarn(ctx, member: discord.Member, *, reason=None):
-
+async def unwarn(ctx, member: discord.Member, id: int=None , *, reason=None):
+    if(await GetWarnings(member.id) == 0): 
+        return await ctx.respond("This user does not have any warn!")
+    if id == None:
+        message = f"""To select a warn to remove, use argument id and specify its value."""
+        
+        embed = Embed(title=f"ERROR! Need to select a warn :hammer_pick:", description=message)
+        allwarns = await getAllWarns(member.id)
+        embed.add_field(
+            name=f"**Historic of {member.name}**:",
+           
+            value='\n'.join(allwarns),
+        )
+        return await ctx.respond(embed=embed)
     if reason == None:
         reason = "good behaviour ✅"
     message = f"You have been unwarned for {reason}"
@@ -540,7 +604,7 @@ async def unwarn(ctx, member: discord.Member, *, reason=None):
         icon_url=hammericon,
     )
     embed.set_thumbnail(url=member.display_avatar)
-    warn = await SetWarning(member.id, substractMode=False)
+    warn = await Removewarn(member.id, ctx.guild.id, id)
     s = "s" if warn > 1 else ""
     congrats = "Yey! :tada:" if warn == 0 else ""
     embed.add_field(
@@ -566,7 +630,7 @@ async def clearwarns(ctx, member: discord.Member, *, reason=None):
 
     descr = f"The user {member} has 0 warns for {reason}"
     embed = Embed(
-        title=f":partying_face: The warns of {member} have been removed! :hammer_pick:",
+        title=f"The warns of {member} have been removed! :hammer_pick:",
         description=descr,
     )
     embed.set_footer(
@@ -574,7 +638,7 @@ async def clearwarns(ctx, member: discord.Member, *, reason=None):
         icon_url=hammericon,
     )
     embed.set_thumbnail(url=member.display_avatar)
-    warn = await SetWarning(member.id, substractMode=True, wantsToWipeAllWarns=True)
+    warn = await Clearwarns(member.id, ctx.guild.id)
     embed.add_field(
         name="Warn count",
         value=f"The user {member} has now {warn} warns. Yey! :tada:",
@@ -620,6 +684,9 @@ async def evaluate(ctx, code):
             await ctx.respond(e, ephemeral=True)
     else:
         await ctx.respond("you're not allowed to do that")
+
+
+import sys
 
 
 def restart_bot():
