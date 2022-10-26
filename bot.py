@@ -1,28 +1,21 @@
+import datetime
+import os
+# database import & connection
+import sqlite3
 import sys
 from email import message
 from pydoc import describe
-import discord
-import datetime
-import sys
-import os
-from get_enviroment import (
-    COMMAND_PREFIX,
-    OWNER,
-    TOKEN,
-    ANNOUNCEMENTS_CHANNEL,
-    DEV_SUGGESTIONS_CHANNEL,
-    SECURITY_CHANNEL,
-    SECURITY_GUILD,
-    SWEAR_WORDS_LIST,
-)
-from discord import Embed, guild_only
-from discord.ext import commands
-from discord.commands import option
-from discord.ext.commands.core import command
 from time import time
 
-# database import & connection
-import sqlite3
+import discord
+from discord import Embed, guild_only
+from discord.commands import option
+from discord.ext import commands
+from discord.ext.commands.core import command
+
+from get_enviroment import (ANNOUNCEMENTS_CHANNEL, COMMAND_PREFIX,
+                            DEV_SUGGESTIONS_CHANNEL, OWNER, SECURITY_CHANNEL,
+                            SECURITY_GUILD, SWEAR_WORDS_LIST, TOKEN)
 
 conn = sqlite3.connect("maindatabase1.db")
 cur = conn.cursor()
