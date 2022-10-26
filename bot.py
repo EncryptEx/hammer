@@ -1,24 +1,28 @@
+import datetime
+import os
+import sqlite3
+import sys
 from email import message
 from pydoc import describe
-import discord, datetime, sys, os
-from get_enviroment import (
-    COMMAND_PREFIX,
-    OWNER,
-    TOKEN,
-    ANNOUNCEMENTS_CHANNEL,
-    DEV_SUGGESTIONS_CHANNEL,
-    SECURITY_CHANNEL,
-    SECURITY_GUILD,
-    SWEAR_WORDS_LIST,
-)
-from discord import Embed, guild_only
-from discord.ext import commands
-from discord.commands import option
-from discord.ext.commands.core import command
 from time import time
 
+import discord
+from discord import Embed
+from discord import guild_only
+from discord.commands import option
+from discord.ext import commands
+from discord.ext.commands.core import command
+
+from get_enviroment import ANNOUNCEMENTS_CHANNEL
+from get_enviroment import COMMAND_PREFIX
+from get_enviroment import DEV_SUGGESTIONS_CHANNEL
+from get_enviroment import OWNER
+from get_enviroment import SECURITY_CHANNEL
+from get_enviroment import SECURITY_GUILD
+from get_enviroment import SWEAR_WORDS_LIST
+from get_enviroment import TOKEN
+
 # database import & connection
-import sqlite3
 
 conn = sqlite3.connect("maindatabase1.db")
 cur = conn.cursor()
@@ -133,6 +137,7 @@ async def help(ctx):
 #   VARIOUS FUNCTIONS
 #
 
+
 # Function to alert the owner of something, normally to log use of eval command.
 async def respondNotifOwner(text):
     await bot.get_channel(int(SECURITY_CHANNEL)).respond(text)
@@ -198,14 +203,14 @@ async def SaveSetting(guildid: int, module: str, value: int):
     rows = cur.fetchall()
     # print(rows)
     if len(rows) > 0:  # cur.execute('INSERT INTO foo (a,b) values (?,?)', (strA, strB))
-        query = f"""UPDATE settings 
+        query = f"""UPDATE settings
         SET automod = {value}
         WHERE guildid={guildid} """
         cur.execute(query)
     else:
         cur.execute(
             """INSERT OR IGNORE INTO settings (guildid, automod)
-            VALUES (?,?) 
+            VALUES (?,?)
             """,
             (
                 guildid,
@@ -248,6 +253,7 @@ def ErrorEmbed(error):
 #
 # MAIN COMMANDS - BOT
 #
+
 
 # # swear words detector
 @bot.event
@@ -615,9 +621,6 @@ async def evaluate(ctx, code):
             await ctx.respond(e, ephemeral=True)
     else:
         await ctx.respond("you're not allowed to do that")
-
-
-import sys
 
 
 def restart_bot():
