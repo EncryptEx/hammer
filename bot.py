@@ -379,16 +379,15 @@ async def whois(ctx, member: discord.Member):
         username, discriminator = str(member).split("#")
         isbot = ":white_check_mark:" if member.bot else ":negative_squared_cross_mark:"
         descr = f"""
-            **Nick:** {member.nick}
-            **Username:** {username}
-            **Discriminator:** {discriminator}
-            **Created account at:** {member.created_at}
-            **Joined server at:** {member.joined_at}
-            **Is bot:** {isbot}
-            **User ID:** {member.id}
-            **Avatar URL:** [Click Here]({member.display_avatar})
-            **Top role:** {member.top_role}
-            **Warns:** {await GetWarnings(member.id)}
+            **:detective: Nick:** {member.nick}
+            **:bust_in_silhouette: Username:** {username}
+            **:ticket: Discriminator:** #{discriminator}
+            **:heavy_plus_sign: Created account at:** {member.created_at}
+            **:date: Joined server at:** {member.joined_at}
+            **:robot: Is bot:** {isbot}
+            **:id: User ID:** {member.id}
+            **:link: Avatar URL:** [Click Here]({member.display_avatar})
+            **:top: Top role:** {member.top_role}
             """
         embed = Embed(title=f"Who is {member} ?", description=descr)
 
@@ -469,7 +468,7 @@ async def kick(ctx, member: discord.Member, *, reason=None):
                 ephemeral=True,
             )
             return
-    descr = f"The user {member} has been kicked for {reason}"
+    descr = f":hammer: The user {member} has been kicked for {reason}"
     embed = Embed(title=f"{member} has been kicked! :hammer_pick:", description=descr)
     embed.set_footer(
         text=f"Hammer | Command executed by {ctx.author}",
@@ -496,7 +495,7 @@ async def warn(ctx, member: discord.Member, reason=None):
         return
     if reason == None:
         reason = "bad behaviour 💥"
-    message = f"You have been warned for {reason}"
+    message = f":exclamation: You have been warned for {reason}"
 
     descr = f"The user {member} has been warned for {reason}"
     embed = Embed(title=f"{member} has been warned! :hammer_pick:", description=descr)
@@ -562,7 +561,7 @@ async def clearwarns(ctx, member: discord.Member, *, reason=None):
 
     descr = f"The user {member} has 0 warns for {reason}"
     embed = Embed(
-        title=f"The warns of {member} have been removed! :hammer_pick:",
+        title=f":partying_face: The warns of {member} have been removed! :hammer_pick:",
         description=descr,
     )
     embed.set_footer(
