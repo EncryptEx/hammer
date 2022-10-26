@@ -1,24 +1,28 @@
+import datetime
+import os
+import sqlite3
+import sys
 from email import message
 from pydoc import describe
-import discord, datetime, sys, os
-from get_enviroment import (
-    COMMAND_PREFIX,
-    OWNER,
-    TOKEN,
-    ANNOUNCEMENTS_CHANNEL,
-    DEV_SUGGESTIONS_CHANNEL,
-    SECURITY_CHANNEL,
-    SECURITY_GUILD,
-    SWEAR_WORDS_LIST,
-)
-from discord import Embed, guild_only
-from discord.ext import commands
-from discord.commands import option
-from discord.ext.commands.core import command
 from time import time
 
+import discord
+from discord import Embed
+from discord import guild_only
+from discord.commands import option
+from discord.ext import commands
+from discord.ext.commands.core import command
+
+from get_enviroment import ANNOUNCEMENTS_CHANNEL
+from get_enviroment import COMMAND_PREFIX
+from get_enviroment import DEV_SUGGESTIONS_CHANNEL
+from get_enviroment import OWNER
+from get_enviroment import SECURITY_CHANNEL
+from get_enviroment import SECURITY_GUILD
+from get_enviroment import SWEAR_WORDS_LIST
+from get_enviroment import TOKEN
+
 # database import & connection
-import sqlite3
 
 conn = sqlite3.connect("maindatabase1.db")
 cur = conn.cursor()
@@ -133,6 +137,7 @@ async def help(ctx):
 #   VARIOUS FUNCTIONS
 #
 
+
 # Function to alert the owner of something, normally to log use of eval command.
 async def respondNotifOwner(text):
     await bot.get_channel(int(SECURITY_CHANNEL)).respond(text)
@@ -148,10 +153,9 @@ async def GetWarnings(userid: int):
         return 0
 
 
-async def GetSettings(guildid: int):
-    cur.execute("SELECT * FROM settings WHERE guildid=? LIMIT 1", (guildid,))
+async def GetSettings(guildid: int, fullData: bool=True):
+    cur.execute("SELECT * FROM settings WHERE guildid=?", (guildid,))
     rows = cur.fetchall()
-    # print(rows)
     if len(rows) > 0:
         return rows[0][1]
     else:
@@ -198,14 +202,14 @@ async def SaveSetting(guildid: int, module: str, value: int):
     rows = cur.fetchall()
     # print(rows)
     if len(rows) > 0:  # cur.execute('INSERT INTO foo (a,b) values (?,?)', (strA, strB))
-        query = f"""UPDATE settings 
+        query = f"""UPDATE settings
         SET automod = {value}
         WHERE guildid={guildid} """
         cur.execute(query)
     else:
         cur.execute(
             """INSERT OR IGNORE INTO settings (guildid, automod)
-            VALUES (?,?) 
+            VALUES (?,?)
             """,
             (
                 guildid,
@@ -248,6 +252,7 @@ def ErrorEmbed(error):
 #
 # MAIN COMMANDS - BOT
 #
+
 
 # # swear words detector
 @bot.event
@@ -379,16 +384,15 @@ async def whois(ctx, member: discord.Member):
         username, discriminator = str(member).split("#")
         isbot = ":white_check_mark:" if member.bot else ":negative_squared_cross_mark:"
         descr = f"""
-            **Nick:** {member.nick}
-            **Username:** {username}
-            **Discriminator:** {discriminator}
-            **Created account at:** {member.created_at}
-            **Joined server at:** {member.joined_at}
-            **Is bot:** {isbot}
-            **User ID:** {member.id}
-            **Avatar URL:** [Click Here]({member.display_avatar})
-            **Top role:** {member.top_role}
-            **Warns:** {await GetWarnings(member.id)}
+            **:detective: Nick:** {member.nick}
+            **:bust_in_silhouette: Username:** {username}
+            **:ticket: Discriminator:** #{discriminator}
+            **:heavy_plus_sign: Created account at:** {member.created_at}
+            **:date: Joined server at:** {member.joined_at}
+            **:robot: Is bot:** {isbot}
+            **:id: User ID:** {member.id}
+            **:link: Avatar URL:** [Click Here]({member.display_avatar})
+            **:top: Top role:** {member.top_role}
             """
         embed = Embed(title=f"Who is {member} ?", description=descr)
 
@@ -469,7 +473,7 @@ async def kick(ctx, member: discord.Member, *, reason=None):
                 ephemeral=True,
             )
             return
-    descr = f"The user {member} has been kicked for {reason}"
+    descr = f":hammer: The user {member} has been kicked for {reason}"
     embed = Embed(title=f"{member} has been kicked! :hammer_pick:", description=descr)
     embed.set_footer(
         text=f"Hammer | Command executed by {ctx.author}",
@@ -496,7 +500,7 @@ async def warn(ctx, member: discord.Member, reason=None):
         return
     if reason == None:
         reason = "bad behaviour 💥"
-    message = f"You have been warned for {reason}"
+    message = f":exclamation: You have been warned for {reason}"
 
     descr = f"The user {member} has been warned for {reason}"
     embed = Embed(title=f"{member} has been warned! :hammer_pick:", description=descr)
@@ -562,7 +566,7 @@ async def clearwarns(ctx, member: discord.Member, *, reason=None):
 
     descr = f"The user {member} has 0 warns for {reason}"
     embed = Embed(
-        title=f"The warns of {member} have been removed! :hammer_pick:",
+        title=f":partying_face: The warns of {member} have been removed! :hammer_pick:",
         description=descr,
     )
     embed.set_footer(
@@ -616,9 +620,6 @@ async def evaluate(ctx, code):
             await ctx.respond(e, ephemeral=True)
     else:
         await ctx.respond("you're not allowed to do that")
-
-
-import sys
 
 
 def restart_bot():
