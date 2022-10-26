@@ -1,6 +1,10 @@
+import sys
 from email import message
 from pydoc import describe
-import discord, datetime, sys, os
+import discord
+import datetime
+import sys
+import os
 from get_enviroment import (
     COMMAND_PREFIX,
     OWNER,
@@ -142,13 +146,13 @@ async def respondNotifOwner(text):
     await bot.get_channel(int(SECURITY_CHANNEL)).respond(text)
 
 
-async def GetWarnings(userid: int, fullData: bool=False):
+async def GetWarnings(userid: int, fullData: bool = False):
     cur.execute("SELECT * FROM warns WHERE userid=?", (userid,))
     rows = cur.fetchall()
-    if(not fullData):
+    if (not fullData):
         return len(rows)
     else:
-        if(len(rows) == 1):
+        if (len(rows) == 1):
             return [rows]
         else:
             return rows
@@ -156,7 +160,7 @@ async def GetWarnings(userid: int, fullData: bool=False):
 
 # Function to add a warning and save it at the database
 async def AddWarning(
-    userid: int, guildid:int, reason
+    userid: int, guildid: int, reason
 ):
     warncount = await GetWarnings(userid)
     cur.execute(
@@ -166,46 +170,50 @@ async def AddWarning(
         (userid, guildid, reason, datetime.datetime.now()),
     )
     conn.commit()
-    return warncount+1
+    return warncount + 1
+
 
 async def Removewarn(
-    userid: int, guildId:int, relativeWarnId:int
+    userid: int, guildId: int, relativeWarnId: int
 ):
-    c=0
+    c = 0
     for warn in await GetWarnings(userid, fullData=True):
         warnRealId, _, _, SubReason, _ = warn
-        if(c==relativeWarnId):
+        if (c == relativeWarnId):
             # delete that row
             cur.execute("DELETE FROM warns WHERE userid=? AND guildid=? AND id=? LIMIT 1", (userid, guildId, warnRealId))
-        c=c+1
+        c = c + 1
     conn.commit()
-    return c-1
+    return c - 1
+
 
 async def Clearwarns(
-    userid: int, guildId:int
+    userid: int, guildId: int
 ):
     # delete all rows
-    cur.execute("DELETE FROM warns WHERE userid=? AND guildid=?", (userid,guildId))
+    cur.execute("DELETE FROM warns WHERE userid=? AND guildid=?", (userid, guildId))
     conn.commit()
     return
+
+
 async def getAllWarns(
     userid: int
 ):
     allwarns = []
-    c=0
+    c = 0
     for warn in await GetWarnings(userid, fullData=True):
         _, _, _, SubReason, timestamp = warn
         dt = timestamp
-        if(c<=9):
-            emojis = ":"+numToEmoji(c)+":"
+        if (c <= 9):
+            emojis = ":" + numToEmoji(c) + ":"
         else:
-            
+
             emojis = str(c)
         allwarns.append(f"- **ID: {emojis}** Reason: ``{SubReason}`` at: {dt}")
-        
-        c=c+1
+
+        c = c + 1
     return allwarns
-    
+
 
 async def GetSettings(guildid: int):
     cur.execute("SELECT * FROM settings WHERE guildid = ? LIMIT 1", (guildid,))
@@ -269,23 +277,35 @@ def ErrorEmbed(error):
 
 
 def numToEmoji(num):
-    v=""
-    if(num == 0): v = "zero"
-    if(num == 1): v = "one"
-    if(num == 2): v = "two"
-    if(num == 3): v = "three"
-    if(num == 4): v = "four"
-    if(num == 5): v = "five"
-    if(num == 6): v = "six"
-    if(num == 7): v = "seven"
-    if(num == 8): v = "eight"
-    if(num == 9): v = "nine" 
+    v = ""
+    if (num == 0):
+        v = "zero"
+    if (num == 1):
+        v = "one"
+    if (num == 2):
+        v = "two"
+    if (num == 3):
+        v = "three"
+    if (num == 4):
+        v = "four"
+    if (num == 5):
+        v = "five"
+    if (num == 6):
+        v = "six"
+    if (num == 7):
+        v = "seven"
+    if (num == 8):
+        v = "eight"
+    if (num == 9):
+        v = "nine"
     return v
 #
 # MAIN COMMANDS - BOT
 #
 
 # # swear words detector
+
+
 @bot.event
 async def on_message(message):
     await bot.process_commands(message)
@@ -332,7 +352,7 @@ async def on_message(message):
                 + "~~"
                 + word
                 + "~~"
-                + message.content[message.content.find(word) + len(word) :]
+                + message.content[message.content.find(word) + len(word):]
             )
             embed.add_field(
                 name="Message Removed:",
@@ -563,7 +583,8 @@ async def warn(ctx, member: discord.Member, reason=None):
 )
 async def seewarns(ctx, member: discord.Member):
     allwarns = await getAllWarns(member.id)
-    if(len(allwarns) == 0): allwarns = ['User had no warns at the moment']
+    if (len(allwarns) == 0):
+        allwarns = ['User had no warns at the moment']
     message = '\n'.join(allwarns)
     embed = Embed(title=f"**Historic of {member}**", description=message)
     embed.set_footer(
@@ -579,17 +600,17 @@ async def seewarns(ctx, member: discord.Member):
 @discord.default_permissions(
     kick_members=True,
 )
-async def unwarn(ctx, member: discord.Member, id: int=None , *, reason=None):
-    if(await GetWarnings(member.id) == 0): 
+async def unwarn(ctx, member: discord.Member, id: int = None, *, reason=None):
+    if (await GetWarnings(member.id) == 0):
         return await ctx.respond("This user does not have any warn!")
     if id == None:
         message = f"""To select a warn to remove, use argument id and specify its value."""
-        
+
         embed = Embed(title=f"ERROR! Need to select a warn :hammer_pick:", description=message)
         allwarns = await getAllWarns(member.id)
         embed.add_field(
             name=f"**Historic of {member.name}**:",
-           
+
             value='\n'.join(allwarns),
         )
         return await ctx.respond(embed=embed)
@@ -684,9 +705,6 @@ async def evaluate(ctx, code):
             await ctx.respond(e, ephemeral=True)
     else:
         await ctx.respond("you're not allowed to do that")
-
-
-import sys
 
 
 def restart_bot():
