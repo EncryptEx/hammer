@@ -300,7 +300,7 @@ async def on_message(message):
                 + "~~"
                 + word
                 + "~~"
-                + message.content[message.content.find(word) + len(word):]
+                + message.content[message.content.find(word) + len(word) :]
             )
             embed.add_field(
                 name="Message Removed:",
