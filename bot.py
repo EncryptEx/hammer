@@ -204,7 +204,8 @@ async def getAllWarns(
         else:
 
             emojis = str(c)
-        allwarns.append(f"- **ID: {emojis}** Reason: ``{SubReason}`` at: {datetime.datetime.fromtimestamp(dt)}")
+        ddt=int(str(dt)[:str(dt).find(".")])
+        allwarns.append(f"- **ID: {emojis}** Reason: ``{SubReason}``  <t:{ddt}:R>")
         
         c=c+1
     return allwarns
