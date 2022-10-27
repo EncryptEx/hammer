@@ -5,6 +5,8 @@ import sys
 from email import message
 from pydoc import describe
 from time import time
+from quickchart import QuickChart
+import urllib
 
 import discord
 from discord import Embed
@@ -143,34 +145,34 @@ async def respondNotifOwner(text):
     await bot.get_channel(int(SECURITY_CHANNEL)).respond(text)
 
 
-async def GetWarnings(userid: int, fullData: bool = False):
-    cur.execute("SELECT * FROM warns WHERE userid=?", (userid, ))
+async def GetWarnings(userid: int, guildid:int, fullData: bool=False):
+    cur.execute("SELECT * FROM warns WHERE userid=? AND guildid=?", (userid,guildid,))
     rows = cur.fetchall()
     if not fullData:
         return len(rows)
     else:
-        if len(rows) == 1:
-            return [rows]
-        else:
-            return rows
+        return rows
 
 
 # Function to add a warning and save it at the database
-async def AddWarning(userid: int, guildid: int, reason):
-    warncount = await GetWarnings(userid)
+async def AddWarning(
+    userid: int, guildid:int, reason
+):
+    warncount = await GetWarnings(userid, guildid)
     cur.execute(
         """INSERT OR IGNORE INTO warns (userid, guildid, reason, timestamp)
         VALUES (?, ?, ?, ?)
     """,
-        (userid, guildid, reason, datetime.datetime.now()),
+        (userid, guildid, reason, time()),
     )
     conn.commit()
     return warncount + 1
 
-
-async def Removewarn(userid: int, guildId: int, relativeWarnId: int):
-    c = 0
-    for warn in await GetWarnings(userid, fullData=True):
+async def Removewarn(
+    userid: int, guildId:int, relativeWarnId:int
+):
+    c=0
+    for warn in await GetWarnings(userid, guildId, fullData=True):
         warnRealId, _, _, SubReason, _ = warn
         if c == relativeWarnId:
             # delete that row
@@ -189,12 +191,12 @@ async def Clearwarns(userid: int, guildId: int):
                 (userid, guildId))
     conn.commit()
     return
-
-
-async def getAllWarns(userid: int):
+async def getAllWarns(
+    userid: int, guildid:int
+):
     allwarns = []
-    c = 0
-    for warn in await GetWarnings(userid, fullData=True):
+    c=0
+    for warn in await GetWarnings(userid, guildid, fullData=True):
         _, _, _, SubReason, timestamp = warn
         dt = timestamp
         if c <= 9:
@@ -202,9 +204,9 @@ async def getAllWarns(userid: int):
         else:
 
             emojis = str(c)
-        allwarns.append(f"- **ID: {emojis}** Reason: ``{SubReason}`` at: {dt}")
-
-        c = c + 1
+        allwarns.append(f"- **ID: {emojis}** Reason: ``{SubReason}`` at: {datetime.datetime.fromtimestamp(dt)}")
+        
+        c=c+1
     return allwarns
 
 
@@ -442,7 +444,7 @@ async def whois(ctx, member: discord.Member):
             **User ID:** {member.id}
             **Avatar URL:** [Click Here]({member.display_avatar})
             **Top role:** {member.top_role}
-            **Warns:** {await GetWarnings(member.id)}
+            **Warns:** {await GetWarnings(member.id, ctx.guild.id)}
             """
         embed = Embed(title=f"Who is {member} ?", description=descr)
 
@@ -579,11 +581,81 @@ async def warn(ctx, member: discord.Member, reason=None):
 @discord.default_permissions(
     administrator=True, )
 async def seewarns(ctx, member: discord.Member):
-    allwarns = await getAllWarns(member.id)
-    if len(allwarns) == 0:
-        allwarns = ["User had no warns at the moment"]
-    message = "\n".join(allwarns)
+    allwarns = await getAllWarns(member.id, ctx.guild.id)
+    if(len(allwarns) == 0): allwarns = ['User had no warns at the moment']
+    message = '\n'.join(allwarns)
+    
+
+    # chart section
+    # {
+    # type: 'line',
+    # data: {
+        # datasets: [{
+        #     label: 'Warns',
+        #     data: [{x:timestamp,y:1},---]
+        # },
+    # options: {
+    #     scales: {
+    #         xAxes: [{
+    #             type: 'time',
+    #             time: {
+    #                 unit: 'month'
+    #             }
+    #         }]
+    #     }
+    # }
+    #}
+    c=0
+    data=[]
+    for warn in await GetWarnings(member.id, ctx.guild.id, fullData=True):
+        _,_,_,_,timestamp =warn
+        c=c+1
+        data.append({'t':str(datetime.datetime.fromtimestamp(int(str(timestamp)[:str(timestamp).find(".")]))),'y':c})
+        # data.append(c)
+
+    print(data)
+
+    
+
+    qc = QuickChart()
+    qc.width = 500
+    qc.height = 300
+    qc.device_pixel_ratio = 2.0
+    qc.config = {
+  "type": "line",
+  "data": {
+    "datasets": [
+      {
+        "fill": False,
+        "label": [f"Warns of {member}"],
+        "lineTension": 0,
+        "backgroundColor": "#7289DA",
+        "borderColor": "#7289DA",
+        "data": data
+      }
+    ]
+  },
+  "options": {
+    "scales": {
+      "xAxes": [{
+        "type": "time",
+        "time": {
+          "parser": "YYYY-MM-DD HH:mm:ss",
+          "displayFormats": {
+            "day": "DD/MM/YYYY"
+          }
+        }
+      }]
+    }
+  }
+}
+
+    # Print a chart URL
+    print(qc.get_url())
+    uurl = qc.get_url()
+
     embed = Embed(title=f"**Historic of {member}**", description=message)
+    embed.set_image(url=uurl)
     embed.set_footer(
         text=f"Hammer | Command executed by {ctx.author}",
         icon_url=hammericon,
@@ -595,18 +667,16 @@ async def seewarns(ctx, member: discord.Member):
                    name="unwarn",
                    description="Removes a strike from a user")
 @discord.default_permissions(
-    kick_members=True, )
-async def unwarn(ctx, member: discord.Member, id: int = None, *, reason=None):
-    if await GetWarnings(member.id) == 0:
+    kick_members=True,
+)
+async def unwarn(ctx, member: discord.Member, id: int=None , *, reason=None):
+    if(await GetWarnings(member.id, ctx.guild.id) == 0): 
         return await ctx.respond("This user does not have any warn!")
     if id == None:
-        message = (
-            f"""To select a warn to remove, use argument id and specify its value."""
-        )
-
-        embed = Embed(title=f"ERROR! Need to select a warn :hammer_pick:",
-                      description=message)
-        allwarns = await getAllWarns(member.id)
+        message = f"""To select a warn to remove, use argument id and specify its value."""
+        
+        embed = Embed(title=f"ERROR! Need to select a warn :hammer_pick:", description=message)
+        allwarns = await getAllWarns(member.id, ctx.guild.id)
         embed.add_field(
             name=f"**Historic of {member.name}**:",
             value="\n".join(allwarns),
