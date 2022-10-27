@@ -592,9 +592,6 @@ async def seewarns(ctx, member: discord.Member):
         c=c+1
         data.append({'t':str(datetime.datetime.fromtimestamp(int(str(timestamp)[:str(timestamp).find(".")]))),'y':c})
         # data.append(c)
-
-    print(data)
-
     
 
     qc = QuickChart()
