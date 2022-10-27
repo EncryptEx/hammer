@@ -585,26 +585,6 @@ async def seewarns(ctx, member: discord.Member):
     if(len(allwarns) == 0): allwarns = ['User had no warns at the moment']
     message = '\n'.join(allwarns)
     
-
-    # chart section
-    # {
-    # type: 'line',
-    # data: {
-        # datasets: [{
-        #     label: 'Warns',
-        #     data: [{x:timestamp,y:1},---]
-        # },
-    # options: {
-    #     scales: {
-    #         xAxes: [{
-    #             type: 'time',
-    #             time: {
-    #                 unit: 'month'
-    #             }
-    #         }]
-    #     }
-    # }
-    #}
     c=0
     data=[]
     for warn in await GetWarnings(member.id, ctx.guild.id, fullData=True):
