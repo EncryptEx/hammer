@@ -621,36 +621,6 @@ async def seewarns(ctx, member: discord.Member):
     qc.width = 500
     qc.height = 300
     qc.device_pixel_ratio = 2.0
-    # qc.config = {
-    #     "type": "line",
-    #     "data": {
-    #         "labels": [f"Warns of {member}"],
-    #         "datasets": [{
-    #                         "fill": False,
-    #                         "lineTension": 0,
-    #                         "backgroundColor": "#7289DA",
-    #                         "borderColor": "#7289DA",
-    #                         "data": data
-    #                     }]
-    #     },
-    #     "options": {
-    #         "scales": {
-    #             "xAxes": [{
-    #                 "type": "time",
-    #                 # "time":{
-    #                 #     "unit" : "day",
-    #                 # },
-    #                 "time": {
-    #                     "parser": "YYYY-MM-DD HH:mm:ss",
-    #                     "displayFormats": {
-    #                         "day": "MMM DD YYYY",
-    #                     },
-    #                 },
-    #         }]
-            
-    #         }
-    #     }
-    # }
     qc.config = {
   "type": "line",
   "data": {
