@@ -592,8 +592,6 @@ async def seewarns(ctx, member: discord.Member):
         _,_,_,_,timestamp =warn
         c=c+1
         data.append({'t':str(datetime.datetime.fromtimestamp(int(str(timestamp)[:str(timestamp).find(".")]))),'y':c})
-        # data.append(c)
-    
 
     qc = QuickChart()
     qc.width = 500
@@ -628,8 +626,6 @@ async def seewarns(ctx, member: discord.Member):
   }
 }
 
-    # Print a chart URL
-    print(qc.get_url())
     uurl = qc.get_url()
 
     embed = Embed(title=f"**Historic of {member}**", description=message)
