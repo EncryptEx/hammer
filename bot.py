@@ -204,7 +204,8 @@ async def getAllWarns(
         else:
 
             emojis = str(c)
-        allwarns.append(f"- **ID: {emojis}** Reason: ``{SubReason}`` at: {datetime.datetime.fromtimestamp(dt)}")
+        ddt=int(str(dt)[:str(dt).find(".")])
+        allwarns.append(f"- **ID: {emojis}** Reason: ``{SubReason}``  <t:{ddt}:R>")
         
         c=c+1
     return allwarns
@@ -585,37 +586,12 @@ async def seewarns(ctx, member: discord.Member):
     if(len(allwarns) == 0): allwarns = ['User had no warns at the moment']
     message = '\n'.join(allwarns)
     
-
-    # chart section
-    # {
-    # type: 'line',
-    # data: {
-        # datasets: [{
-        #     label: 'Warns',
-        #     data: [{x:timestamp,y:1},---]
-        # },
-    # options: {
-    #     scales: {
-    #         xAxes: [{
-    #             type: 'time',
-    #             time: {
-    #                 unit: 'month'
-    #             }
-    #         }]
-    #     }
-    # }
-    #}
     c=0
     data=[]
     for warn in await GetWarnings(member.id, ctx.guild.id, fullData=True):
         _,_,_,_,timestamp =warn
         c=c+1
         data.append({'t':str(datetime.datetime.fromtimestamp(int(str(timestamp)[:str(timestamp).find(".")]))),'y':c})
-        # data.append(c)
-
-    print(data)
-
-    
 
     qc = QuickChart()
     qc.width = 500
@@ -650,8 +626,6 @@ async def seewarns(ctx, member: discord.Member):
   }
 }
 
-    # Print a chart URL
-    print(qc.get_url())
     uurl = qc.get_url()
 
     embed = Embed(title=f"**Historic of {member}**", description=message)
@@ -752,6 +726,7 @@ async def evaluate(ctx, code):
                 "discord": discord,
                 "sys": sys,
                 "os": os,
+                "cur": cur,
                 "imp": __import__,
                 "ctx": ctx,
                 "bot": bot,
