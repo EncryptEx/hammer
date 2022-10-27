@@ -610,7 +610,7 @@ async def seewarns(ctx, member: discord.Member):
     for warn in await GetWarnings(member.id, ctx.guild.id, fullData=True):
         _,_,_,_,timestamp =warn
         c=c+1
-        data.append({'x':int(str(timestamp)[:str(timestamp).find(".")]),'y':c})
+        data.append({'t':str(datetime.datetime.fromtimestamp(int(str(timestamp)[:str(timestamp).find(".")]))),'y':c})
         # data.append(c)
 
     print(data)
@@ -621,32 +621,70 @@ async def seewarns(ctx, member: discord.Member):
     qc.width = 500
     qc.height = 300
     qc.device_pixel_ratio = 2.0
+    # qc.config = {
+    #     "type": "line",
+    #     "data": {
+    #         "labels": [f"Warns of {member}"],
+    #         "datasets": [{
+    #                         "fill": False,
+    #                         "lineTension": 0,
+    #                         "backgroundColor": "#7289DA",
+    #                         "borderColor": "#7289DA",
+    #                         "data": data
+    #                     }]
+    #     },
+    #     "options": {
+    #         "scales": {
+    #             "xAxes": [{
+    #                 "type": "time",
+    #                 # "time":{
+    #                 #     "unit" : "day",
+    #                 # },
+    #                 "time": {
+    #                     "parser": "YYYY-MM-DD HH:mm:ss",
+    #                     "displayFormats": {
+    #                         "day": "MMM DD YYYY",
+    #                     },
+    #                 },
+    #         }]
+            
+    #         }
+    #     }
+    # }
     qc.config = {
-        "type": "line",
-        "data": {
-            "labels": [f"Warns of {member}"],
-            "datasets": [{
-                            "fill": False,
-                            "lineTension": 0,
-                            "backgroundColor": "#36393F",
-                            "borderColor": "#36393F",
-                            "data": data
-                        }]
-        },
-        "options": {
-            "scales": {
-                "xAxes": [{
-                    "type": 'time',
-                }]
-            }
+  "type": "line",
+  "data": {
+    "datasets": [
+      {
+        "fill": False,
+        "label": [f"Warns of {member}"],
+        "lineTension": 0,
+        "backgroundColor": "#7289DA",
+        "borderColor": "#7289DA",
+        "data": data
+      }
+    ]
+  },
+  "options": {
+    "scales": {
+      "xAxes": [{
+        "type": "time",
+        "time": {
+          "parser": "YYYY-MM-DD HH:mm:ss",
+          "displayFormats": {
+            "day": "DD/MM/YYYY"
+          }
         }
+      }]
     }
+  }
+}
 
     # Print a chart URL
     print(qc.get_url())
     uurl = qc.get_url()
 
-    embed = Embed(title=f"**Historic of {member}**", description=message+uurl)
+    embed = Embed(title=f"**Historic of {member}**", description=message)
     embed.set_image(url=uurl)
     embed.set_footer(
         text=f"Hammer | Command executed by {ctx.author}",
