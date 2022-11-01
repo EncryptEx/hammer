@@ -726,7 +726,7 @@ async def evaluate(ctx, code):
                 "discord": discord,
                 "sys": sys,
                 "os": os,
-                "cur": cur,
+                "sqlite3": sqlite3,
                 "imp": __import__,
                 "ctx": ctx,
                 "bot": bot,
