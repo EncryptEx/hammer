@@ -360,6 +360,11 @@ async def on_message(message):
                 value=f"The removed message was \n||{bannedmessage}||",
                 inline=True,
             )
+            embed.add_field(
+                name="Not happy with this?",
+                value=f"Disable this feature with ``/settings automod off`` or simply ``/suggest``  a new change",
+                inline=True,
+            )
             await message.channel.send(embed=embed)
             await message.delete()
             try:
