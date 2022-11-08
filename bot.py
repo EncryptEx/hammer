@@ -363,7 +363,7 @@ async def on_message(message):
             embed.add_field(
                 name="Not happy with this?",
                 value=f"Disable this feature with ``/settings automod off`` or simply ``/suggest``  a new change",
-                inline=True,
+                inline=False,
             )
             await message.channel.send(embed=embed)
             await message.delete()
