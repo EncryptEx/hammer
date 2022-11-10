@@ -240,7 +240,7 @@ async def AddAllowedWord(
 ):
     try: 
         cur.execute(
-            """INSERT OR IGNORE INTO warns (id, guildid,uploaderid, word, type)
+            """INSERT OR IGNORE INTO customWords (id, guildid,uploaderid, word, type)
             VALUES (NULL, ?, ?, ?, 1)
         """,
             (guildid, userid, word),
@@ -764,12 +764,22 @@ async def clearwarns(ctx, member: discord.Member, *, reason=None):
     administrator=True,
 )
 @option(
-    "function",
+    "action",
     description="Select add/remove",
     autocomplete=discord.utils.basic_autocomplete(["add", "remove"]),
 )
-def automod(funtion: str, word: str):
-    
+async def automod(ctx, action: str, word: str):
+    if(action == "add"):
+        response = AddAllowedWord(ctx.guild.id, ctx.author.id, word)
+    elif (action == "remove"):
+        response = AddAllowedWord(ctx.guild.id, ctx.author.id, word)
+    else: 
+        return await ctx.respond(embed=ErrorEmbed("Wrong syntax, please use /automod add/remove [word]"), ephemeral=True)
+    if(response):
+        return await ctx.respond("Word ||"+str(word)+f"|| successfully {action}ed to the database. :tools:", ephemeral=True)
+    else: 
+        return await ctx.respond(embed=ErrorEmbed(
+                f"Could not save the word ||{word}|| to the database. Please contact the administrator or bot developer for further information. "), ephemeral=True)
 
 @bot.slash_command(guild_only=True, guild_ids=[int(SECURITY_GUILD)])
 async def evaluate(ctx, code):
