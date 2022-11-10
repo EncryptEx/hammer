@@ -93,7 +93,13 @@ async def help(ctx):
     embed.add_field(
         name="AutoMod Services :robot:",
         value=
-        f"Swear Word Detector and wuto warn.\n Using a +880 swear word database",
+        f"""Swear Word Detector and wuto warn.
+Using a +880 swear word database
+
+Customize it with:
+{COMMAND_PREFIX}automod [add/remove] [word]
+Or switch it on/off with:
+{COMMAND_PREFIX}settings [automod] [on/off]""",
         inline=True,
     )
 
