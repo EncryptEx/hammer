@@ -240,7 +240,7 @@ async def AddAllowedWord(
 ):
     try: 
         cur.execute(
-            """INSERT OR IGNORE INTO customWords (id, guildid,uploaderid, word, type)
+            """INSERT OR IGNORE INTO customWords (id, guildid, uploaderId, word, type)
             VALUES (NULL, ?, ?, ?, 1)
         """,
             (guildid, userid, word),
@@ -770,9 +770,9 @@ async def clearwarns(ctx, member: discord.Member, *, reason=None):
 )
 async def automod(ctx, action: str, word: str):
     if(action == "add"):
-        response = AddAllowedWord(ctx.guild.id, ctx.author.id, word)
+        response = await AddAllowedWord(ctx.guild.id, ctx.author.id, word)
     elif (action == "remove"):
-        response = AddAllowedWord(ctx.guild.id, ctx.author.id, word)
+        response = await AddAllowedWord(ctx.guild.id, ctx.author.id, word)
     else: 
         return await ctx.respond(embed=ErrorEmbed("Wrong syntax, please use /automod add/remove [word]"), ephemeral=True)
     if(response):
