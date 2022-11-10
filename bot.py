@@ -226,11 +226,14 @@ async def getAllWarns(
         
 async def GetAutomodCustomWords(guildid: int, mode: str):
     wtype = 1 if mode == "allow" else 0
-    cur.execute("SELECT word FROM customWords WHERE guildid = ? AND type=? LIMIT 1",
+    cur.execute("SELECT word FROM customWords WHERE guildid = ? AND type = ?",
                 (guildid, wtype))
-    rows = cur.fetchall()
-    if len(rows) > 0:
-        return rows
+    words = cur.fetchall()
+    a=[]
+    if len(words) > 0:
+        for word in words:
+            a.append(str(word[0]))
+        return a
     else:
         return [] # default is emptys
 
@@ -238,10 +241,41 @@ async def GetAutomodCustomWords(guildid: int, mode: str):
 async def AddAllowedWord(
     guildid: int, userid:int, word:str
 ):
+    # check if user is in blacklist
+    # if(word in await GetAutomodCustomWords(guildid, "deny")):
+
+
     try: 
+        cur.execute(
+            """DELETE FROM customWords WHERE guildid=? AND word=? AND type=0
+        """,
+            (guildid, word),
+        )
+
         cur.execute(
             """INSERT OR IGNORE INTO customWords (id, guildid, uploaderId, word, type)
             VALUES (NULL, ?, ?, ?, 1)
+        """,
+            (guildid, userid, word),
+        )
+        conn.commit()
+    except: 
+        return False
+    return True
+
+async def AddDeniedWord(
+    guildid: int, userid:int, word:str
+):
+    try: 
+        cur.execute(
+            """DELETE FROM customWords WHERE guildid=? AND word=? AND type=1
+        """,
+            (guildid, word),
+        )
+
+        cur.execute(
+            """INSERT OR IGNORE INTO customWords (id, guildid, uploaderId, word, type)
+            VALUES (NULL, ?, ?, ?, 0)
         """,
             (guildid, userid, word),
         )
@@ -772,7 +806,7 @@ async def automod(ctx, action: str, word: str):
     if(action == "add"):
         response = await AddAllowedWord(ctx.guild.id, ctx.author.id, word)
     elif (action == "remove"):
-        response = await AddAllowedWord(ctx.guild.id, ctx.author.id, word)
+        response = await AddDeniedWord(ctx.guild.id, ctx.author.id, word)
     else: 
         return await ctx.respond(embed=ErrorEmbed("Wrong syntax, please use /automod add/remove [word]"), ephemeral=True)
     if(response):
