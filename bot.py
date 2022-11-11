@@ -28,30 +28,24 @@ from get_enviroment import TOKEN
 
 conn = sqlite3.connect("maindatabase1.db")
 cur = conn.cursor()
-cur.execute(
-    """CREATE TABLE IF NOT EXISTS `warns` (
+cur.execute("""CREATE TABLE IF NOT EXISTS `warns` (
         `id` INTEGER PRIMARY KEY AUTOINCREMENT,
         `userid` INT(100),
         `guildid` INT,
         `reason` TEXT,
         `timestamp` INT);
-        """
-)
-cur.execute(
-    """CREATE TABLE IF NOT EXISTS `customWords` (
+        """)
+cur.execute("""CREATE TABLE IF NOT EXISTS `customWords` (
         `id` INTEGER PRIMARY KEY AUTOINCREMENT,
         `guildid` INT,
         `uploaderId`INT,
         `word` TEXT,
         `type` INT);
-        """
-)
-cur.execute(
-    """CREATE TABLE IF NOT EXISTS `settings` (
+        """)
+cur.execute("""CREATE TABLE IF NOT EXISTS `settings` (
         `guildid` INT(100) UNIQUE,
         `automod` INT);
-        """
-)
+        """)
 
 hammericon = "https://images-ext-2.discordapp.net/external/OKc8xu6AILGNFY3nSTt7wGbg-Mi1iQZonoLTFg85o-E/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/591633652493058068/e6011129c5169b29ed05a6dc873175cb.png?width=670&height=670"
 
@@ -69,9 +63,9 @@ bot.remove_command("help")
 #
 
 
-@bot.slash_command(
-    name="help", description="Displays all the available commands for Hammer"
-)
+@bot.slash_command(name="help",
+                   description="Displays all the available commands for Hammer"
+                   )
 async def help(ctx):
     # Define each page
 
@@ -80,9 +74,9 @@ async def help(ctx):
     **Hammer's commands:**
     """
 
-    embed = Embed(
-        title="Hammer Bot Help", description=descr, colour=discord.Colour.lighter_grey()
-    )
+    embed = Embed(title="Hammer Bot Help",
+                  description=descr,
+                  colour=discord.Colour.lighter_grey())
 
     embed.add_field(
         name="Moderation Commands :tools:",
@@ -131,7 +125,8 @@ Or switch it on/off with:
 
     embed.add_field(
         name="""Useful Links: :link:""",
-        value=f"""[:classical_building: Hammer Bot Support](https://discord.gg/fMSyQA6)
+        value=
+        f"""[:classical_building: Hammer Bot Support](https://discord.gg/fMSyQA6)
     [:link: Hammer Invite Link](https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot)
     [:newspaper: Vote Hammer](https://top.gg/bot/591633652493058068)
     """,
@@ -148,9 +143,8 @@ Or switch it on/off with:
         inline=True,
     )
 
-    embed.set_footer(
-        text=f"Hammer | Command executed by {ctx.author}", icon_url=hammericon
-    )
+    embed.set_footer(text=f"Hammer | Command executed by {ctx.author}",
+                     icon_url=hammericon)
 
     await ctx.respond(embed=embed)
 
@@ -210,7 +204,8 @@ async def Removewarn(userid: int, guildId: int, relativeWarnId: int):
 
 async def Clearwarns(userid: int, guildId: int):
     # delete all rows
-    cur.execute("DELETE FROM warns WHERE userid=? AND guildid=?", (userid, guildId))
+    cur.execute("DELETE FROM warns WHERE userid=? AND guildid=?",
+                (userid, guildId))
     conn.commit()
     return
 
@@ -226,8 +221,9 @@ async def getAllWarns(userid: int, guildid: int):
         else:
 
             emojis = str(c)
-        ddt = int(str(dt)[: str(dt).find(".")])
-        allwarns.append(f"- **ID: {emojis}** Reason: ``{SubReason}``  <t:{ddt}:R>")
+        ddt = int(str(dt)[:str(dt).find(".")])
+        allwarns.append(
+            f"- **ID: {emojis}** Reason: ``{SubReason}``  <t:{ddt}:R>")
 
         c = c + 1
     return allwarns
@@ -235,9 +231,8 @@ async def getAllWarns(userid: int, guildid: int):
 
 async def GetAutomodCustomWords(guildid: int, mode: str):
     wtype = 1 if mode == "allow" else 0
-    cur.execute(
-        "SELECT word FROM customWords WHERE guildid = ? AND type = ?", (guildid, wtype)
-    )
+    cur.execute("SELECT word FROM customWords WHERE guildid = ? AND type = ?",
+                (guildid, wtype))
     words = cur.fetchall()
     a = []
     if len(words) > 0:
@@ -292,7 +287,8 @@ async def AddDeniedWord(guildid: int, userid: int, word: str):
 
 
 async def GetSettings(guildid: int):
-    cur.execute("SELECT * FROM settings WHERE guildid = ? LIMIT 1", (guildid,))
+    cur.execute("SELECT * FROM settings WHERE guildid = ? LIMIT 1",
+                (guildid, ))
     rows = cur.fetchall()
     if len(rows) > 0:
         return rows[0][1]
@@ -301,10 +297,13 @@ async def GetSettings(guildid: int):
 
 
 async def SaveSetting(guildid: int, module: str, value: int):
-    cur.execute("SELECT * FROM settings WHERE guildid = ? LIMIT 1", (guildid,))
+    cur.execute("SELECT * FROM settings WHERE guildid = ? LIMIT 1",
+                (guildid, ))
     rows = cur.fetchall()
     # print(rows)
-    if len(rows) > 0:  # cur.execute('INSERT INTO foo (a,b) values (?,?)', (strA, strB))
+    if len(
+            rows
+    ) > 0:  # cur.execute('INSERT INTO foo (a,b) values (?,?)', (strA, strB))
         query = f"""UPDATE settings
         SET automod = {value}
         WHERE guildid={guildid} """
@@ -342,7 +341,8 @@ def ErrorEmbed(error):
     embed = Embed(title=f":no_entry_sign: Error!", description=error)
 
     embed.set_thumbnail(
-        url="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ficonsplace.com%2Fwp-content%2Fuploads%2F_icons%2Fff0000%2F256%2Fpng%2Ferror-icon-14-256.png&f=1&nofb=1"
+        url=
+        "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ficonsplace.com%2Fwp-content%2Fuploads%2F_icons%2Fff0000%2F256%2Fpng%2Ferror-icon-14-256.png&f=1&nofb=1"
     )
 
     embed.set_footer(
@@ -395,8 +395,10 @@ async def on_message(message):
     if int(await GetSettings(message.guild.id)) != 1:
         return  # user has disabled Automod
     words = message.content.split()
-    allowed_words_guild_list = await GetAutomodCustomWords(message.guild.id, "allow")
-    denied_words_guild_list = await GetAutomodCustomWords(message.guild.id, "deny")
+    allowed_words_guild_list = await GetAutomodCustomWords(
+        message.guild.id, "allow")
+    denied_words_guild_list = await GetAutomodCustomWords(
+        message.guild.id, "deny")
     print("scanned: ", message.content)
     for word in words:
         # print("scanning word:",word)
@@ -413,30 +415,26 @@ async def on_message(message):
             descr = (
                 f"The user {member} has been warned because said a banned swear word"
             )
-            embed = Embed(
-                title=f"{member} has been warned! :hammer_pick:", description=descr
-            )
+            embed = Embed(title=f"{member} has been warned! :hammer_pick:",
+                          description=descr)
             embed.set_footer(
                 text=f"Hammer | Automod service",
                 icon_url=hammericon,
             )
             embed.set_thumbnail(url=member.display_avatar)
-            warn = await AddWarning(
-                member.id, message.guild.id, "Said a banned swear word"
-            )
+            warn = await AddWarning(member.id, message.guild.id,
+                                    "Said a banned swear word")
             s = "s" if warn > 1 else ""
             embed.add_field(
                 name="Warn count",
-                value=f"The user {member} has {warn} warn{s}. Be careful. Run /seewarns @user to check its warnhistory",
+                value=
+                f"The user {member} has {warn} warn{s}. Be careful. Run /seewarns @user to check its warnhistory",
                 inline=True,
             )
             bannedmessage = (
-                message.content[: message.content.find(word)]
-                + "~~"
-                + word
-                + "~~"
-                + message.content[message.content.find(word) + len(word) :]
-            )
+                message.content[:message.content.find(word)] + "~~" + word +
+                "~~" +
+                message.content[message.content.find(word) + len(word):])
             embed.add_field(
                 name="Message Removed:",
                 value=f"The removed message was \n||{bannedmessage}||",
@@ -444,7 +442,8 @@ async def on_message(message):
             )
             embed.add_field(
                 name="Not happy with this?",
-                value=f"Disable this feature with ``/settings automod off`` or simply ``/suggest``  a new change",
+                value=
+                f"Disable this feature with ``/settings automod off`` or simply ``/suggest``  a new change",
                 inline=False,
             )
             await message.channel.send(embed=embed)
@@ -457,17 +456,15 @@ async def on_message(message):
                 embed = ErrorEmbed(
                     await message.channel.send(
                         f"Could not deliver the message to the user {member}\n This may be caused because the user is a bot, has blocked me or has the DMs turned off. \n\n**But the user is warned** and I have saved it into my beautiful unforgettable database"
-                    ),
-                )
+                    ), )
     # if(str(message.content).startswith(COMMAND_PREFIX)):
     # print("command executed", message.content)
 
 
 @bot.event
 async def on_ready():
-    await bot.change_presence(
-        activity=discord.Activity(type=discord.ActivityType.watching, name="you")
-    )
+    await bot.change_presence(activity=discord.Activity(
+        type=discord.ActivityType.watching, name="you"))
     print("HAMMER BOT Ready!", datetime.datetime.now())
     botname = await bot.application_info()
     print("logged in as:", botname.name)
@@ -484,7 +481,9 @@ async def on_ready():
 debug = False
 
 
-@bot.slash_command(guild_only=True, name="hello", guild_ids=[int(SECURITY_GUILD)])
+@bot.slash_command(guild_only=True,
+                   name="hello",
+                   guild_ids=[int(SECURITY_GUILD)])
 async def hello(ctx):
     await ctx.respond("Hammer is back!")
 
@@ -553,8 +552,7 @@ async def whois(ctx, member: discord.Member):
     description="Keeps out a user permanently, forbidding its entry",
 )
 @discord.default_permissions(
-    ban_members=True,
-)
+    ban_members=True, )
 async def ban(ctx, member: discord.Member, *, reason=None):
 
     if member == ctx.author:
@@ -565,7 +563,8 @@ async def ban(ctx, member: discord.Member, *, reason=None):
     message = f"You have been banned from {ctx.guild.name} for {reason}"
 
     descr = f"The user {member} has been banned for {reason}"
-    embed = Embed(title=f"{member} has been banned! :hammer_pick:", description=descr)
+    embed = Embed(title=f"{member} has been banned! :hammer_pick:",
+                  description=descr)
     embed.set_image(url="https://i.imgflip.com/19zat3.jpg")
     embed.set_footer(
         text=f"Hammer | Command executed by {ctx.author}",
@@ -588,12 +587,11 @@ async def ban(ctx, member: discord.Member, *, reason=None):
     await SendMessageTo(ctx, member, message)
 
 
-@bot.slash_command(
-    guild_only=True, name="kick", description="Kicks out a member from the server"
-)
+@bot.slash_command(guild_only=True,
+                   name="kick",
+                   description="Kicks out a member from the server")
 @discord.default_permissions(
-    kick_members=True,
-)
+    kick_members=True, )
 async def kick(ctx, member: discord.Member, *, reason=None):
 
     if member == ctx.author:
@@ -614,7 +612,8 @@ async def kick(ctx, member: discord.Member, *, reason=None):
             )
             return
     descr = f"The user {member} has been kicked for {reason}"
-    embed = Embed(title=f"{member} has been kicked! :hammer_pick:", description=descr)
+    embed = Embed(title=f"{member} has been kicked! :hammer_pick:",
+                  description=descr)
     embed.set_footer(
         text=f"Hammer | Command executed by {ctx.author}",
         icon_url=hammericon,
@@ -631,8 +630,7 @@ async def kick(ctx, member: discord.Member, *, reason=None):
     description="Sets a warning for a user, at 3 warns/strikes they get kicked",
 )
 @discord.default_permissions(
-    administrator=True,
-)
+    administrator=True, )
 async def warn(ctx, member: discord.Member, reason=None):
 
     if member == ctx.author:
@@ -643,7 +641,8 @@ async def warn(ctx, member: discord.Member, reason=None):
     message = f"You have been warned for {reason}"
 
     descr = f"The user {member} has been warned for {reason}"
-    embed = Embed(title=f"{member} has been warned! :hammer_pick:", description=descr)
+    embed = Embed(title=f"{member} has been warned! :hammer_pick:",
+                  description=descr)
     embed.set_footer(
         text=f"Hammer | Command executed by {ctx.author}",
         icon_url=hammericon,
@@ -667,8 +666,7 @@ async def warn(ctx, member: discord.Member, reason=None):
     description="Displays the warn history of a user in the guild",
 )
 @discord.default_permissions(
-    administrator=True,
-)
+    administrator=True, )
 async def seewarns(ctx, member: discord.Member):
     allwarns = await getAllWarns(member.id, ctx.guild.id)
     if len(allwarns) == 0:
@@ -680,16 +678,14 @@ async def seewarns(ctx, member: discord.Member):
     for warn in await GetWarnings(member.id, ctx.guild.id, fullData=True):
         _, _, _, _, timestamp = warn
         c = c + 1
-        data.append(
-            {
-                "t": str(
-                    datetime.datetime.fromtimestamp(
-                        int(str(timestamp)[: str(timestamp).find(".")])
-                    )
-                ),
-                "y": c,
-            }
-        )
+        data.append({
+            "t":
+            str(
+                datetime.datetime.fromtimestamp(
+                    int(str(timestamp)[:str(timestamp).find(".")]))),
+            "y":
+            c,
+        })
 
     qc = QuickChart()
     qc.width = 500
@@ -698,28 +694,26 @@ async def seewarns(ctx, member: discord.Member):
     qc.config = {
         "type": "line",
         "data": {
-            "datasets": [
-                {
-                    "fill": False,
-                    "label": [f"Warns of {member}"],
-                    "lineTension": 0,
-                    "backgroundColor": "#7289DA",
-                    "borderColor": "#7289DA",
-                    "data": data,
-                }
-            ]
+            "datasets": [{
+                "fill": False,
+                "label": [f"Warns of {member}"],
+                "lineTension": 0,
+                "backgroundColor": "#7289DA",
+                "borderColor": "#7289DA",
+                "data": data,
+            }]
         },
         "options": {
             "scales": {
-                "xAxes": [
-                    {
-                        "type": "time",
-                        "time": {
-                            "parser": "YYYY-MM-DD HH:mm:ss",
-                            "displayFormats": {"day": "DD/MM/YYYY"},
+                "xAxes": [{
+                    "type": "time",
+                    "time": {
+                        "parser": "YYYY-MM-DD HH:mm:ss",
+                        "displayFormats": {
+                            "day": "DD/MM/YYYY"
                         },
-                    }
-                ]
+                    },
+                }]
             }
         },
     }
@@ -735,12 +729,11 @@ async def seewarns(ctx, member: discord.Member):
     return await ctx.respond(embed=embed)
 
 
-@bot.slash_command(
-    guild_only=True, name="unwarn", description="Removes a strike from a user"
-)
+@bot.slash_command(guild_only=True,
+                   name="unwarn",
+                   description="Removes a strike from a user")
 @discord.default_permissions(
-    kick_members=True,
-)
+    kick_members=True, )
 async def unwarn(ctx, member: discord.Member, id: int = None, *, reason=None):
     if await GetWarnings(member.id, ctx.guild.id) == 0:
         return await ctx.respond("This user does not have any warn!")
@@ -749,9 +742,8 @@ async def unwarn(ctx, member: discord.Member, id: int = None, *, reason=None):
             f"""To select a warn to remove, use argument id and specify its value."""
         )
 
-        embed = Embed(
-            title=f"ERROR! Need to select a warn :hammer_pick:", description=message
-        )
+        embed = Embed(title=f"ERROR! Need to select a warn :hammer_pick:",
+                      description=message)
         allwarns = await getAllWarns(member.id, ctx.guild.id)
         embed.add_field(
             name=f"**Historic of {member.name}**:",
@@ -763,7 +755,8 @@ async def unwarn(ctx, member: discord.Member, id: int = None, *, reason=None):
     message = f"You have been unwarned for {reason}"
 
     descr = f"The user {member} has been unwarned for {reason}"
-    embed = Embed(title=f"{member} has been unwarned! :hammer_pick:", description=descr)
+    embed = Embed(title=f"{member} has been unwarned! :hammer_pick:",
+                  description=descr)
     embed.set_footer(
         text=f"Hammer | Command executed by {ctx.author}",
         icon_url=hammericon,
@@ -781,12 +774,11 @@ async def unwarn(ctx, member: discord.Member, id: int = None, *, reason=None):
     await SendMessageTo(ctx, member, message)
 
 
-@bot.slash_command(
-    guild_only=True, name="clearwarns", description="Removes all strikes from a user"
-)
+@bot.slash_command(guild_only=True,
+                   name="clearwarns",
+                   description="Removes all strikes from a user")
 @discord.default_permissions(
-    kick_members=True,
-)
+    kick_members=True, )
 async def clearwarns(ctx, member: discord.Member, *, reason=None):
 
     if reason == None:
@@ -819,8 +811,7 @@ async def clearwarns(ctx, member: discord.Member, *, reason=None):
     description="Customizes in this guild Hammer's automod",
 )
 @discord.default_permissions(
-    administrator=True,
-)
+    administrator=True, )
 @option(
     "action",
     description="Select add/remove word from swear list",
@@ -833,15 +824,15 @@ async def automod(ctx, action: str, word: str):
         response = await AddDeniedWord(ctx.guild.id, ctx.author.id, word)
     else:
         return await ctx.respond(
-            embed=ErrorEmbed("Wrong syntax, please use /automod add/remove [word]"),
+            embed=ErrorEmbed(
+                "Wrong syntax, please use /automod add/remove [word]"),
             ephemeral=True,
         )
     if response:
         prep = "to" if action == "add" else "from"
         return await ctx.respond(
-            "Word ||"
-            + str(word)
-            + f"|| successfully {action}ed {prep} the swear word list. :tools:",
+            "Word ||" + str(word) +
+            f"|| successfully {action}ed {prep} the swear word list. :tools:",
             ephemeral=True,
         )
     else:
@@ -940,19 +931,20 @@ async def restart(ctx):
 @bot.slash_command(
     guild_only=True,
     name="setdelay",
-    description="Updates the message delay in a channel with a set of custom time interval",
+    description=
+    "Updates the message delay in a channel with a set of custom time interval",
 )
 @discord.default_permissions(
-    manage_messages=True,
-)
+    manage_messages=True, )
 async def setdelay(ctx, seconds: float, reason: str = ""):
 
     m = "modified" if seconds > 0.0 else "removed"
     embed = Embed(
         title=f"Delay {m} on #{ctx.channel} :hammer_pick:",
-        description=f"This channel now has a delay of **{seconds}** seconds for {reason}"
-        if reason != None and reason != ""
-        else f"This channel now has a delay of **{seconds}** seconds",
+        description=
+        f"This channel now has a delay of **{seconds}** seconds for {reason}"
+        if reason != None and reason != "" else
+        f"This channel now has a delay of **{seconds}** seconds",
     )
     embed.set_footer(
         text=f"Hammer | Command executed by {ctx.author}",
@@ -970,8 +962,7 @@ async def setdelay(ctx, seconds: float, reason: str = ""):
     description="Removes the hability to talk or join voice channels to a user",
 )
 @discord.default_permissions(
-    manage_messages=True,
-)
+    manage_messages=True, )
 async def mute(ctx, member: discord.Member, *, reason=None):
 
     guild = ctx.guild
@@ -1011,11 +1002,11 @@ async def mute(ctx, member: discord.Member, *, reason=None):
 @bot.slash_command(
     guild_only=True,
     name="unmute",
-    description="Restores the hability to talk or join voice channels to a user",
+    description=
+    "Restores the hability to talk or join voice channels to a user",
 )
 @discord.default_permissions(
-    manage_messages=True,
-)
+    manage_messages=True, )
 async def unmute(ctx, member: discord.Member, *, reason=None):
 
     mutedRole = discord.utils.get(ctx.guild.roles, name="Muted")
@@ -1025,8 +1016,8 @@ async def unmute(ctx, member: discord.Member, *, reason=None):
         reason = "for " + reason
     await member.remove_roles(mutedRole)
     SendMessageTo(
-        ctx, member, f":tada: You have been unmuted from: {ctx.guild.name} {reason}"
-    )
+        ctx, member,
+        f":tada: You have been unmuted from: {ctx.guild.name} {reason}")
     embed = discord.Embed(
         title=f"User Unmuted: {member}",
         description=f"User {member.mention} has been unmuted {reason}",
@@ -1063,7 +1054,8 @@ async def lock(ctx, channel: discord.TextChannel = None, reason=None):
 @bot.slash_command(
     guild_only=True,
     name="unlock",
-    description="Removes the blocking in a channel from not being used as a chat.",
+    description=
+    "Removes the blocking in a channel from not being used as a chat.",
 )
 async def unlock(ctx, channel: discord.TextChannel = None, reason=None):
 
@@ -1112,7 +1104,8 @@ async def suggest(ctx, suggestion: str):
 async def invite(ctx):
     embed = Embed(
         title=f"Invite Hammer Bot to your server! :hammer_pick:",
-        description=f"[**🔗 Hammer Invite Link**](https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot)",
+        description=
+        f"[**🔗 Hammer Invite Link**](https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot)",
     )
     embed.set_footer(
         text=f"Hammer | Command executed by {ctx.author}",
@@ -1125,9 +1118,9 @@ modules = ["automod"]
 
 
 @discord.default_permissions(administrator=True)
-@bot.slash_command(
-    name="settings", description="Modifies some Hammer config values", guild_only=True
-)
+@bot.slash_command(name="settings",
+                   description="Modifies some Hammer config values",
+                   guild_only=True)
 @option(
     "module",
     description="Pick a module to switch!",
@@ -1144,10 +1137,12 @@ async def settings(ctx, module: str = None, value: str = None):
             value = 1 if value == "on" else 0
             await SaveSetting(ctx.guild.id, module, value)
             action = "enabled" if value else "disabled"
-            await ctx.respond(f"Module {module} {action} successfully!", ephemeral=True)
+            await ctx.respond(f"Module {module} {action} successfully!",
+                              ephemeral=True)
             return
         else:
-            await ctx.respond("Use: ``/settings module on/off``", ephemeral=True)
+            await ctx.respond("Use: ``/settings module on/off``",
+                              ephemeral=True)
             return
     embed = Embed(
         title=f"Hammer Bot Settings :hammer_pick:",
@@ -1158,12 +1153,12 @@ async def settings(ctx, module: str = None, value: str = None):
     automodStatustr = "**✅ ON**" if automodStatus else "**❌ OFF**"
     recommendedactivityAutomod = (
         f"Disable it by doing: ``{COMMAND_PREFIX}settings automod off``"
-        if automodStatus
-        else f"Enable it by doing ``{COMMAND_PREFIX}settings automod on``"
-    )
+        if automodStatus else
+        f"Enable it by doing ``{COMMAND_PREFIX}settings automod on``")
     embed.add_field(
         name="AutoMod Services :robot:",
-        value=f"Actual status: {automodStatustr}\n {recommendedactivityAutomod}",
+        value=
+        f"Actual status: {automodStatustr}\n {recommendedactivityAutomod}",
         inline=True,
     )
     embed.set_footer(
