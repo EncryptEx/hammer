@@ -799,18 +799,19 @@ async def clearwarns(ctx, member: discord.Member, *, reason=None):
 )
 @option(
     "action",
-    description="Select add/remove",
+    description="Select add/remove word from swear list",
     autocomplete=discord.utils.basic_autocomplete(["add", "remove"]),
 )
 async def automod(ctx, action: str, word: str):
-    if(action == "add"):
+    if(action == "remove"):
         response = await AddAllowedWord(ctx.guild.id, ctx.author.id, word)
-    elif (action == "remove"):
+    elif (action == "add"):
         response = await AddDeniedWord(ctx.guild.id, ctx.author.id, word)
     else: 
         return await ctx.respond(embed=ErrorEmbed("Wrong syntax, please use /automod add/remove [word]"), ephemeral=True)
     if(response):
-        return await ctx.respond("Word ||"+str(word)+f"|| successfully {action}ed to the database. :tools:", ephemeral=True)
+        prep = "to" if action == "add" else "from"
+        return await ctx.respond("Word ||"+str(word)+f"|| successfully {action}ed {prep} the swear word list. :tools:", ephemeral=True)
     else: 
         return await ctx.respond(embed=ErrorEmbed(
                 f"Could not save the word ||{word}|| to the database. Please contact the administrator or bot developer for further information. "), ephemeral=True)
