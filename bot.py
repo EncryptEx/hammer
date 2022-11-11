@@ -2,11 +2,10 @@ import datetime
 import os
 import sqlite3
 import sys
+import urllib
 from email import message
 from pydoc import describe
 from time import time
-from quickchart import QuickChart
-import urllib
 
 import discord
 from discord import Embed
@@ -14,6 +13,7 @@ from discord import guild_only
 from discord.commands import option
 from discord.ext import commands
 from discord.ext.commands.core import command
+from quickchart import QuickChart
 
 from get_enviroment import ANNOUNCEMENTS_CHANNEL
 from get_enviroment import COMMAND_PREFIX
@@ -23,6 +23,7 @@ from get_enviroment import SECURITY_CHANNEL
 from get_enviroment import SECURITY_GUILD
 from get_enviroment import SWEAR_WORDS_LIST
 from get_enviroment import TOKEN
+
 # database import & connection
 
 conn = sqlite3.connect("maindatabase1.db")
@@ -33,6 +34,13 @@ cur.execute("""CREATE TABLE IF NOT EXISTS `warns` (
         `guildid` INT,
         `reason` TEXT,
         `timestamp` INT);
+        """)
+cur.execute("""CREATE TABLE IF NOT EXISTS `customWords` (
+        `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+        `guildid` INT,
+        `uploaderId`INT,
+        `word` TEXT,
+        `type` INT);
         """)
 cur.execute("""CREATE TABLE IF NOT EXISTS `settings` (
         `guildid` INT(100) UNIQUE,
@@ -78,14 +86,20 @@ async def help(ctx):
     {COMMAND_PREFIX}warn [user] <reason>
     {COMMAND_PREFIX}unwarn [user] [id] <reason>
     {COMMAND_PREFIX}clearwarns [user] <reason>
+    {COMMAND_PREFIX}seewarns [user]
     """,
         inline=True,
     )
 
     embed.add_field(
         name="AutoMod Services :robot:",
-        value=
-        f"Swear Word Detector and wuto warn.\n Using a +880 swear word database",
+        value=f"""Swear Word Detector and wuto warn.
+Using a +880 swear word database
+
+Customize it with:
+{COMMAND_PREFIX}automod [add/remove] [word]
+Or switch it on/off with:
+{COMMAND_PREFIX}settings [automod] [on/off]""",
         inline=True,
     )
 
@@ -145,8 +159,14 @@ async def respondNotifOwner(text):
     await bot.get_channel(int(SECURITY_CHANNEL)).respond(text)
 
 
-async def GetWarnings(userid: int, guildid:int, fullData: bool=False):
-    cur.execute("SELECT * FROM warns WHERE userid=? AND guildid=?", (userid,guildid,))
+async def GetWarnings(userid: int, guildid: int, fullData: bool = False):
+    cur.execute(
+        "SELECT * FROM warns WHERE userid=? AND guildid=?",
+        (
+            userid,
+            guildid,
+        ),
+    )
     rows = cur.fetchall()
     if not fullData:
         return len(rows)
@@ -155,9 +175,7 @@ async def GetWarnings(userid: int, guildid:int, fullData: bool=False):
 
 
 # Function to add a warning and save it at the database
-async def AddWarning(
-    userid: int, guildid:int, reason
-):
+async def AddWarning(userid: int, guildid: int, reason):
     warncount = await GetWarnings(userid, guildid)
     cur.execute(
         """INSERT OR IGNORE INTO warns (userid, guildid, reason, timestamp)
@@ -168,10 +186,9 @@ async def AddWarning(
     conn.commit()
     return warncount + 1
 
-async def Removewarn(
-    userid: int, guildId:int, relativeWarnId:int
-):
-    c=0
+
+async def Removewarn(userid: int, guildId: int, relativeWarnId: int):
+    c = 0
     for warn in await GetWarnings(userid, guildId, fullData=True):
         warnRealId, _, _, SubReason, _ = warn
         if c == relativeWarnId:
@@ -191,11 +208,11 @@ async def Clearwarns(userid: int, guildId: int):
                 (userid, guildId))
     conn.commit()
     return
-async def getAllWarns(
-    userid: int, guildid:int
-):
+
+
+async def getAllWarns(userid: int, guildid: int):
     allwarns = []
-    c=0
+    c = 0
     for warn in await GetWarnings(userid, guildid, fullData=True):
         _, _, _, SubReason, timestamp = warn
         dt = timestamp
@@ -204,11 +221,69 @@ async def getAllWarns(
         else:
 
             emojis = str(c)
-        ddt=int(str(dt)[:str(dt).find(".")])
-        allwarns.append(f"- **ID: {emojis}** Reason: ``{SubReason}``  <t:{ddt}:R>")
-        
-        c=c+1
+        ddt = int(str(dt)[:str(dt).find(".")])
+        allwarns.append(
+            f"- **ID: {emojis}** Reason: ``{SubReason}``  <t:{ddt}:R>")
+
+        c = c + 1
     return allwarns
+
+
+async def GetAutomodCustomWords(guildid: int, mode: str):
+    wtype = 1 if mode == "allow" else 0
+    cur.execute("SELECT word FROM customWords WHERE guildid = ? AND type = ?",
+                (guildid, wtype))
+    words = cur.fetchall()
+    a = []
+    if len(words) > 0:
+        for word in words:
+            a.append(str(word[0]))
+        return a
+    else:
+        return []  # default is emptys
+
+
+async def AddAllowedWord(guildid: int, userid: int, word: str):
+    # check if user is in blacklist
+    # if(word in await GetAutomodCustomWords(guildid, "deny")):
+
+    try:
+        cur.execute(
+            """DELETE FROM customWords WHERE guildid=? AND word=? AND type=0
+        """,
+            (guildid, word),
+        )
+
+        cur.execute(
+            """INSERT OR IGNORE INTO customWords (id, guildid, uploaderId, word, type)
+            VALUES (NULL, ?, ?, ?, 1)
+        """,
+            (guildid, userid, word),
+        )
+        conn.commit()
+    except:
+        return False
+    return True
+
+
+async def AddDeniedWord(guildid: int, userid: int, word: str):
+    try:
+        cur.execute(
+            """DELETE FROM customWords WHERE guildid=? AND word=? AND type=1
+        """,
+            (guildid, word),
+        )
+
+        cur.execute(
+            """INSERT OR IGNORE INTO customWords (id, guildid, uploaderId, word, type)
+            VALUES (NULL, ?, ?, ?, 0)
+        """,
+            (guildid, userid, word),
+        )
+        conn.commit()
+    except:
+        return False
+    return True
 
 
 async def GetSettings(guildid: int):
@@ -320,13 +395,18 @@ async def on_message(message):
     if int(await GetSettings(message.guild.id)) != 1:
         return  # user has disabled Automod
     words = message.content.split()
+    allowed_words_guild_list = await GetAutomodCustomWords(
+        message.guild.id, "allow")
+    denied_words_guild_list = await GetAutomodCustomWords(
+        message.guild.id, "deny")
     print("scanned: ", message.content)
     for word in words:
         # print("scanning word:",word)
         word = str(word).lower()
-        if word in SWEAR_WORDS_LIST:
-            # print("detected word:",word)
-            # print("user",message.author.name,"said",message.content)
+        if word in allowed_words_guild_list:
+            continue
+
+        if word in denied_words_guild_list or word in SWEAR_WORDS_LIST:
             member = message.author
             # if member == .has perms :
             # return # is admin so don't warn it
@@ -362,7 +442,8 @@ async def on_message(message):
             )
             embed.add_field(
                 name="Not happy with this?",
-                value=f"Disable this feature with ``/settings automod off`` or simply ``/suggest``  a new change",
+                value=
+                f"Disable this feature with ``/settings automod off`` or simply ``/suggest``  a new change",
                 inline=False,
             )
             await message.channel.send(embed=embed)
@@ -588,48 +669,54 @@ async def warn(ctx, member: discord.Member, reason=None):
     administrator=True, )
 async def seewarns(ctx, member: discord.Member):
     allwarns = await getAllWarns(member.id, ctx.guild.id)
-    if(len(allwarns) == 0): allwarns = ['User had no warns at the moment']
-    message = '\n'.join(allwarns)
-    
-    c=0
-    data=[]
+    if len(allwarns) == 0:
+        allwarns = ["User had no warns at the moment"]
+    message = "\n".join(allwarns)
+
+    c = 0
+    data = []
     for warn in await GetWarnings(member.id, ctx.guild.id, fullData=True):
-        _,_,_,_,timestamp =warn
-        c=c+1
-        data.append({'t':str(datetime.datetime.fromtimestamp(int(str(timestamp)[:str(timestamp).find(".")]))),'y':c})
+        _, _, _, _, timestamp = warn
+        c = c + 1
+        data.append({
+            "t":
+            str(
+                datetime.datetime.fromtimestamp(
+                    int(str(timestamp)[:str(timestamp).find(".")]))),
+            "y":
+            c,
+        })
 
     qc = QuickChart()
     qc.width = 500
     qc.height = 300
     qc.device_pixel_ratio = 2.0
     qc.config = {
-  "type": "line",
-  "data": {
-    "datasets": [
-      {
-        "fill": False,
-        "label": [f"Warns of {member}"],
-        "lineTension": 0,
-        "backgroundColor": "#7289DA",
-        "borderColor": "#7289DA",
-        "data": data
-      }
-    ]
-  },
-  "options": {
-    "scales": {
-      "xAxes": [{
-        "type": "time",
-        "time": {
-          "parser": "YYYY-MM-DD HH:mm:ss",
-          "displayFormats": {
-            "day": "DD/MM/YYYY"
-          }
-        }
-      }]
+        "type": "line",
+        "data": {
+            "datasets": [{
+                "fill": False,
+                "label": [f"Warns of {member}"],
+                "lineTension": 0,
+                "backgroundColor": "#7289DA",
+                "borderColor": "#7289DA",
+                "data": data,
+            }]
+        },
+        "options": {
+            "scales": {
+                "xAxes": [{
+                    "type": "time",
+                    "time": {
+                        "parser": "YYYY-MM-DD HH:mm:ss",
+                        "displayFormats": {
+                            "day": "DD/MM/YYYY"
+                        },
+                    },
+                }]
+            }
+        },
     }
-  }
-}
 
     uurl = qc.get_url()
 
@@ -646,15 +733,17 @@ async def seewarns(ctx, member: discord.Member):
                    name="unwarn",
                    description="Removes a strike from a user")
 @discord.default_permissions(
-    kick_members=True,
-)
-async def unwarn(ctx, member: discord.Member, id: int=None , *, reason=None):
-    if(await GetWarnings(member.id, ctx.guild.id) == 0): 
+    kick_members=True, )
+async def unwarn(ctx, member: discord.Member, id: int = None, *, reason=None):
+    if await GetWarnings(member.id, ctx.guild.id) == 0:
         return await ctx.respond("This user does not have any warn!")
     if id == None:
-        message = f"""To select a warn to remove, use argument id and specify its value."""
-        
-        embed = Embed(title=f"ERROR! Need to select a warn :hammer_pick:", description=message)
+        message = (
+            f"""To select a warn to remove, use argument id and specify its value."""
+        )
+
+        embed = Embed(title=f"ERROR! Need to select a warn :hammer_pick:",
+                      description=message)
         allwarns = await getAllWarns(member.id, ctx.guild.id)
         embed.add_field(
             name=f"**Historic of {member.name}**:",
@@ -714,6 +803,45 @@ async def clearwarns(ctx, member: discord.Member, *, reason=None):
     )
     await ctx.respond(embed=embed, ephemeral=False)
     await SendMessageTo(ctx, member, message)
+
+
+@bot.slash_command(
+    guild_only=True,
+    name="automod",
+    description="Customizes in this guild Hammer's automod",
+)
+@discord.default_permissions(
+    administrator=True, )
+@option(
+    "action",
+    description="Select add/remove word from swear list",
+    autocomplete=discord.utils.basic_autocomplete(["add", "remove"]),
+)
+async def automod(ctx, action: str, word: str):
+    if action == "remove":
+        response = await AddAllowedWord(ctx.guild.id, ctx.author.id, word)
+    elif action == "add":
+        response = await AddDeniedWord(ctx.guild.id, ctx.author.id, word)
+    else:
+        return await ctx.respond(
+            embed=ErrorEmbed(
+                "Wrong syntax, please use /automod add/remove [word]"),
+            ephemeral=True,
+        )
+    if response:
+        prep = "to" if action == "add" else "from"
+        return await ctx.respond(
+            "Word ||" + str(word) +
+            f"|| successfully {action}ed {prep} the swear word list. :tools:",
+            ephemeral=True,
+        )
+    else:
+        return await ctx.respond(
+            embed=ErrorEmbed(
+                f"Could not save the word ||{word}|| to the database. Please contact the administrator or bot developer for further information. "
+            ),
+            ephemeral=True,
+        )
 
 
 @bot.slash_command(guild_only=True, guild_ids=[int(SECURITY_GUILD)])
