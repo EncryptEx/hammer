@@ -2,27 +2,21 @@ import datetime
 import os
 import sqlite3
 import sys
+import urllib
 from email import message
 from pydoc import describe
 from time import time
-from quickchart import QuickChart
-import urllib
 
 import discord
-from discord import Embed
-from discord import guild_only
+from discord import Embed, guild_only
 from discord.commands import option
 from discord.ext import commands
 from discord.ext.commands.core import command
+from quickchart import QuickChart
 
-from get_enviroment import ANNOUNCEMENTS_CHANNEL
-from get_enviroment import COMMAND_PREFIX
-from get_enviroment import DEV_SUGGESTIONS_CHANNEL
-from get_enviroment import OWNER
-from get_enviroment import SECURITY_CHANNEL
-from get_enviroment import SECURITY_GUILD
-from get_enviroment import SWEAR_WORDS_LIST
-from get_enviroment import TOKEN
+from get_enviroment import (ANNOUNCEMENTS_CHANNEL, COMMAND_PREFIX,
+                            DEV_SUGGESTIONS_CHANNEL, OWNER, SECURITY_CHANNEL,
+                            SECURITY_GUILD, SWEAR_WORDS_LIST, TOKEN)
 
 # database import & connection
 
