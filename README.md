@@ -15,10 +15,10 @@ A discord.py bot - #DISCORD HACK WEEK 2019
 
 100% Python
 
-For what is used for Hammer? (Use /hammer in a discord guild/server) Hammer is a moderation Bot, wich has lots of funtional commands, from the basically (warn, kick or ban) to advanced functions like automod, with about 100 blocked swear words. Also is 99.7% uptime. **#DiscordHackWeek Creation**
+For what is used for Hammer? (Use /hammer in a discord guild/server) Hammer is a moderation Bot, which has lots of functional commands, from the basically (warn, kick or ban) to advanced functions like automod, with about 880 blocked swear words. Also is 99.7% uptime. **#DiscordHackWeek Creation**
 
 
-What and how many commands has Hemmer? (User /help in a discord guild/server and check DM.) [Or scroll down](https://github.com/limusina10/hammer#useful-comands)
+What and how many commands has Hammer? (User /help in a discord guild/server and check DM.) [Or scroll down](https://github.com/limusina10/hammer#useful-comands)
 # Add the bot
 https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot
 
