@@ -293,7 +293,7 @@ async def GetSettings(guildid: int):
     if len(rows) > 0:
         return rows[0][1]
     else:
-        return 1  # default is on
+        return 0  # default is off
 
 
 async def SaveSetting(guildid: int, module: str, value: int):
