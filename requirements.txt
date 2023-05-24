@@ -10,6 +10,6 @@ multidict==6.0.2
 py-cord==2.0.1
 python-dotenv==0.20.0
 quickchart-io==2.0.0
-requests==2.28.1
+requests==2.31.0
 urllib3==1.26.12
 yarl==1.7.2
