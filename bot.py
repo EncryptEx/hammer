@@ -143,8 +143,10 @@ Or switch it on/off with:
         inline=True,
     )
 
-    embed.set_footer(text=f"Hammer | Command executed by {ctx.author}",
-                     icon_url=hammericon)
+    embed.set_footer(
+        text=f"Hammer | Command executed by {filterMember(ctx.author)}",
+        icon_url=hammericon,
+    )
 
     await ctx.respond(embed=embed)
 
@@ -612,7 +614,7 @@ async def whois(ctx, member: discord.Member):
         embed.set_thumbnail(url=member.display_avatar)
 
         embed.set_footer(
-            text=f"Hammer | Command executed by {ctx.author}",
+            text=f"Hammer | Command executed by {filterMember(ctx.author)}",
             icon_url=hammericon,
         )
         await ctx.respond(embed=embed)
@@ -641,7 +643,7 @@ async def ban(ctx, member: discord.Member, *, reason=None):
     )
     embed.set_image(url="https://i.imgflip.com/19zat3.jpg")
     embed.set_footer(
-        text=f"Hammer | Command executed by {ctx.author}",
+        text=f"Hammer | Command executed by {filterMember(ctx.author)}",
         icon_url=hammericon,
     )
     if not debug:
@@ -689,7 +691,7 @@ async def kick(ctx, member: discord.Member, *, reason=None):
         description=descr,
     )
     embed.set_footer(
-        text=f"Hammer | Command executed by {ctx.author}",
+        text=f"Hammer | Command executed by {filterMember(ctx.author)}",
         icon_url=hammericon,
     )
     embed.set_thumbnail(url=member.display_avatar)
@@ -727,7 +729,7 @@ async def warn(ctx,
         description=descr,
     )
     embed.set_footer(
-        text=f"Hammer | Command executed by {ctx.author}",
+        text=f"Hammer | Command executed by {filterMember(ctx.author)}",
         icon_url=hammericon,
     )
     embed.set_thumbnail(url=member.display_avatar)
@@ -819,7 +821,7 @@ async def seewarns(ctx, member: discord.Member):
                   description=message)
     embed.set_image(url=uurl)
     embed.set_footer(
-        text=f"Hammer | Command executed by {ctx.author}",
+        text=f"Hammer | Command executed by {filterMember(ctx.author)}",
         icon_url=hammericon,
     )
     return await ctx.respond(embed=embed)
@@ -855,7 +857,7 @@ async def unwarn(ctx, member: discord.Member, id: int = None, *, reason=None):
         description=descr,
     )
     embed.set_footer(
-        text=f"Hammer | Command executed by {ctx.author}",
+        text=f"Hammer | Command executed by {filterMember(ctx.author)}",
         icon_url=hammericon,
     )
     embed.set_thumbnail(url=member.display_avatar)
@@ -888,7 +890,7 @@ async def clearwarns(ctx, member: discord.Member, *, reason=None):
         description=descr,
     )
     embed.set_footer(
-        text=f"Hammer | Command executed by {ctx.author}",
+        text=f"Hammer | Command executed by {filterMember(ctx.author)}",
         icon_url=hammericon,
     )
     embed.set_thumbnail(url=member.display_avatar)
@@ -946,7 +948,7 @@ async def evaluate(ctx, code):
     if str(ctx.author.id) == str(OWNER):
         try:
             # await respondNotifOwner(
-            #     f"User {ctx.author} used command evaluate | id {ctx.author.id}"
+            #     f"User {filterMember(ctx.author)} used command evaluate | id {ctx.author.id}"
             # )
             print("RECIEVED:", code)
             # t = ctx.author.id,"used the command eval at", datetime.now()
@@ -989,7 +991,7 @@ async def restart(ctx):
     if str(ctx.author.id) == str(OWNER):
         try:
             # await respondNotifOwner(
-            #     f"User {ctx.author} used command evaluate | id {ctx.author.id}"
+            #     f"User {filterMember(ctx.author)} used command evaluate | id {ctx.author.id}"
             # )
             print("===== RESTART asked by", ctx.author, "=====")
             # t = ctx.author.id,"used the command eval at", datetime.now()
@@ -1041,7 +1043,7 @@ async def setdelay(ctx, seconds: float, reason: str = ""):
         f"This channel now has a delay of **{seconds}** seconds",
     )
     embed.set_footer(
-        text=f"Hammer | Command executed by {ctx.author}",
+        text=f"Hammer | Command executed by {filterMember(ctx.author)}",
         icon_url=hammericon,
     )
 
@@ -1133,7 +1135,7 @@ async def lock(ctx, channel: discord.TextChannel = None, reason=None):
         description=f"This channel is now locked {reason}",
     )
     embed.set_footer(
-        text=f"Hammer | Command executed by {ctx.author}",
+        text=f"Hammer | Command executed by {filterMember(ctx.author)}",
         icon_url=hammericon,
     )
     await ctx.respond(embed=embed)
@@ -1157,7 +1159,7 @@ async def unlock(ctx, channel: discord.TextChannel = None, reason=None):
         description=f"This channel is now unlocked {reason}",
     )
     embed.set_footer(
-        text=f"Hammer | Command executed by {ctx.author}",
+        text=f"Hammer | Command executed by {filterMember(ctx.author)}",
         icon_url=hammericon,
     )
     await ctx.respond(embed=embed)
@@ -1169,11 +1171,12 @@ async def unlock(ctx, channel: discord.TextChannel = None, reason=None):
 )
 async def suggest(ctx, suggestion: str):
     embed = Embed(
-        title=f"The user {ctx.author} has posted a suggestion! :hammer_pick:",
+        title=
+        f"The user {filterMember(ctx.author)} has posted a suggestion! :hammer_pick:",
         description=f"{suggestion}",
     )
     embed.set_footer(
-        text=f"Hammer | Command executed by {ctx.author}",
+        text=f"Hammer | Command executed by {filterMember(ctx.author)}",
         icon_url=hammericon,
     )
     suggestionChannel = bot.get_channel(int(DEV_SUGGESTIONS_CHANNEL))
@@ -1195,7 +1198,7 @@ async def invite(ctx):
         f"[**🔗 Hammer Invite Link**](https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot)",
     )
     embed.set_footer(
-        text=f"Hammer | Command executed by {ctx.author}",
+        text=f"Hammer | Command executed by {filterMember(ctx.author)}",
         icon_url=hammericon,
     )
     await ctx.respond(embed=embed)
@@ -1249,7 +1252,7 @@ async def settings(ctx, module: str = None, value: str = None):
         inline=True,
     )
     embed.set_footer(
-        text=f"Hammer | Command executed by {ctx.author}",
+        text=f"Hammer | Command executed by {filterMember(ctx.author)}",
         icon_url=hammericon,
     )
     await ctx.respond(embed=embed)
