@@ -84,6 +84,7 @@ async def help(ctx):
     {COMMAND_PREFIX}ban [user] <reason>
     {COMMAND_PREFIX}kick [user] <reason>
     {COMMAND_PREFIX}warn [user] <reason>
+    {COMMAND_PREFIX}softwarn [user] <reason>
     {COMMAND_PREFIX}unwarn [user] [id] <reason>
     {COMMAND_PREFIX}clearwarns [user] <reason>
     {COMMAND_PREFIX}seewarns [user]
@@ -679,7 +680,7 @@ async def kick(ctx, member: discord.Member, *, reason=None):
 )
 @discord.default_permissions(
     administrator=True, )
-async def warn(ctx, member: discord.Member, reason=None):
+async def warn(ctx, member: discord.Member, reason=None, softwarn=False):
 
     if member == ctx.author:
         await ctx.respond("You cannot warn yourself :(", ephemeral=True)
@@ -703,9 +704,20 @@ async def warn(ctx, member: discord.Member, reason=None):
         value=f"The user {member} has {warn} warn{s}. Be careful.",
         inline=True,
     )
-    await ctx.respond(embed=embed)
+    await ctx.respond(embed=embed, ephemeral=softwarn)
 
-    await SendMessageTo(ctx, member, message)
+    if(softwarn):
+        await SendMessageTo(ctx, member, message)
+
+@bot.slash_command(
+    guild_only=True,
+    name="softwarn",
+    description="Sets a silent warning for a user, at 3 warns/strikes they get kicked",
+)
+@discord.default_permissions(
+    administrator=True, )
+async def softwarn(ctx, member: discord.Member, reason=None):
+    await warn(ctx, member, reason, True)
 
 
 @bot.slash_command(
