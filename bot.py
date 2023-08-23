@@ -678,15 +678,20 @@ async def kick(ctx, member: discord.Member, *, reason=None):
     name="warn",
     description="Sets a warning for a user, at 3 warns/strikes they get kicked",
 )
+@option(
+    "softwarn",
+    description="Select on/off",
+    autocomplete=discord.utils.basic_autocomplete(["on", "off"]),
+)
 @discord.default_permissions(
     administrator=True, )
-async def warn(ctx, member: discord.Member, reason=None, softwarn=False):
-
+async def warn(ctx, member: discord.Member, reason=None, softwarn:bool=False):
     if member == ctx.author:
         await ctx.respond("You cannot warn yourself :(", ephemeral=True)
         return
     if reason == None:
         reason = "bad behaviour 💥"
+    
     message = f"You have been warned for {reason}"
 
     descr = f"The user {member} has been warned for {reason}"
@@ -706,7 +711,7 @@ async def warn(ctx, member: discord.Member, reason=None, softwarn=False):
     )
     await ctx.respond(embed=embed, ephemeral=softwarn)
 
-    if(softwarn):
+    if(not softwarn):
         await SendMessageTo(ctx, member, message)
 
 @bot.slash_command(
