@@ -334,6 +334,11 @@ async def SendMessageTo(ctx, member, message):
 
 # Function to create a template for all errors.
 def ErrorEmbed(error):
+    """
+
+    :param error: 
+
+    """
     embed = Embed(title=f":no_entry_sign: Error!", description=error)
 
     embed.set_thumbnail(
@@ -348,6 +353,11 @@ def ErrorEmbed(error):
 
 
 def unicodeLetterConver(word):
+    """
+
+    :param word: 
+
+    """
     f = ""
     normalAlph = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789"
     alphs = [
@@ -393,6 +403,11 @@ def unicodeLetterConver(word):
 
 
 def numToEmoji(num):
+    """
+
+    :param num: 
+
+    """
     v = ""
     if num == 0:
         v = "zero"
@@ -418,6 +433,11 @@ def numToEmoji(num):
 
 
 def filterMember(member: discord.Member):
+    """
+
+    :param member: discord.Member: 
+
+    """
     username, discriminator = str(member).split("#")
     if discriminator == "0":
         return username
@@ -966,6 +986,7 @@ async def evaluate(ctx, code):
 
 
 def restart_bot():
+    """ """
     os.execv(sys.executable, ["python"] + sys.argv)
 
 
