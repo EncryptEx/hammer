@@ -11,4 +11,4 @@ ANNOUNCEMENTS_CHANNEL = os.getenv("ANNOUNCEMENTS")
 DEV_SUGGESTIONS_CHANNEL = os.getenv("DEVSUGGESTIONS")
 SECURITY_GUILD = os.getenv("SECURITYGUILD")
 SECURITY_CHANNEL = os.getenv("SECURITY")
-SWEAR_WORDS_LIST = [i.lower().replace("_", " ") for i in os.getenv("BANNEDWORDS",[]).split(",")]
+SWEAR_WORDS_LIST = os.getenv("BANNEDWORDS", "").split(",")
