@@ -422,6 +422,12 @@ def numToEmoji(num):
         v = "nine"
     return v
 
+def filterMember(member:discord.Member):
+    username, discriminator = str(member).split("#")
+    if discriminator == "0":
+        return username
+    return str(member)
+
 
 #
 # MAIN COMMANDS - BOT
@@ -461,9 +467,9 @@ async def on_message(message):
 
             # maybe new function to optionally say the word (settings)
             descr = (
-                f"The user {member} has been warned because said a banned swear word"
+                f"The user {filterMember(member)} has been warned because said a banned swear word"
             )
-            embed = Embed(title=f"{member} has been warned! :hammer_pick:",
+            embed = Embed(title=f"{filterMember(member)} has been warned! :hammer_pick:",
                           description=descr)
             embed.set_footer(
                 text=f"Hammer | Automod service",
@@ -476,7 +482,7 @@ async def on_message(message):
             embed.add_field(
                 name="Warn count",
                 value=
-                f"The user {member} has {warn} warn{s}. Be careful. Run /seewarns @user to check its warnhistory",
+                f"The user {filterMember(member)} has {warn} warn{s}. Be careful. Run /seewarns @user to check its warnhistory",
                 inline=True,
             )
             bannedmessage = (
@@ -504,7 +510,7 @@ async def on_message(message):
             except:
                 embed = ErrorEmbed(
                     await message.channel.send(
-                        f"Could not deliver the message to the user {member}\n This may be caused because the user is a bot, has blocked me or has the DMs turned off. \n\n**But the user is warned** and I have saved it into my beautiful unforgettable database"
+                        f"Could not deliver the message to the user {filterMember(member)}\n This may be caused because the user is a bot, has blocked me or has the DMs turned off. \n\n**But the user is warned** and I have saved it into my beautiful unforgettable database"
                     ), )
     # if(str(message.content).startswith(COMMAND_PREFIX)):
     # print("command executed", message.content)
@@ -569,6 +575,7 @@ async def whois(ctx, member: discord.Member):
 
     try:
         username, discriminator = str(member).split("#")
+        discriminator = "" if discriminator == "0" else discriminator
         isbot = ":white_check_mark:" if member.bot else ":negative_squared_cross_mark:"
         descr = f"""
             **Nick:** {member.nick}
@@ -582,7 +589,7 @@ async def whois(ctx, member: discord.Member):
             **Top role:** {member.top_role}
             **Warns:** {await GetWarnings(member.id, ctx.guild.id)}
             """
-        embed = Embed(title=f"Who is {member} ?", description=descr)
+        embed = Embed(title=f"Who is {filterMember(member)} ?", description=descr)
 
         embed.set_thumbnail(url=member.display_avatar)
 
@@ -611,8 +618,8 @@ async def ban(ctx, member: discord.Member, *, reason=None):
         reason = "bad behaviour 💥"
     message = f"You have been banned from {ctx.guild.name} for {reason}"
 
-    descr = f"The user {member} has been banned for {reason}"
-    embed = Embed(title=f"{member} has been banned! :hammer_pick:",
+    descr = f"The user {filterMember(member)} has been banned for {reason}"
+    embed = Embed(title=f"{filterMember(member)} has been banned! :hammer_pick:",
                   description=descr)
     embed.set_image(url="https://i.imgflip.com/19zat3.jpg")
     embed.set_footer(
@@ -625,7 +632,7 @@ async def ban(ctx, member: discord.Member, *, reason=None):
         except:
             ctx.respond(
                 embed=ErrorEmbed(
-                    f"Could not ban the user {member}\n This may be caused because I do not have the permission to do that or the user has a higher role than me."
+                    f"Could not ban the user {filterMember(member)}\n This may be caused because I do not have the permission to do that or the user has a higher role than me."
                 ),
                 ephemeral=True,
             )
@@ -655,13 +662,13 @@ async def kick(ctx, member: discord.Member, *, reason=None):
         except:
             ctx.respond(
                 embed=ErrorEmbed(
-                    f"Could not kick the user {member}\n This may be caused because I do not have the permission to do that or the user has a higher role than me."
+                    f"Could not kick the user {filterMember(member)}\n This may be caused because I do not have the permission to do that or the user has a higher role than me."
                 ),
                 ephemeral=True,
             )
             return
-    descr = f"The user {member} has been kicked for {reason}"
-    embed = Embed(title=f"{member} has been kicked! :hammer_pick:",
+    descr = f"The user {filterMember(member)} has been kicked for {reason}"
+    embed = Embed(title=f"{filterMember(member)} has been kicked! :hammer_pick:",
                   description=descr)
     embed.set_footer(
         text=f"Hammer | Command executed by {ctx.author}",
@@ -694,8 +701,8 @@ async def warn(ctx, member: discord.Member, reason=None, softwarn:bool=False):
     
     message = f"You have been warned for {reason}"
 
-    descr = f"The user {member} has been warned for {reason}"
-    embed = Embed(title=f"{member} has been warned! :hammer_pick:",
+    descr = f"The user {filterMember(member)} has been warned for {reason}"
+    embed = Embed(title=f"{filterMember(member)} has been warned! :hammer_pick:",
                   description=descr)
     embed.set_footer(
         text=f"Hammer | Command executed by {ctx.author}",
@@ -706,7 +713,7 @@ async def warn(ctx, member: discord.Member, reason=None, softwarn:bool=False):
     s = "s" if warn > 1 else ""
     embed.add_field(
         name="Warn count",
-        value=f"The user {member} has {warn} warn{s}. Be careful.",
+        value=f"The user {filterMember(member)} has {warn} warn{s}. Be careful.",
         inline=True,
     )
     await ctx.respond(embed=embed, ephemeral=softwarn)
@@ -761,7 +768,7 @@ async def seewarns(ctx, member: discord.Member):
         "data": {
             "datasets": [{
                 "fill": False,
-                "label": [f"Warns of {member}"],
+                "label": [f"Warns of {filterMember(member)}"],
                 "lineTension": 0,
                 "backgroundColor": "#7289DA",
                 "borderColor": "#7289DA",
@@ -785,7 +792,7 @@ async def seewarns(ctx, member: discord.Member):
 
     uurl = qc.get_url()
 
-    embed = Embed(title=f"**Historic of {member}**", description=message)
+    embed = Embed(title=f"**Historic of {filterMember(member)}**", description=message)
     embed.set_image(url=uurl)
     embed.set_footer(
         text=f"Hammer | Command executed by {ctx.author}",
@@ -819,8 +826,8 @@ async def unwarn(ctx, member: discord.Member, id: int = None, *, reason=None):
         reason = "good behaviour ✅"
     message = f"You have been unwarned for {reason}"
 
-    descr = f"The user {member} has been unwarned for {reason}"
-    embed = Embed(title=f"{member} has been unwarned! :hammer_pick:",
+    descr = f"The user {filterMember(member)} has been unwarned for {reason}"
+    embed = Embed(title=f"{filterMember(member)} has been unwarned! :hammer_pick:",
                   description=descr)
     embed.set_footer(
         text=f"Hammer | Command executed by {ctx.author}",
@@ -832,7 +839,7 @@ async def unwarn(ctx, member: discord.Member, id: int = None, *, reason=None):
     congrats = "Yey! :tada:" if warn == 0 else ""
     embed.add_field(
         name="Warn count",
-        value=f"The user {member} has now {warn} warn{s}. {congrats}",
+        value=f"The user {filterMember(member)} has now {warn} warn{s}. {congrats}",
         inline=True,
     )
     await ctx.respond(embed=embed)
@@ -850,9 +857,9 @@ async def clearwarns(ctx, member: discord.Member, *, reason=None):
         reason = "good behaviour ✅"
     message = f"Your warns have been cleared for {reason}"
 
-    descr = f"The user {member} has 0 warns for {reason}"
+    descr = f"The user {filterMember(member)} has 0 warns for {reason}"
     embed = Embed(
-        title=f"The warns of {member} have been removed! :hammer_pick:",
+        title=f"The warns of {filterMember(member)} have been removed! :hammer_pick:",
         description=descr,
     )
     embed.set_footer(
@@ -863,7 +870,7 @@ async def clearwarns(ctx, member: discord.Member, *, reason=None):
     warn = await Clearwarns(member.id, ctx.guild.id)
     embed.add_field(
         name="Warn count",
-        value=f"The user {member} has now {warn} warns. Yey! :tada:",
+        value=f"The user {filterMember(member)} has now {warn} warns. Yey! :tada:",
         inline=True,
     )
     await ctx.respond(embed=embed, ephemeral=False)
@@ -1049,7 +1056,7 @@ async def mute(ctx, member: discord.Member, *, reason=None):
         reason = "bad behaviour 💥"
 
     embed = discord.Embed(
-        title=f"User Muted: {member}",
+        title=f"User Muted: {filterMember(member)}",
         description=f"User {member.mention} has been muted for {reason}",
         colour=discord.Colour.red(),
     )
@@ -1084,7 +1091,7 @@ async def unmute(ctx, member: discord.Member, *, reason=None):
         ctx, member,
         f":tada: You have been unmuted from: {ctx.guild.name} {reason}")
     embed = discord.Embed(
-        title=f"User Unmuted: {member}",
+        title=f"User Unmuted: {filterMember(member)}",
         description=f"User {member.mention} has been unmuted {reason}",
         colour=discord.Colour.light_gray(),
     )
