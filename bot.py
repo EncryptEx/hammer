@@ -24,6 +24,21 @@ from get_enviroment import SECURITY_GUILD
 from get_enviroment import SWEAR_WORDS_LIST
 from get_enviroment import TOKEN
 
+import json
+
+# Language Loading
+def jsonToDict(filename):
+   with open(filename) as f_in:
+       return(json.load(f_in))
+   
+# get all language json files available
+from os import listdir
+from os.path import isfile, join
+langFiles = [f for f in listdir("./langs") if isfile(join("./langs", f))]
+languages = dict()
+for languageFile in langFiles:
+    languages[languageFile.split(".")[0]] = jsonToDict("./langs/"+languageFile)
+
 # database import & connection
 
 conn = sqlite3.connect("maindatabase1.db")
@@ -44,7 +59,8 @@ cur.execute("""CREATE TABLE IF NOT EXISTS `customWords` (
         """)
 cur.execute("""CREATE TABLE IF NOT EXISTS `settings` (
         `guildid` INT(100) UNIQUE,
-        `automod` INT);
+        `automod` INT,
+        `language` TEXT);
         """)
 
 hammericon = "https://images-ext-2.discordapp.net/external/OKc8xu6AILGNFY3nSTt7wGbg-Mi1iQZonoLTFg85o-E/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/591633652493058068/e6011129c5169b29ed05a6dc873175cb.png?width=670&height=670"
@@ -59,7 +75,7 @@ client = discord.Client()
 bot.remove_command("help")
 
 #
-#   HELP SECITON
+#   HELP SECTIONN
 #
 
 
@@ -68,83 +84,61 @@ bot.remove_command("help")
 async def help(ctx):
     # Define each page
 
-    descr = f"""Hammer is a multiuse bot focused on moderation, which its goal is to improve your discord community.
-    For an extense command description, use ``{COMMAND_PREFIX}help [command name]`` (comming soon)
-    **Hammer's commands:**
-    """
+    descr = await GetTranslatedText(ctx.guild.id, "help_description")
 
     embed = Embed(title="Hammer Bot Help",
                   description=descr,
                   colour=discord.Colour.lighter_grey())
 
+    user = await GetTranslatedText(ctx.guild.id,"user")
+    reason = await GetTranslatedText(ctx.guild.id,"reason")
     embed.add_field(
-        name="Moderation Commands :tools:",
+        name=await GetTranslatedText(ctx.guild.id, "help_moderation_title"),
         value=f"""
-    {COMMAND_PREFIX}ban [user] <reason>
-    {COMMAND_PREFIX}kick [user] <reason>
-    {COMMAND_PREFIX}warn [user] <reason>
-    {COMMAND_PREFIX}softwarn [user] <reason>
-    {COMMAND_PREFIX}unwarn [user] [id] <reason>
-    {COMMAND_PREFIX}clearwarns [user] <reason>
-    {COMMAND_PREFIX}seewarns [user]
+    {COMMAND_PREFIX}ban [{user}] <{reason}>
+    {COMMAND_PREFIX}kick [{user}] <{reason}>
+    {COMMAND_PREFIX}warn [{user}] <{reason}>
+    {COMMAND_PREFIX}softwarn [{user}] <{reason}>
+    {COMMAND_PREFIX}unwarn [{user}] [id] <{reason}>
+    {COMMAND_PREFIX}clearwarns [{user}] <{reason}>
+    {COMMAND_PREFIX}seewarns [{user}]
     """,
         inline=True,
     )
 
     embed.add_field(
-        name="AutoMod Services :robot:",
-        value=f"""Swear Word Detector and wuto warn.
-Using a +880 swear word database
-
-Customize it with:
-{COMMAND_PREFIX}automod [add/remove] [word]
-Or switch it on/off with:
-{COMMAND_PREFIX}settings [automod] [on/off]""",
+        name=await GetTranslatedText(ctx.guild.id, "help_automod_title"),
+        value=await GetTranslatedText(ctx.guild.id, "help_automod_description", COMMAND_PREFIX=COMMAND_PREFIX),
         inline=True,
     )
 
     embed.add_field(
-        name="Chat Moderation Commands :file_folder:",
-        value=f"""
-    {COMMAND_PREFIX}setdelay [seconds] <reason>
-    {COMMAND_PREFIX}mute [user] <reason>
-    {COMMAND_PREFIX}unmute [user] <reason>
-    {COMMAND_PREFIX}lock <channel> <reason>
-    {COMMAND_PREFIX}unlock <channel> <reason>
-    """,
+        name=await GetTranslatedText(ctx.guild.id, "help_chatmod_title"),
+        value=await GetTranslatedText(ctx.guild.id, "help_chatmod_description", COMMAND_PREFIX=COMMAND_PREFIX),
         inline=True,
     )
 
     embed.add_field(
-        name="Various Utilities :screwdriver:",
-        value=f"""
-    {COMMAND_PREFIX}whois [user]
-    """,
+        name=await GetTranslatedText(ctx.guild.id, "help_various_title"),
+        value=await GetTranslatedText(ctx.guild.id, "help_various_description", COMMAND_PREFIX=COMMAND_PREFIX),
         inline=True,
     )
 
     embed.add_field(
-        name="""Useful Links: :link:""",
-        value=
-        f"""[:classical_building: Hammer Bot Support](https://discord.gg/fMSyQA6)
-    [:link: Hammer Invite Link](https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot)
-    [:newspaper: Vote Hammer](https://top.gg/bot/591633652493058068)
-    """,
+        name=await GetTranslatedText(ctx.guild.id, "help_links_title"),
+        value=await GetTranslatedText(ctx.guild.id, "help_links_description")
+        ,
         inline=True,
     )
 
     embed.add_field(
-        name="Help Commands",
-        value=f"""
-    {COMMAND_PREFIX}help
-    {COMMAND_PREFIX}invite
-    {COMMAND_PREFIX}suggest [suggestion]
-    """,
+        name=await GetTranslatedText(ctx.guild.id, "help_commands_title"),
+        value=await GetTranslatedText(ctx.guild.id, "help_commands_descriptions"),
         inline=True,
     )
 
     embed.set_footer(
-        text=f"Hammer | Command executed by {filterMember(ctx.author)}",
+        text=await GetTranslatedText(ctx.guild.id, "footer_executed_by", USERNAME=filterMember(ctx.author)),
         icon_url=hammericon,
     )
 
@@ -292,12 +286,27 @@ async def GetSettings(guildid: int):
                 (guildid, ))
     rows = cur.fetchall()
     if len(rows) > 0:
-        return rows[0][1]
+        return rows[0]
     else:
         return 0  # default is off
 
+async def GetTranslatedText(guildid: int, index: str, **replace):
+    global languages
+        
+    dbLanguageRecord = (await GetSettings(guildid))
+    if (dbLanguageRecord == 0):
+        currentLanguage = "en" # not saved config in db
+    else:
+        dbLanguageRecord = dbLanguageRecord[2] # [2] stands for language col
+        currentLanguage = "en" if dbLanguageRecord == None else dbLanguageRecord
+    
+    text = languages[currentLanguage].get(index, "Word not translated yet.")
+    for oldString,newString in replace.items():
+        text = text.replace(oldString, newString)
+    return text
 
-async def SaveSetting(guildid: int, module: str, value: int):
+
+async def SaveSetting(guildid: int, module: str, valºue: int):
     cur.execute("SELECT * FROM settings WHERE guildid = ? LIMIT 1",
                 (guildid, ))
     rows = cur.fetchall()
@@ -465,7 +474,7 @@ async def on_message(message):
         return
     if message.content == "" or message.content == None:
         return
-    if int(await GetSettings(message.guild.id)) != 1:
+    if int(await GetSettings(message.guild.id, 1))[1] != 1:
         return  # user has disabled Automod
     words = message.content.split()
     allowed_words_guild_list = await GetAutomodCustomWords(
@@ -560,7 +569,9 @@ debug = False
                    name="hello",
                    guild_ids=[int(SECURITY_GUILD)])
 async def hello(ctx):
-    await ctx.respond("Hammer is back!")
+    await ctx.defer()
+    text = await GetTranslatedText(ctx.guild.id, "user")
+    await ctx.respond(text)
 
 
 @bot.event
@@ -614,9 +625,9 @@ async def whois(ctx, member: discord.Member):
         embed.set_thumbnail(url=member.display_avatar)
 
         embed.set_footer(
-            text=f"Hammer | Command executed by {filterMember(ctx.author)}",
-            icon_url=hammericon,
-        )
+        text=await GetTranslatedText(ctx.guild.id, "footer_executed_by", USERNAME=filterMember(ctx.author)),
+        icon_url=hammericon,
+    )
         await ctx.respond(embed=embed)
     except Exception as e:
         await ctx.respond(e)
@@ -643,7 +654,7 @@ async def ban(ctx, member: discord.Member, *, reason=None):
     )
     embed.set_image(url="https://i.imgflip.com/19zat3.jpg")
     embed.set_footer(
-        text=f"Hammer | Command executed by {filterMember(ctx.author)}",
+        text=await GetTranslatedText(ctx.guild.id, "footer_executed_by", USERNAME=filterMember(ctx.author)),
         icon_url=hammericon,
     )
     if not debug:
@@ -691,7 +702,7 @@ async def kick(ctx, member: discord.Member, *, reason=None):
         description=descr,
     )
     embed.set_footer(
-        text=f"Hammer | Command executed by {filterMember(ctx.author)}",
+        text=await GetTranslatedText(ctx.guild.id, "footer_executed_by", USERNAME=filterMember(ctx.author)),
         icon_url=hammericon,
     )
     embed.set_thumbnail(url=member.display_avatar)
@@ -729,7 +740,7 @@ async def warn(ctx,
         description=descr,
     )
     embed.set_footer(
-        text=f"Hammer | Command executed by {filterMember(ctx.author)}",
+        text=await GetTranslatedText(ctx.guild.id, "footer_executed_by", USERNAME=filterMember(ctx.author)),
         icon_url=hammericon,
     )
     embed.set_thumbnail(url=member.display_avatar)
@@ -821,7 +832,7 @@ async def seewarns(ctx, member: discord.Member):
                   description=message)
     embed.set_image(url=uurl)
     embed.set_footer(
-        text=f"Hammer | Command executed by {filterMember(ctx.author)}",
+        text=await GetTranslatedText(ctx.guild.id, "footer_executed_by", USERNAME=filterMember(ctx.author)),
         icon_url=hammericon,
     )
     return await ctx.respond(embed=embed)
@@ -857,7 +868,7 @@ async def unwarn(ctx, member: discord.Member, id: int = None, *, reason=None):
         description=descr,
     )
     embed.set_footer(
-        text=f"Hammer | Command executed by {filterMember(ctx.author)}",
+        text=await GetTranslatedText(ctx.guild.id, "footer_executed_by", USERNAME=filterMember(ctx.author)),
         icon_url=hammericon,
     )
     embed.set_thumbnail(url=member.display_avatar)
@@ -890,7 +901,7 @@ async def clearwarns(ctx, member: discord.Member, *, reason=None):
         description=descr,
     )
     embed.set_footer(
-        text=f"Hammer | Command executed by {filterMember(ctx.author)}",
+        text=await GetTranslatedText(ctx.guild.id, "footer_executed_by", USERNAME=filterMember(ctx.author)),
         icon_url=hammericon,
     )
     embed.set_thumbnail(url=member.display_avatar)
@@ -1043,7 +1054,7 @@ async def setdelay(ctx, seconds: float, reason: str = ""):
         f"This channel now has a delay of **{seconds}** seconds",
     )
     embed.set_footer(
-        text=f"Hammer | Command executed by {filterMember(ctx.author)}",
+        text=await GetTranslatedText(ctx.guild.id, "footer_executed_by", USERNAME=filterMember(ctx.author)),
         icon_url=hammericon,
     )
 
@@ -1135,7 +1146,7 @@ async def lock(ctx, channel: discord.TextChannel = None, reason=None):
         description=f"This channel is now locked {reason}",
     )
     embed.set_footer(
-        text=f"Hammer | Command executed by {filterMember(ctx.author)}",
+        text=await GetTranslatedText(ctx.guild.id, "footer_executed_by", USERNAME=filterMember(ctx.author)),
         icon_url=hammericon,
     )
     await ctx.respond(embed=embed)
@@ -1159,7 +1170,7 @@ async def unlock(ctx, channel: discord.TextChannel = None, reason=None):
         description=f"This channel is now unlocked {reason}",
     )
     embed.set_footer(
-        text=f"Hammer | Command executed by {filterMember(ctx.author)}",
+        text=await GetTranslatedText(ctx.guild.id, "footer_executed_by", USERNAME=filterMember(ctx.author)),
         icon_url=hammericon,
     )
     await ctx.respond(embed=embed)
@@ -1176,7 +1187,7 @@ async def suggest(ctx, suggestion: str):
         description=f"{suggestion}",
     )
     embed.set_footer(
-        text=f"Hammer | Command executed by {filterMember(ctx.author)}",
+        text=await GetTranslatedText(ctx.guild.id, "footer_executed_by", USERNAME=filterMember(ctx.author)),
         icon_url=hammericon,
     )
     suggestionChannel = bot.get_channel(int(DEV_SUGGESTIONS_CHANNEL))
@@ -1198,7 +1209,7 @@ async def invite(ctx):
         f"[**🔗 Hammer Invite Link**](https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot)",
     )
     embed.set_footer(
-        text=f"Hammer | Command executed by {filterMember(ctx.author)}",
+        text=await GetTranslatedText(ctx.guild.id, "footer_executed_by", USERNAME=filterMember(ctx.author)),
         icon_url=hammericon,
     )
     await ctx.respond(embed=embed)
@@ -1239,7 +1250,7 @@ async def settings(ctx, module: str = None, value: str = None):
         description=f"Here you can enable or disable some modules",
     )
     print("getting settings from discord.Guild.id", ctx.guild.id)
-    automodStatus = await GetSettings(ctx.guild.id)
+    automodStatus = (await GetSettings(ctx.guild.id))[1]
     automodStatustr = "**✅ ON**" if automodStatus else "**❌ OFF**"
     recommendedactivityAutomod = (
         f"Disable it by doing: ``{COMMAND_PREFIX}settings automod off``"
@@ -1252,7 +1263,7 @@ async def settings(ctx, module: str = None, value: str = None):
         inline=True,
     )
     embed.set_footer(
-        text=f"Hammer | Command executed by {filterMember(ctx.author)}",
+        text=await GetTranslatedText(ctx.guild.id, "footer_executed_by", USERNAME=filterMember(ctx.author)),
         icon_url=hammericon,
     )
     await ctx.respond(embed=embed)

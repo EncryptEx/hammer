@@ -1,0 +1,17 @@
+{
+    "help_description": "Elevate your Discord community with our advanced bot. \nComprehensive moderation, intelligent AutoMod, and enhanced chat controls. Crafted for seamless management. Join now for a refined and respectful environment.\n\n**Hammer's commands:**",
+    "help_moderation_title": "Moderation Commands :tools:",
+    "user": "user",
+    "reason": "reason",
+    "help_automod_title": "AutoMod Services :robot:",
+    "help_automod_description": "Swear Word Detector and wuto warn. \n    Using a +880 swear word database \n\n Customize it with:\n    COMMAND_PREFIXautomod [add/remove] [word]\nOr switch it on/off with:\nCOMMAND_PREFIXsettings [automod] [on/off]",
+    "help_chatmod_title": "Chat Moderation Commands :file_folder:",
+    "help_chatmod_description": "COMMAND_PREFIXsetdelay [seconds] <reason>\nCOMMAND_PREFIXmute [user] <reason>\nCOMMAND_PREFIXunmute [user] <reason>\nCOMMAND_PREFIXlock <channel> <reason>\nCOMMAND_PREFIXunlock <channel> <reason>\n",
+    "help_various_title": "Various Utilities :screwdriver:",
+    "help_various_description": "COMMAND_PREFIXwhois [user]",
+    "help_links_title": "Useful Links: :link:",
+    "help_links_description": "[:classical_building: Hammer Bot Support](https://discord.gg/fMSyQA6)\n[:link: Hammer Invite Link](https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot)\n[:newspaper: Vote Hammer](https://top.gg/bot/591633652493058068)}",
+    "help_commands_title": "Help Commands",
+    "help_commands_description": "COMMAND_PREFIXhelp\nCOMMAND_PREFIXinvite\nCOMMAND_PREFIXsuggest [suggestion]",
+    "footer_executed_by": "Hammer | Command executed by USERNAME"
+}
