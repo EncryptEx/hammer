@@ -306,7 +306,7 @@ async def GetTranslatedText(guildid: int, index: str, **replace):
     return text
 
 
-async def SaveSetting(guildid: int, module: str, valºue: int):
+async def SaveSetting(guildid: int, module: str, value: int):
     cur.execute("SELECT * FROM settings WHERE guildid = ? LIMIT 1",
                 (guildid, ))
     rows = cur.fetchall()
