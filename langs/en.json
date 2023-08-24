@@ -29,7 +29,19 @@
     "error_404": "**[ERROR 404]** Please pass in all requirements :hammer_pick:. ```{ERROR}```\nDo  {COMMAND_PREFIX}help command for more help",
     "error_403": "[**ERROR 403**] You don't have the correct permission to do that :hammer:,  You need {FMT} permission(s) to perform this action",
     "whois_title": "Who is {MEMBER} ?",
-    "whois_description": "**Nick:** {NICK}\n**Username:** {USERNAME}\n**Discriminator:** {DISCRIMINATOR}\n**Created account at:** {CREATEDAT}\n**Joined server at:** {JOINEDAT}\n**Is bot:** {ISBOT}\n**User ID:** {MEMBERID}\n**Avatar URL:** [Click Here]({AVATAR})\n**Top role:** {TOPROLE}\n**Warns:** {WARNS}\n"
-
+    "whois_description": "**Nick:** {NICK}\n**Username:** {USERNAME}\n**Discriminator:** {DISCRIMINATOR}\n**Created account at:** {CREATEDAT}\n**Joined server at:** {JOINEDAT}\n**Is bot:** {ISBOT}\n**User ID:** {MEMBERID}\n**Avatar URL:** [Click Here]({AVATAR})\n**Top role:** {TOPROLE}\n**Warns:** {WARNS}\n",
+    "error_self_ban": "You cannot ban yourself",
+    "punishment_default_reason": "bad behaviour 💥",
+    "ban_msg": "You have been banned from {GUILD} for {REASON}",
+    "ban_title": "{MEMBER} has been banned! :hammer_pick:",
+    "ban_description": "The user {MEMBER} has been banned for {REASON}",
+    "error_ban_perm": "Could not ban the user {MEMBER}\n This may be caused because I do not have the permission to do that or the user has a higher role than me.",
+    "error_self_kick": "You cannot kick yourself",
+    "kick_msg": "You have been kicked from {GUILD} for {REASON}",
+    "error_kick_perm": "Could not kick the user {MEMBER}\n This may be caused because I do not have the permission to do that or the user has a higher role than me.",
+    "kick_title":"{MEMBER} has been kicked! :hammer_pick:",
+    "kick_description": "The user {MEMBER} has been kicked for {REASON}",
+    ""
+    
     
 }

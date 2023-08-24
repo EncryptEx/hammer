@@ -302,7 +302,7 @@ async def GetTranslatedText(guildid: int, index: str, **replace):
     
     text = languages[currentLanguage].get(index, "Word not translated yet.")
     for oldString,newString in replace.items():
-        text = text.replace("{"+oldString+"}", newString)
+        text = text.replace("{"+oldString+"}", str(newString))
     return text
 
 
@@ -472,8 +472,10 @@ async def on_message(message):
         return
     if message.content == "" or message.content == None:
         return
-    if int(await GetSettings(message.guild.id, 1))[1] != 1:
-        return  # user has disabled Automod
+    settings = await GetSettings(message.guild.id)
+    
+    if (settings != 0 and settings[1] != 1):
+        return  # user has disabled Automod or does not have it installed
     words = message.content.split()
     allowed_words_guild_list = await GetAutomodCustomWords(
         message.guild.id, "allow")
@@ -495,7 +497,7 @@ async def on_message(message):
             # maybe new function to optionally say the word (settings)
             descr = await GetTranslatedText(message.guild.id, "automod_warn_description", USERNAME=filterMember(member))
             embed = Embed(
-                title=GetTranslatedText(message.guild.id, "automod_warn_title", USERNAME=filterMember(member)),
+                title=await GetTranslatedText(message.guild.id, "automod_warn_title", USERNAME=filterMember(member)),
                 description=descr,
             )
             embed.set_footer(
@@ -504,7 +506,7 @@ async def on_message(message):
             )
             embed.set_thumbnail(url=member.display_avatar)
             warn = await AddWarning(member.id, message.guild.id,
-                                    await GetTranslatedText("automod_warn_reason"))
+                                    await GetTranslatedText(message.guild.id, "automod_warn_reason"))
             s = "s" if warn > 1 else ""
             embed.add_field(
                 name=await GetTranslatedText(message.guild.id, "automod_count_title"),
@@ -517,13 +519,13 @@ async def on_message(message):
                 message.content[message.content.find(originalWord) +
                                 len(word):])
             embed.add_field(
-                name=await GetTranslatedText("automod_removed_title"),
-                value=await GetTranslatedText("automod_removed_description", BANNEDMESSAGE=bannedmessage),
+                name=await GetTranslatedText(message.guild.id, "automod_removed_title"),
+                value=await GetTranslatedText(message.guild.id, "automod_removed_description", BANNEDMESSAGE=bannedmessage),
                 inline=True,
             )
             embed.add_field(
-                name=await GetTranslatedText("automod_nothappy_title"),
-                value=await GetTranslatedText("automod_nothappy_description"),
+                name=await GetTranslatedText(message.guild.id, "automod_nothappy_title"),
+                value=await GetTranslatedText(message.guild.id, "automod_nothappy_description"),
                 inline=False,
             )
             await message.channel.send(embed=embed)
@@ -557,7 +559,7 @@ async def on_ready():
         print("Sent message to #" + str(chnl))
 
 
-debug = False
+debug = True
 
 
 @bot.slash_command(guild_only=True,
@@ -572,7 +574,7 @@ async def hello(ctx):
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.respond(await GetTranslatedText("error_404", ERROR=error, COMMAND_PREFIX=COMMAND_PREFIX),
+        await ctx.respond(await GetTranslatedText(ctx.guild.id, "error_404", ERROR=error, COMMAND_PREFIX=COMMAND_PREFIX),
             ephemeral=True,
         )
     if isinstance(error, commands.MissingPermissions):
@@ -586,7 +588,7 @@ async def on_command_error(ctx, error):
         else:
             fmt = " and ".join(missing)
         await ctx.respond(
-            await GetTranslatedText("error_403", FMT=fmt),
+            await GetTranslatedText(ctx.guild.id, "error_403", FMT=fmt),
             ephemeral=True,
         )
 
@@ -601,8 +603,8 @@ async def whois(ctx, member: discord.Member):
         username, discriminator = str(member).split("#")
         discriminator = "" if discriminator == "0" else discriminator
         isbot = ":white_check_mark:" if member.bot else ":negative_squared_cross_mark:"
-        descr = await GetTranslatedText("whois_description", NICK=member.nick, USERNAME=username, DISCRIMINATOR=discriminator, CREATEDAT=member.created_at,  JOINEDAT=member.joined_at, ISBOT=isbot, MEMBERID=member.id, AVATAR=member.display_avatar, TOPROLE=member.top_role, WARNS=await GetWarnings(member.id, ctx.guild.id)))
-        embed = Embed(title=GetTranslatedText("whois_title", MEMBER=filterMember(member)),
+        descr = await GetTranslatedText(ctx.guild.id, "whois_description", NICK=member.nick, USERNAME=username, DISCRIMINATOR=discriminator, CREATEDAT=member.created_at,  JOINEDAT=member.joined_at, ISBOT=isbot, MEMBERID=member.id, AVATAR=member.display_avatar, TOPROLE=member.top_role, WARNS=await GetWarnings(member.id, ctx.guild.id))
+        embed = Embed(title=GetTranslatedText(ctx.guild.id, "whois_title", MEMBER=filterMember(member)),
                       description=descr)
 
         embed.set_thumbnail(url=member.display_avatar)
@@ -624,15 +626,15 @@ async def whois(ctx, member: discord.Member):
 @discord.default_permissions(ban_members=True, )
 async def ban(ctx, member: discord.Member, *, reason=None):
     if member == ctx.author:
-        await ctx.respond("You cannot ban yourself", ephemeral=True)
+        await ctx.respond(await GetTranslatedText(ctx.guild.id, "error_self_ban"), ephemeral=True)
         return
     if reason == None:
-        reason = "bad behaviour 💥"
-    message = f"You have been banned from {ctx.guild.name} for {reason}"
+        reason = await GetTranslatedText(ctx.guild.id, "punishment_default_reason")
+    message = await GetTranslatedText(ctx.guild.id, "ban_msg", GUILD=ctx.guild.name, REASON=reason)
 
-    descr = f"The user {filterMember(member)} has been banned for {reason}"
+    descr = await GetTranslatedText(ctx.guild.id, "ban_description", MEMBER=filterMember(member), REASON=reason)
     embed = Embed(
-        title=f"{filterMember(member)} has been banned! :hammer_pick:",
+        title=await GetTranslatedText(ctx.guild.id, "ban_title", MEMBER=filterMember(member)),
         description=descr,
     )
     embed.set_image(url="https://i.imgflip.com/19zat3.jpg")
@@ -645,9 +647,7 @@ async def ban(ctx, member: discord.Member, *, reason=None):
             await member.ban(reason=reason)
         except:
             ctx.respond(
-                embed=ErrorEmbed(
-                    f"Could not ban the user {filterMember(member)}\n This may be caused because I do not have the permission to do that or the user has a higher role than me."
-                ),
+                embed=ErrorEmbed(await GetTranslatedText(ctx.guild.id, "error_ban_perm", MEMBER=filterMember(member))),
                 ephemeral=True,
             )
         return
@@ -663,25 +663,24 @@ async def ban(ctx, member: discord.Member, *, reason=None):
 @discord.default_permissions(kick_members=True, )
 async def kick(ctx, member: discord.Member, *, reason=None):
     if member == ctx.author:
-        await ctx.respond("You cannot kick yourself", ephemeral=True)
+        await ctx.respond(await GetTranslatedText(ctx.guild.id, "error_self_kick"), ephemeral=True)
         return
     if reason == None:
-        reason = "bad behaviour 💥"
-    message = f"You have been kicked from {ctx.guild.name} for {reason}"
+        reason = await GetTranslatedText(ctx.guild.id, "punishment_default_reason")
+    message = await GetTranslatedText(ctx.guild.id, "kick_msg", GUILD=ctx.guild.name, REASON=reason)
     if not debug:
         try:
             await member.kick(reason=reason)
         except:
             ctx.respond(
                 embed=ErrorEmbed(
-                    f"Could not kick the user {filterMember(member)}\n This may be caused because I do not have the permission to do that or the user has a higher role than me."
-                ),
+                    await GetTranslatedText("error_kick_perm", MEMBER=filterMember(member))),
                 ephemeral=True,
             )
             return
-    descr = f"The user {filterMember(member)} has been kicked for {reason}"
+    descr = await GetTranslatedText("kick_description", MEMBER=filterMember(member), REASON=reason)
     embed = Embed(
-        title=f"{filterMember(member)} has been kicked! :hammer_pick:",
+        title=await GetTranslatedText("kick_title", MEMBER=filterMember(member)),
         description=descr,
     )
     embed.set_footer(
