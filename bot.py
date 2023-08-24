@@ -913,21 +913,18 @@ async def automod(ctx, action: str, word: str):
     else:
         return await ctx.respond(
             embed=ErrorEmbed(
-                "Wrong syntax, please use /automod add/remove [word]"),
+                await GetTranslatedText(ctx.guild.id, "error_automod_syntax")),
             ephemeral=True,
         )
     if response:
         prep = "to" if action == "add" else "from"
         return await ctx.respond(
-            "Word ||" + str(word) +
-            f"|| successfully {action}ed {prep} the swear word list. :tools:",
+            await GetTranslatedText(ctx.guild.id, "automod_success_action", WORD=str(word), ACTION=action, PREP=prep),
             ephemeral=True,
         )
     else:
         return await ctx.respond(
-            embed=ErrorEmbed(
-                f"Could not save the word ||{word}|| to the database. Please contact the administrator or bot developer for further information. "
-            ),
+            embed=ErrorEmbed(await GetTranslatedText(ctx.guild.id, "error_automod", WORD=word)),
             ephemeral=True,
         )
 
@@ -1023,13 +1020,11 @@ async def restart(ctx):
 )
 @discord.default_permissions(manage_messages=True, )
 async def setdelay(ctx, seconds: float, reason: str = ""):
-    m = "modified" if seconds > 0.0 else "removed"
+    m = await GetTranslatedText(ctx.guild.id, "modified") if seconds > 0.0 else await GetTranslatedText(ctx.guild.id, "removed")
+    reason = "for "+reason if reason != "" and reason != None else "" 
     embed = Embed(
-        title=f"Delay {m} on #{ctx.channel} :hammer_pick:",
-        description=
-        f"This channel now has a delay of **{seconds}** seconds for {reason}"
-        if reason != None and reason != "" else
-        f"This channel now has a delay of **{seconds}** seconds",
+        title=await GetTranslatedText(ctx.guild.id, "setdelay_title", M=m, CHANNEL=ctx.channel),
+        description=await GetTranslatedText(ctx.guild.id, "setdelay_description", SECONDS=seconds, REASON=reason),
     )
     embed.set_footer(
         text=await GetTranslatedText(ctx.guild.id, "footer_executed_by", USERNAME=filterMember(ctx.author)),
@@ -1064,11 +1059,11 @@ async def mute(ctx, member: discord.Member, *, reason=None):
             )
 
     if reason == None:
-        reason = "bad behaviour 💥"
+        reason = await GetTranslatedText(ctx.guild.id, "punishment_default_reason")
 
     embed = discord.Embed(
-        title=f"User Muted: {filterMember(member)}",
-        description=f"User {member.mention} has been muted for {reason}",
+        title=await GetTranslatedText(ctx.guild.id, "mute_title", MEMBER=filterMember(member)),
+        description=await GetTranslatedText(ctx.guild.id, "mute_description", MENTION=member.mention, REASON=reason),
         colour=discord.Colour.red(),
     )
     await ctx.respond(embed=embed)
@@ -1077,7 +1072,7 @@ async def mute(ctx, member: discord.Member, *, reason=None):
     SendMessageTo(
         ctx,
         member,
-        f":no_entry: You have been muted from: {ctx.guild.name} for {reason}",
+        await GetTranslatedText(ctx.guild.id, "mute_msg", GUILD=ctx.guild.name, REASON=reason),
     )
 
 
@@ -1092,16 +1087,16 @@ async def mute(ctx, member: discord.Member, *, reason=None):
 async def unmute(ctx, member: discord.Member, *, reason=None):
     mutedRole = discord.utils.get(ctx.guild.roles, name="Muted")
     if reason == None:
-        reason = " "
+        reason = ""
     else:
         reason = "for " + reason
     await member.remove_roles(mutedRole)
     SendMessageTo(
         ctx, member,
-        f":tada: You have been unmuted from: {ctx.guild.name} {reason}")
+        await GetTranslatedText(ctx.guild.id, "unmute_msg", GUILD=ctx.guild.name, REASON=reason))
     embed = discord.Embed(
-        title=f"User Unmuted: {filterMember(member)}",
-        description=f"User {member.mention} has been unmuted {reason}",
+        title=await GetTranslatedText(ctx.guild.id, "unmute_title", MEMBER=filterMember(member)),
+        description=await GetTranslatedText(ctx.guild.id, "unmute_description", MENTION=member.mention, REASON=reason),
         colour=discord.Colour.light_gray(),
     )
     await ctx.respond(embed=embed)
@@ -1120,8 +1115,8 @@ async def lock(ctx, channel: discord.TextChannel = None, reason=None):
     overwrite.send_messages = False
     await channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
     embed = Embed(
-        title=f"The channel #{ctx.channel} has been locked! :hammer_pick:",
-        description=f"This channel is now locked {reason}",
+        title=await GetTranslatedText(ctx.guild.id, "lock_title", CHANNEL=ctx.channel),
+        description=await GetTranslatedText(ctx.guild.id, "lock_description", REASON=reason),
     )
     embed.set_footer(
         text=await GetTranslatedText(ctx.guild.id, "footer_executed_by", USERNAME=filterMember(ctx.author)),
@@ -1144,8 +1139,8 @@ async def unlock(ctx, channel: discord.TextChannel = None, reason=None):
     overwrite.send_messages = True
     await channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
     embed = Embed(
-        title=f"The channel #{ctx.channel} has been unlocked! :hammer_pick:",
-        description=f"This channel is now unlocked {reason}",
+        title=await GetTranslatedText(ctx.guild.id, "unlock_title", CHANNEL=ctx.channel),
+        description=await GetTranslatedText(ctx.guild.id, "unlock_description", REASON=reason),
     )
     embed.set_footer(
         text=await GetTranslatedText(ctx.guild.id, "footer_executed_by", USERNAME=filterMember(ctx.author)),
@@ -1171,7 +1166,7 @@ async def suggest(ctx, suggestion: str):
     suggestionChannel = bot.get_channel(int(DEV_SUGGESTIONS_CHANNEL))
     await suggestionChannel.send(embed=embed)
     await ctx.respond(
-        "[200 OK] ✅ Your suggestion has been successfully recieved! \n Join our support server to see how does it progress! (in /help you'll find the link)",
+        await GetTranslatedText(ctx.guild.id, "suggest_success"),
         ephemeral=True,
     )
 
@@ -1182,9 +1177,9 @@ async def suggest(ctx, suggestion: str):
 )
 async def invite(ctx):
     embed = Embed(
-        title=f"Invite Hammer Bot to your server! :hammer_pick:",
+        title=await GetTranslatedText(ctx.guild.id, "hammer_invite"),
         description=
-        f"[**🔗 Hammer Invite Link**](https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot)",
+        f"[**🔗{await GetTranslatedText(ctx.guild.id, 'hammer_link')}**](https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot)",
     )
     embed.set_footer(
         text=await GetTranslatedText(ctx.guild.id, "footer_executed_by", USERNAME=filterMember(ctx.author)),
@@ -1216,28 +1211,28 @@ async def settings(ctx, module: str = None, value: str = None):
             value = 1 if value == "on" else 0
             await SaveSetting(ctx.guild.id, module, value)
             action = "enabled" if value else "disabled"
-            await ctx.respond(f"Module {module} {action} successfully!",
+            await ctx.respond(await GetTranslatedText(ctx.guild.id, "settings_module", MODULE=module, ACTION=action),
                               ephemeral=True)
             return
         else:
-            await ctx.respond("Use: ``/settings module on/off``",
+            await ctx.respond(await GetTranslatedText(ctx.guild.id, "error_settings_syntax"),
                               ephemeral=True)
             return
     embed = Embed(
-        title=f"Hammer Bot Settings :hammer_pick:",
-        description=f"Here you can enable or disable some modules",
+        title=await GetTranslatedText(ctx.guild.id, "settings_title"),
+        description=await GetTranslatedText(ctx.guild.id, "settings_description"),
     )
     print("getting settings from discord.Guild.id", ctx.guild.id)
     automodStatus = (await GetSettings(ctx.guild.id))[1]
     automodStatustr = "**✅ ON**" if automodStatus else "**❌ OFF**"
     recommendedactivityAutomod = (
-        f"Disable it by doing: ``{COMMAND_PREFIX}settings automod off``"
+        await GetTranslatedText(ctx.guild.id, "settings_disable_automod", COMMAND_PREFIX=COMMAND_PREFIX)
         if automodStatus else
-        f"Enable it by doing ``{COMMAND_PREFIX}settings automod on``")
+        await GetTranslatedText(ctx.guild.id, "settings_enable_automod", COMMAND_PREFIX=COMMAND_PREFIX)
+        )
     embed.add_field(
-        name="AutoMod Services :robot:",
-        value=
-        f"Actual status: {automodStatustr}\n {recommendedactivityAutomod}",
+        name=await GetTranslatedText(ctx.guild.id, "help_automod_title"),
+        value=await GetTranslatedText(ctx.guild,"automod_status", STATUS=automodStatustr, RECOMMENDED=recommendedactivityAutomod),
         inline=True,
     )
     embed.set_footer(
