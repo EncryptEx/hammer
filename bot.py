@@ -133,7 +133,7 @@ async def help(ctx):
 
     embed.add_field(
         name=await GetTranslatedText(ctx.guild.id, "help_commands_title"),
-        value=await GetTranslatedText(ctx.guild.id, "help_commands_descriptions"),
+        value=await GetTranslatedText(ctx.guild.id, "help_commands_description", COMMAND_PREFIX=COMMAND_PREFIX),
         inline=True,
     )
 
