@@ -86,5 +86,5 @@
   "settings_description": "Aquí pots activar o desactivar alguns mòduls",
   "settings_enable_automod": "Activa'l amb ``{COMMAND_PREFIX}settings automod on``",
   "settings_disable_automod": "Desactiva'l amb: ``{COMMAND_PREFIX}settings automod off``",
-  "autmod_status": "Estat actual: {STATUS}\n {RECOMMENDED}"
+  "automod_status": "Estat actual: {STATUS}\n {RECOMMENDED}"
 }

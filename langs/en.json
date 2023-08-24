@@ -81,10 +81,10 @@
   "enabled": "enabled",
   "disabled": "disabled",
   "settings_module": "Module {MODULE} {ACTION} successfully!",
-  "error_settings_syntax": "Use: ``/settings module on/off``",
+  "error_settings_syntax": "Use: ``{COMMAND}`",
   "settings_title": "Hammer Bot Settings :hammer_pick:",
   "settings_description": "Here you can enable or disable some modules",
   "settings_enable_automod": "Enable it by doing ``{COMMAND_PREFIX}settings automod on``",
   "settings_disable_automod": "Disable it by doing: ``{COMMAND_PREFIX}settings automod off``",
-  "autmod_status": "Actual status: {STATUS}\n {RECOMMENDED}"
+  "automod_status": "Actual status: {STATUS}\n {RECOMMENDED}"
 }

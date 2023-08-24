@@ -299,12 +299,12 @@ async def AddDeniedWord(guildid: int, userid: int, word: str):
     return True
 
 
-async def GetSettings(guildid: int):
+async def GetSettings(guildid: int, index:int):
     cur.execute("SELECT * FROM settings WHERE guildid = ? LIMIT 1",
                 (guildid, ))
     rows = cur.fetchall()
     if len(rows) > 0:
-        return rows[0]
+        return rows[0][index]
     else:
         return 0  # default is off
 
@@ -312,12 +312,8 @@ async def GetSettings(guildid: int):
 async def GetTranslatedText(guildid: int, index: str, **replace):
     global languages
 
-    dbLanguageRecord = await GetSettings(guildid)
-    if dbLanguageRecord == 0:
-        currentLanguage = "en"  # not saved config in db
-    else:
-        dbLanguageRecord = dbLanguageRecord[2]  # [2] stands for language col
-        currentLanguage = "en" if dbLanguageRecord == None else dbLanguageRecord
+    dbLanguageRecord = await GetSettings(guildid, 2)
+    currentLanguage = "en" if dbLanguageRecord == 0 or dbLanguageRecord == None  else dbLanguageRecord
 
     text = languages[currentLanguage].get(index, "Word not translated yet.")
     for oldString, newString in replace.items():
@@ -495,9 +491,9 @@ async def on_message(message):
         return
     if message.content == "" or message.content == None:
         return
-    settings = await GetSettings(message.guild.id)
+    settings = await GetSettings(message.guild.id, 1)
 
-    if settings != 0 and settings[1] != 1:
+    if settings != 1:
         return  # user has disabled Automod or does not have it installed
     words = message.content.split()
     allowed_words_guild_list = await GetAutomodCustomWords(
@@ -1427,25 +1423,50 @@ modules = ["automod", "language"]
 @option(
     "value",
     description="Select on/off",
-    autocomplete=discord.utils.basic_autocomplete(["on", "off"]),
+    autocomplete=discord.utils.basic_autocomplete(["on", "off", [k for k,v in languages.items()]]),
 )
 async def settings(ctx, module: str = None, value: str = None):
     if module != None and value != None:
-        if module in modules and value == "on" or value == "off":
-            value = 1 if value == "on" else 0
-            await SaveSetting(ctx.guild.id, module, value)
-            action = "enabled" if value else "disabled"
-            await ctx.respond(
-                await GetTranslatedText(ctx.guild.id,
-                                        "settings_module",
-                                        MODULE=module,
-                                        ACTION=action),
-                ephemeral=True,
-            )
-            return
+        if module in modules:
+            if module=="automod":
+                value = 1 if value == "on" else 0
+                await SaveSetting(ctx.guild.id, module, value)
+                action = "enabled" if value else "disabled"
+                await ctx.respond(
+                    await GetTranslatedText(ctx.guild.id,
+                                            "settings_module",
+                                            MODULE=module,
+                                            ACTION=action),
+                    ephemeral=True,
+                )
+                
+            elif module=="language": 
+                languagesOptions = [k for k,v in languages.items()]
+                if(value in languagesOptions):
+                    await SaveSetting(ctx.guild.id, module, value)
+                    action = "set to " + value
+                    await ctx.respond(
+                        await GetTranslatedText(ctx.guild.id,
+                                                "settings_module",
+                                                MODULE=module,
+                                                ACTION=action),
+                        ephemeral=True,
+                    )
+                else: 
+                    await ctx.respond(
+                        await GetTranslatedText(ctx.guild.id, "error_settings_syntax", COMMAND="/settings language "+'/'.join(languagesOptions)),
+                    ephemeral=True)
+                
+            else:
+                await ctx.respond(
+                    await GetTranslatedText(ctx.guild.id, "error_settings_syntax", COMMAND="/settings automod on/off"),
+                    ephemeral=True,
+                )
+                return
+            
         else:
             await ctx.respond(
-                await GetTranslatedText(ctx.guild.id, "error_settings_syntax"),
+                await GetTranslatedText(ctx.guild.id, "error_settings_syntax", COMMAND="/settings module value"),
                 ephemeral=True,
             )
             return
@@ -1455,7 +1476,7 @@ async def settings(ctx, module: str = None, value: str = None):
                                             "settings_description"),
     )
     print("getting settings from discord.Guild.id", ctx.guild.id)
-    automodStatus = (await GetSettings(ctx.guild.id))[1]
+    automodStatus = await GetSettings(ctx.guild.id, 1)
     automodStatustr = "**✅ ON**" if automodStatus else "**❌ OFF**"
     recommendedactivityAutomod = (
         await GetTranslatedText(ctx.guild.id,
@@ -1467,7 +1488,7 @@ async def settings(ctx, module: str = None, value: str = None):
     embed.add_field(
         name=await GetTranslatedText(ctx.guild.id, "help_automod_title"),
         value=await GetTranslatedText(
-            ctx.guild,
+            ctx.guild.id,
             "automod_status",
             STATUS=automodStatustr,
             RECOMMENDED=recommendedactivityAutomod,
