@@ -25,6 +25,11 @@ from get_enviroment import (ANNOUNCEMENTS_CHANNEL, COMMAND_PREFIX,
 
 
 def jsonToDict(filename):
+    """
+
+    :param filename: 
+
+    """
     with open(filename) as f_in:
         return json.load(f_in)
 
@@ -360,7 +365,7 @@ async def SendMessageTo(ctx, member, message):
 def ErrorEmbed(error):
     """
 
-    :param error:
+    :param error: 
 
     """
     embed = Embed(title=f":no_entry_sign: Error!", description=error)
@@ -379,7 +384,7 @@ def ErrorEmbed(error):
 def unicodeLetterConver(word):
     """
 
-    :param word:
+    :param word: 
 
     """
     f = ""
@@ -429,7 +434,7 @@ def unicodeLetterConver(word):
 def numToEmoji(num):
     """
 
-    :param num:
+    :param num: 
 
     """
     v = ""
@@ -460,6 +465,7 @@ def filterMember(member: discord.Member):
     """
 
     :param member: discord.Member:
+    :param member: discord.Member: 
 
     """
     username, discriminator = str(member).split("#")
