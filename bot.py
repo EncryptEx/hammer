@@ -570,7 +570,7 @@ debug = False
                    guild_ids=[int(SECURITY_GUILD)])
 async def hello(ctx):
     await ctx.defer()
-    text = await GetTranslatedText(ctx.guild.id, "user")
+    text = await GetTranslatedText(ctx.guild.id, "hello_command")
     await ctx.respond(text)
 
 

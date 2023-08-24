@@ -13,5 +13,6 @@
     "help_links_description": "[:classical_building: Hammer Bot Support](https://discord.gg/fMSyQA6)\n[:link: Hammer Invite Link](https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot)\n[:newspaper: Vote Hammer](https://top.gg/bot/591633652493058068)}",
     "help_commands_title": "Help Commands",
     "help_commands_description": "COMMAND_PREFIXhelp\nCOMMAND_PREFIXinvite\nCOMMAND_PREFIXsuggest [suggestion]",
-    "footer_executed_by": "Hammer | Command executed by USERNAME"
+    "footer_executed_by": "Hammer | Command executed by USERNAME",
+    "hello_command": "Hammer is back!"
 }
