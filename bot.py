@@ -315,7 +315,7 @@ async def SaveSetting(guildid: int, module: str, value: int):
             rows
     ) > 0:  # cur.execute('INSERT INTO foo (a,b) values (?,?)', (strA, strB))
         query = f"""UPDATE settings
-        SET automod = {value}
+        SET {module} = {value}
         WHERE guildid={guildid} """
         cur.execute(query)
     else:
@@ -604,7 +604,7 @@ async def whois(ctx, member: discord.Member):
         discriminator = "" if discriminator == "0" else discriminator
         isbot = ":white_check_mark:" if member.bot else ":negative_squared_cross_mark:"
         descr = await GetTranslatedText(ctx.guild.id, "whois_description", NICK=member.nick, USERNAME=username, DISCRIMINATOR=discriminator, CREATEDAT=member.created_at,  JOINEDAT=member.joined_at, ISBOT=isbot, MEMBERID=member.id, AVATAR=member.display_avatar, TOPROLE=member.top_role, WARNS=await GetWarnings(member.id, ctx.guild.id))
-        embed = Embed(title=GetTranslatedText(ctx.guild.id, "whois_title", MEMBER=filterMember(member)),
+        embed = Embed(title= await GetTranslatedText(ctx.guild.id, "whois_title", MEMBER=filterMember(member)),
                       description=descr)
 
         embed.set_thumbnail(url=member.display_avatar)
@@ -674,13 +674,13 @@ async def kick(ctx, member: discord.Member, *, reason=None):
         except:
             ctx.respond(
                 embed=ErrorEmbed(
-                    await GetTranslatedText("error_kick_perm", MEMBER=filterMember(member))),
+                    await GetTranslatedText(ctx.guild.id, "error_kick_perm", MEMBER=filterMember(member))),
                 ephemeral=True,
             )
             return
-    descr = await GetTranslatedText("kick_description", MEMBER=filterMember(member), REASON=reason)
+    descr = await GetTranslatedText(ctx.guild.id, "kick_description", MEMBER=filterMember(member), REASON=reason)
     embed = Embed(
-        title=await GetTranslatedText("kick_title", MEMBER=filterMember(member)),
+        title=await GetTranslatedText(ctx.guild.id, "kick_title", MEMBER=filterMember(member)),
         description=descr,
     )
     embed.set_footer(
@@ -709,16 +709,16 @@ async def warn(ctx,
                reason=None,
                softwarn: bool = False):
     if member == ctx.author:
-        await ctx.respond("You cannot warn yourself :(", ephemeral=True)
+        await ctx.respond(await GetTranslatedText(ctx.guild.id, "error_self_warn"), ephemeral=True)
         return
     if reason == None:
-        reason = "bad behaviour 💥"
+        reason = await GetTranslatedText(ctx.guild.id, "punishment_default_reason")
 
-    message = f"You have been warned for {reason}"
+    message = await GetTranslatedText(ctx.guild.id, "warn_msg", REASON=reason)
 
-    descr = f"The user {filterMember(member)} has been warned for {reason}"
+    descr = await GetTranslatedText(ctx.guild.id, "warn_description", MEMBER=filterMember(member), REASON=reason)
     embed = Embed(
-        title=f"{filterMember(member)} has been warned! :hammer_pick:",
+        title=await GetTranslatedText(ctx.guild.id, "warn_title", MEMBER=filterMember(member)),
         description=descr,
     )
     embed.set_footer(
@@ -729,9 +729,8 @@ async def warn(ctx,
     warn = await AddWarning(member.id, ctx.guild.id, reason)
     s = "s" if warn > 1 else ""
     embed.add_field(
-        name="Warn count",
-        value=
-        f"The user {filterMember(member)} has {warn} warn{s}. Be careful.",
+        name=await GetTranslatedText(ctx.guild.id, "automod_count_title"),
+        value=await GetTranslatedText(ctx.guild.id, "automod_count_description", USERNAME=filterMember(member), WARN=warn, S=s),
         inline=True,
     )
     await ctx.respond(embed=embed, ephemeral=softwarn)
@@ -760,11 +759,12 @@ async def softwarn(ctx, member: discord.Member, reason=None):
 async def seewarns(ctx, member: discord.Member):
     allwarns = await getAllWarns(member.id, ctx.guild.id)
     if len(allwarns) == 0:
-        allwarns = ["User had no warns at the moment"]
+        allwarns = [await GetTranslatedText(ctx.guild.id, "warn_no_warns")]
     message = "\n".join(allwarns)
 
     c = 0
     data = []
+    # Data preparation using chart's syntax
     for warn in await GetWarnings(member.id, ctx.guild.id, fullData=True):
         _, _, _, _, timestamp = warn
         c = c + 1
@@ -810,7 +810,7 @@ async def seewarns(ctx, member: discord.Member):
 
     uurl = qc.get_url()
 
-    embed = Embed(title=f"**Historic of {filterMember(member)}**",
+    embed = Embed(title=await GetTranslatedText(ctx.guild.id, "seewarns_title", MEMBER=filterMember(member)),
                   description=message)
     embed.set_image(url=uurl)
     embed.set_footer(
@@ -826,13 +826,12 @@ async def seewarns(ctx, member: discord.Member):
 @discord.default_permissions(kick_members=True, )
 async def unwarn(ctx, member: discord.Member, id: int = None, *, reason=None):
     if await GetWarnings(member.id, ctx.guild.id) == 0:
-        return await ctx.respond("This user does not have any warn!")
+        return await ctx.respond(await GetTranslatedText(ctx.guild.id, "unwarn_no_warns"))
     if id == None:
-        message = (
-            f"""To select a warn to remove, use argument id and specify its value."""
+        message = (await GetTranslatedText(ctx.guild.id, "unwarn_description")
         )
 
-        embed = Embed(title=f"ERROR! Need to select a warn :hammer_pick:",
+        embed = Embed(title=await GetTranslatedText(ctx.guild.id, "unwarn_wrong_selection"),
                       description=message)
         allwarns = await getAllWarns(member.id, ctx.guild.id)
         embed.add_field(
@@ -1197,7 +1196,7 @@ async def invite(ctx):
     await ctx.respond(embed=embed)
 
 
-modules = ["automod"]
+modules = ["automod", "language"]
 
 
 @discord.default_permissions(administrator=True)

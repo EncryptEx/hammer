@@ -41,7 +41,16 @@
     "error_kick_perm": "Could not kick the user {MEMBER}\n This may be caused because I do not have the permission to do that or the user has a higher role than me.",
     "kick_title":"{MEMBER} has been kicked! :hammer_pick:",
     "kick_description": "The user {MEMBER} has been kicked for {REASON}",
-    ""
+    "error_self_warn" : "You cannot warn yourself :(",
+    "warn_msg": "You have been warned for {REASON}",
+    "warn_title": "{MEMBER} has been warned! :hammer_pick:",
+    "warn_description": "The user {MEMBER} has been warned for {REASON}",
+    "warn_no_warns": "User had no warns at the moment",
+    "seewarns_title": "**Historic of {MEMBER}**",
+    "unwarn_no_warns": "This user does not have any warn!",
+    "unwarn_description": "To select a warn to remove, use argument id and specify its value.",
+    "unwarn_wrong_selection": "ERROR! Need to select a warn :hammer_pick:"
+
     
     
 }
