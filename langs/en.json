@@ -54,6 +54,8 @@
     "unwarn_msg": "You have been unwarned for {REASON}",
     "unwarn_title": "{MEMBER} has been unwarned! :hammer_pick:",
     "unwarn_description": "The user {MEMBER} has been unwarned for {REASON}",
-    "unwarn_count_with_success": "The user {MEMBER} has now {WARN} warn{S}. {CONGRATS}"   
-    
+    "unwarn_count_with_success": "The user {MEMBER} has now {WARN} warn{S}. {CONGRATS}",
+    "clearwarns_msg": "Your warns have been cleared for {REASON}",
+    "clearwarns_description": "The user {MEMBER} has 0 warns for {REASON}",
+    "clearwarns_title": "The warns of {MEMBER} have been removed! :hammer_pick:"
 }

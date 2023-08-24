@@ -871,13 +871,12 @@ async def unwarn(ctx, member: discord.Member, id: int = None, *, reason=None):
 @discord.default_permissions(kick_members=True, )
 async def clearwarns(ctx, member: discord.Member, *, reason=None):
     if reason == None:
-        reason = "good behaviour ✅"
-    message = f"Your warns have been cleared for {reason}"
+        reason = await GetTranslatedText(ctx.guild.id, "unpunishment_default_reason")
+    message = await GetTranslatedText(ctx.guild.id, "clearwarns_msg", REASON=reason)
 
-    descr = f"The user {filterMember(member)} has 0 warns for {reason}"
+    descr = await GetTranslatedText(ctx.guild.id, "clearwarns_description", MEMBER=filterMember(member), REASON=reason)
     embed = Embed(
-        title=
-        f"The warns of {filterMember(member)} have been removed! :hammer_pick:",
+        title=await GetTranslatedText(ctx.guild.id, "clearwarns_title", MEMBER=filterMember(member)),
         description=descr,
     )
     embed.set_footer(
@@ -888,8 +887,7 @@ async def clearwarns(ctx, member: discord.Member, *, reason=None):
     warn = await Clearwarns(member.id, ctx.guild.id)
     embed.add_field(
         name="Warn count",
-        value=
-        f"The user {filterMember(member)} has now {warn} warns. Yey! :tada:",
+        value=await GetTranslatedText(ctx.guild.id, "unwarn_count_with_success", MEMBER=filterMember(member), WARN=0, S="s", CONGRATS="Yey! :tada:"),
         inline=True,
     )
     await ctx.respond(embed=embed, ephemeral=False)
