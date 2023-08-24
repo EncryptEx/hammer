@@ -32,6 +32,7 @@
     "whois_description": "**Nick:** {NICK}\n**Username:** {USERNAME}\n**Discriminator:** {DISCRIMINATOR}\n**Created account at:** {CREATEDAT}\n**Joined server at:** {JOINEDAT}\n**Is bot:** {ISBOT}\n**User ID:** {MEMBERID}\n**Avatar URL:** [Click Here]({AVATAR})\n**Top role:** {TOPROLE}\n**Warns:** {WARNS}\n",
     "error_self_ban": "You cannot ban yourself",
     "punishment_default_reason": "bad behaviour 💥",
+    "unpunishment_default_reason": "good behaviour ✅",
     "ban_msg": "You have been banned from {GUILD} for {REASON}",
     "ban_title": "{MEMBER} has been banned! :hammer_pick:",
     "ban_description": "The user {MEMBER} has been banned for {REASON}",
@@ -48,9 +49,11 @@
     "warn_no_warns": "User had no warns at the moment",
     "seewarns_title": "**Historic of {MEMBER}**",
     "unwarn_no_warns": "This user does not have any warn!",
-    "unwarn_description": "To select a warn to remove, use argument id and specify its value.",
-    "unwarn_wrong_selection": "ERROR! Need to select a warn :hammer_pick:"
-
-    
+    "unwarn_description_msg": "To select a warn to remove, use argument id and specify its value.",
+    "unwarn_wrong_selection": "ERROR! Need to select a warn :hammer_pick:",
+    "unwarn_msg": "You have been unwarned for {REASON}",
+    "unwarn_title": "{MEMBER} has been unwarned! :hammer_pick:",
+    "unwarn_description": "The user {MEMBER} has been unwarned for {REASON}",
+    "unwarn_count_with_success": "The user {MEMBER} has now {WARN} warn{S}. {CONGRATS}"   
     
 }

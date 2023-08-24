@@ -828,24 +828,24 @@ async def unwarn(ctx, member: discord.Member, id: int = None, *, reason=None):
     if await GetWarnings(member.id, ctx.guild.id) == 0:
         return await ctx.respond(await GetTranslatedText(ctx.guild.id, "unwarn_no_warns"))
     if id == None:
-        message = (await GetTranslatedText(ctx.guild.id, "unwarn_description")
+        descriptionMsg = (await GetTranslatedText(ctx.guild.id, "unwarn_description_msg")
         )
 
         embed = Embed(title=await GetTranslatedText(ctx.guild.id, "unwarn_wrong_selection"),
-                      description=message)
+                      description=descriptionMsg)
         allwarns = await getAllWarns(member.id, ctx.guild.id)
         embed.add_field(
-            name=f"**Historic of {member.name}**:",
+            name=await GetTranslatedText(ctx.guild.id, "seewarns_title", MEMBER=filterMember(member)),
             value="\n".join(allwarns),
         )
         return await ctx.respond(embed=embed)
     if reason == None:
-        reason = "good behaviour ✅"
-    message = f"You have been unwarned for {reason}"
+        reason = await GetTranslatedText(ctx.guild.id, "unpunishment_default_reason")
+    message = await GetTranslatedText(ctx.guild.id, "unwarn_msg", REASON=reason)
 
-    descr = f"The user {filterMember(member)} has been unwarned for {reason}"
+    descr = await GetTranslatedText(ctx.guild.id, "unwarn_description", MEMBER=filterMember(member), REASON=reason)
     embed = Embed(
-        title=f"{filterMember(member)} has been unwarned! :hammer_pick:",
+        title=await GetTranslatedText(ctx.guild.id, "unwarn_title", MEMBER=filterMember(member)),
         description=descr,
     )
     embed.set_footer(
@@ -854,12 +854,11 @@ async def unwarn(ctx, member: discord.Member, id: int = None, *, reason=None):
     )
     embed.set_thumbnail(url=member.display_avatar)
     warn = await Removewarn(member.id, ctx.guild.id, id)
-    s = "s" if warn > 1 else ""
+    s = "s" if warn != 1 else ""
     congrats = "Yey! :tada:" if warn == 0 else ""
     embed.add_field(
-        name="Warn count",
-        value=
-        f"The user {filterMember(member)} has now {warn} warn{s}. {congrats}",
+        name=await GetTranslatedText(ctx.guild.id, "automod_count_title"),
+        value=await GetTranslatedText(ctx.guild.id, "unwarn_count_with_success", MEMBER=filterMember(member), WARN=warn, S=s, CONGRATS=congrats),
         inline=True,
     )
     await ctx.respond(embed=embed)
