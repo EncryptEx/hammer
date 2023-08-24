@@ -81,10 +81,11 @@
   "enabled": "enabled",
   "disabled": "disabled",
   "settings_module": "Module {MODULE} {ACTION} successfully!",
-  "error_settings_syntax": "Use: ``{COMMAND}`",
+  "error_settings_syntax": "Use: `{COMMAND}`",
   "settings_title": "Hammer Bot Settings :hammer_pick:",
   "settings_description": "Here you can enable or disable some modules",
   "settings_enable_automod": "Enable it by doing ``{COMMAND_PREFIX}settings automod on``",
   "settings_disable_automod": "Disable it by doing: ``{COMMAND_PREFIX}settings automod off``",
-  "automod_status": "Actual status: {STATUS}\n {RECOMMENDED}"
+  "settings_status": "Actual status: {STATUS}\n {RECOMMENDED}",
+  "help_language_title": "Hammer's Language :globe_with_meridians:"
 }

@@ -321,18 +321,19 @@ async def GetTranslatedText(guildid: int, index: str, **replace):
     return text
 
 
-async def SaveSetting(guildid: int, module: str, value: int):
+async def SaveSetting(guildid: int, module: str, value: str):
     cur.execute("SELECT * FROM settings WHERE guildid = ? LIMIT 1",
                 (guildid, ))
     rows = cur.fetchall()
+
     # print(rows)
     if len(
             rows
     ) > 0:  # cur.execute('INSERT INTO foo (a,b) values (?,?)', (strA, strB))
         query = f"""UPDATE settings
-        SET {module} = {value}
-        WHERE guildid={guildid} """
-        cur.execute(query)
+        SET {module}=?
+        WHERE guildid=?"""
+        cur.execute(query, (value, guildid))
     else:
         cur.execute(
             """INSERT OR IGNORE INTO settings (guildid, automod)
@@ -1423,9 +1424,10 @@ modules = ["automod", "language"]
 @option(
     "value",
     description="Select on/off",
-    autocomplete=discord.utils.basic_autocomplete(["on", "off", [k for k,v in languages.items()]]),
+    autocomplete=discord.utils.basic_autocomplete(["on", "off", "en", "cat"]),
 )
 async def settings(ctx, module: str = None, value: str = None):
+    languagesOptions = [k for k,_ in languages.items()]
     if module != None and value != None:
         if module in modules:
             if module=="automod":
@@ -1441,7 +1443,6 @@ async def settings(ctx, module: str = None, value: str = None):
                 )
                 
             elif module=="language": 
-                languagesOptions = [k for k,v in languages.items()]
                 if(value in languagesOptions):
                     await SaveSetting(ctx.guild.id, module, value)
                     action = "set to " + value
@@ -1489,11 +1490,24 @@ async def settings(ctx, module: str = None, value: str = None):
         name=await GetTranslatedText(ctx.guild.id, "help_automod_title"),
         value=await GetTranslatedText(
             ctx.guild.id,
-            "automod_status",
+            "settings_status",
             STATUS=automodStatustr,
             RECOMMENDED=recommendedactivityAutomod,
         ),
-        inline=True,
+        inline=False,
+    )
+    language = await GetSettings(ctx.guild.id, 2)
+    languagestr = F"**{language}**" if language else "**EN (English)**"
+    recommendedacmdLang = await GetTranslatedText(ctx.guild.id, "error_settings_syntax", COMMAND="/settings language "+'/'.join(languagesOptions))
+    embed.add_field(
+        name=await GetTranslatedText(ctx.guild.id, "help_language_title"),
+        value=await GetTranslatedText(
+            ctx.guild.id,
+            "settings_status",
+            STATUS=languagestr,
+            RECOMMENDED=recommendedacmdLang,
+        ),
+        inline=False,
     )
     embed.set_footer(
         text=await GetTranslatedText(ctx.guild.id,
