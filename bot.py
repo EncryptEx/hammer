@@ -302,7 +302,7 @@ async def GetTranslatedText(guildid: int, index: str, **replace):
     
     text = languages[currentLanguage].get(index, "Word not translated yet.")
     for oldString,newString in replace.items():
-        text = text.replace(oldString, newString)
+        text = text.replace("{"+oldString+"}", newString)
     return text
 
 
@@ -339,9 +339,7 @@ async def SendMessageTo(ctx, member, message):
         await member.send(message)
     except:
         await ctx.respond(
-            embed=ErrorEmbed(
-                f"Could not deliver the message to the user {member}\n This may be caused because the user is a bot, has blocked me or has the DMs turned off. \n\n**But the user is warned** and I have saved it into my beautiful unforgettable database"
-            ),
+            embed=ErrorEmbed(await GetTranslatedText(ctx.guild.id, "error_deliver_msg", USERNAME=filterMember(member))),
             ephemeral=True,
         )
 
@@ -495,23 +493,22 @@ async def on_message(message):
             # return # is admin so don't warn it
 
             # maybe new function to optionally say the word (settings)
-            descr = f"The user {filterMember(member)} has been warned because said a banned swear word"
+            descr = await GetTranslatedText(message.guild.id, "automod_warn_description", USERNAME=filterMember(member))
             embed = Embed(
-                title=f"{filterMember(member)} has been warned! :hammer_pick:",
+                title=GetTranslatedText(message.guild.id, "automod_warn_title", USERNAME=filterMember(member)),
                 description=descr,
             )
             embed.set_footer(
-                text=f"Hammer | Automod service",
+                text=await GetTranslatedText(message.guild.id, "automod_warn_footer"),
                 icon_url=hammericon,
             )
             embed.set_thumbnail(url=member.display_avatar)
             warn = await AddWarning(member.id, message.guild.id,
-                                    "Said a banned swear word")
+                                    await GetTranslatedText("automod_warn_reason"))
             s = "s" if warn > 1 else ""
             embed.add_field(
-                name="Warn count",
-                value=
-                f"The user {filterMember(member)} has {warn} warn{s}. Be careful. Run /seewarns @user to check its warnhistory",
+                name=await GetTranslatedText(message.guild.id, "automod_count_title"),
+                value=await GetTranslatedText(message.guild.id, "automod_count_description", USERNAME=filterMember(member), WARN=warn, S=s),
                 inline=True,
             )
             bannedmessage = (
@@ -520,14 +517,13 @@ async def on_message(message):
                 message.content[message.content.find(originalWord) +
                                 len(word):])
             embed.add_field(
-                name="Message Removed:",
-                value=f"The removed message was \n||{bannedmessage}||",
+                name=await GetTranslatedText("automod_removed_title"),
+                value=await GetTranslatedText("automod_removed_description", BANNEDMESSAGE=bannedmessage),
                 inline=True,
             )
             embed.add_field(
-                name="Not happy with this?",
-                value=
-                f"Disable this feature with ``/settings automod off`` or simply ``/suggest``  a new change",
+                name=await GetTranslatedText("automod_nothappy_title"),
+                value=await GetTranslatedText("automod_nothappy_description"),
                 inline=False,
             )
             await message.channel.send(embed=embed)
@@ -539,10 +535,9 @@ async def on_message(message):
             except:
                 embed = ErrorEmbed(
                     await message.channel.send(
-                        f"Could not deliver the message to the user {filterMember(member)}\n This may be caused because the user is a bot, has blocked me or has the DMs turned off. \n\n**But the user is warned** and I have saved it into my beautiful unforgettable database"
+                       embed=ErrorEmbed(await GetTranslatedText(message.guild.id, "error_deliver_msg", USERNAME=filterMember(member))),
                     ), )
-    # if(str(message.content).startswith(COMMAND_PREFIX)):
-    # print("command executed", message.content)
+                message.channel.send(embed=embed)
 
 
 @bot.event
@@ -577,8 +572,7 @@ async def hello(ctx):
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.respond(
-            f"**[ERROR 404]** Please pass in all requirements :hammer_pick:. ```{error}```\nDo  {COMMAND_PREFIX}help command for more help",
+        await ctx.respond(await GetTranslatedText("error_404", ERROR=error, COMMAND_PREFIX=COMMAND_PREFIX),
             ephemeral=True,
         )
     if isinstance(error, commands.MissingPermissions):
@@ -592,7 +586,7 @@ async def on_command_error(ctx, error):
         else:
             fmt = " and ".join(missing)
         await ctx.respond(
-            "[**ERROR 403**] You don't have the correct permission to do that :hammer:,  You need {fmt} permission(s) to perform this action",
+            await GetTranslatedText("error_403", FMT=fmt),
             ephemeral=True,
         )
 
@@ -607,19 +601,8 @@ async def whois(ctx, member: discord.Member):
         username, discriminator = str(member).split("#")
         discriminator = "" if discriminator == "0" else discriminator
         isbot = ":white_check_mark:" if member.bot else ":negative_squared_cross_mark:"
-        descr = f"""
-            **Nick:** {member.nick}
-            **Username:** {username}
-            **Discriminator:** {discriminator}
-            **Created account at:** {member.created_at}
-            **Joined server at:** {member.joined_at}
-            **Is bot:** {isbot}
-            **User ID:** {member.id}
-            **Avatar URL:** [Click Here]({member.display_avatar})
-            **Top role:** {member.top_role}
-            **Warns:** {await GetWarnings(member.id, ctx.guild.id)}
-            """
-        embed = Embed(title=f"Who is {filterMember(member)} ?",
+        descr = await GetTranslatedText("whois_description", NICK=member.nick, USERNAME=username, DISCRIMINATOR=discriminator, CREATEDAT=member.created_at,  JOINEDAT=member.joined_at, ISBOT=isbot, MEMBERID=member.id, AVATAR=member.display_avatar, TOPROLE=member.top_role, WARNS=await GetWarnings(member.id, ctx.guild.id)))
+        embed = Embed(title=GetTranslatedText("whois_title", MEMBER=filterMember(member)),
                       description=descr)
 
         embed.set_thumbnail(url=member.display_avatar)
