@@ -529,6 +529,7 @@ def filterMember(member: discord.Member):
 
     :param member: discord.Member:
     :param member: discord.Member:
+    :param member: discord.Member:
 
     """
     username, discriminator = str(member).split("#")
