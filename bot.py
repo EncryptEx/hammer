@@ -236,8 +236,7 @@ async def getAllWarns(userid: int, guildid: int):
             emojis = str(c)
         ddt = int(str(dt)[:str(dt).find(".")])
         allwarns.append(
-            f"- **ID: {emojis}** Reason: ``{SubReason}``  <t:{ddt}:R>")
-
+            await GetTranslatedText(guildid, "warns_line_loop", EMOJIS=emojis, SUBREASON=SubReason, DDT=ddt))
         c = c + 1
     return allwarns
 
@@ -609,7 +608,7 @@ async def on_ready():
         print("Sent message to #" + str(chnl))
 
 
-debug = True
+debug = False # ALWAYS FALSE!
 
 
 @bot.slash_command(guild_only=True,
@@ -906,7 +905,7 @@ async def seewarns(ctx, member: discord.Member):
         "data": {
             "datasets": [{
                 "fill": False,
-                "label": [f"Warns of {filterMember(member)}"],
+                "label": [await GetTranslatedText(ctx.guild.id, "seewarns_chart_title", MEMBER=filterMember(member))],
                 "lineTension": 0,
                 "backgroundColor": "#7289DA",
                 "borderColor": "#7289DA",
@@ -997,7 +996,7 @@ async def unwarn(ctx, member: discord.Member, id: int = None, *, reason=None):
     )
     embed.set_thumbnail(url=member.display_avatar)
     warn = await Removewarn(member.id, ctx.guild.id, id)
-    s = "s" if warn != 1 else ""
+    s = await GetTranslatedText(ctx.guild.id, "plural_warn") if warn != 1 else await GetTranslatedText(ctx.guild.id, "singular_warn")
     congrats = "Yey! :tada:" if warn == 0 else ""
     embed.add_field(
         name=await GetTranslatedText(ctx.guild.id, "automod_count_title"),
@@ -1199,7 +1198,7 @@ async def restart(ctx):
 async def setdelay(ctx, seconds: float, reason: str = ""):
     m = (await GetTranslatedText(ctx.guild.id, "modified") if seconds > 0.0
          else await GetTranslatedText(ctx.guild.id, "removed"))
-    reason = "for " + reason if reason != "" and reason != None else ""
+    reason = ((await GetTranslatedText(ctx.guild.id, "for"))+ reason) if reason != "" and reason != None else ""
     embed = Embed(
         title=await GetTranslatedText(ctx.guild.id,
                                       "setdelay_title",

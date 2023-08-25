@@ -54,7 +54,9 @@
   "unwarn_msg": "You have been unwarned for {REASON}",
   "unwarn_title": "{MEMBER} has been unwarned! :hammer_pick:",
   "unwarn_description": "The user {MEMBER} has been unwarned for {REASON}",
-  "unwarn_count_with_success": "The user {MEMBER} has now {WARN} warn{S}. {CONGRATS}",
+  "plural_warn": "warns",
+  "singular_warn": "warn",
+  "unwarn_count_with_success": "The user {MEMBER} has now {WARN} {S}. {CONGRATS}",
   "clearwarns_msg": "Your warns have been cleared for {REASON}",
   "clearwarns_description": "The user {MEMBER} has 0 warns for {REASON}",
   "clearwarns_title": "The warns of {MEMBER} have been removed! :hammer_pick:",
@@ -64,7 +66,8 @@
   "modified": "modified",
   "removed": "removed",
   "setdelay_title": "Delay {M} on #{CHANNEL} :hammer_pick:",
-  "setdelay_description": "This channel now has a delay of **{SECONDS}** seconds for {REASON}",
+  "for": "for ",
+  "setdelay_description": "This channel now has a delay of **{SECONDS}** seconds {REASON}",
   "mute_title": "User Muted: {MEMBER}",
   "mute_description": "User {MENTION} has been muted for {REASON}",
   "mute_msg": ":no_entry: You have been muted from: {GUILD} for {REASON}",
@@ -87,5 +90,8 @@
   "settings_enable_automod": "Enable it by doing ``{COMMAND_PREFIX}settings automod on``",
   "settings_disable_automod": "Disable it by doing: ``{COMMAND_PREFIX}settings automod off``",
   "settings_status": "Actual status: {STATUS}\n {RECOMMENDED}",
-  "help_language_title": "Hammer's Language :globe_with_meridians:"
+  "help_language_title": "Hammer's Language :globe_with_meridians:",
+  "warns_line_loop": "- **ID: {EMOJIS}** Reason: ``{SUBREASON}``  <t:{DDT}:R>",
+  "seewarns_chart_title": "Warns of {MEMBER}"
+  
 }
