@@ -116,16 +116,20 @@ jsonRequiredLines = [
 
 class HammerTest(unittest.TestCase):
     """ """
+
     def test_lanugages(self):
         """ """
-        langFiles = [f for f in listdir("./langs") if isfile(join("./langs", f))]
+        langFiles = [
+            f for f in listdir("./langs") if isfile(join("./langs", f))
+        ]
         for languageFile in langFiles:
             filename = languageFile.split(".")[0]
             dictionary = jsonToDict("./langs/" + languageFile)
             self.assertEqual(
                 len(dictionary.items()),
                 len(jsonRequiredLines),
-                "There's a missing line in the language json file: " + filename,
+                "There's a missing line in the language json file: " +
+                filename,
             )
             for k, v in dictionary.items():
                 self.assertTrue(
