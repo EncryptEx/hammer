@@ -1559,14 +1559,15 @@ async def settings(ctx, module: str = None, value: str = None):
 @bot.slash_command(guild_only=True, guild_ids=[int(SECURITY_GUILD)])
 async def metrics(ctx):
     if str(ctx.author.id) == str(OWNER):
-        metricList = GetMetrics()
+        metricList = await GetMetrics()
         commandDict = {}
-        finalList=[]
+        finalList={}
         # prepare data 
         for metric in metricList:
             _, commandType, timestamp = metric
             commandDict[commandType] = commandDict.get(commandType, 0) + 1
-            finalList[commandDict] = finalList.get(commandDict,[]).append({
+            provList = finalList.get(commandType,[])
+            provList.append({
                 "t":
                 str(
                     datetime.datetime.fromtimestamp(
@@ -1574,9 +1575,10 @@ async def metrics(ctx):
                 "y":
                 commandDict[commandType],
             })
+            finalList[commandType] = provList
         # prepare datasets
         final = []
-        for command, data, in finalList:
+        for command, data, in finalList.items():
             final.append({
                 "fill": False,
                 "label": [command],
@@ -1589,7 +1591,7 @@ async def metrics(ctx):
 
         embed = Embed(
             title="Lifetime Metrics (since 25-08-23)",
-            description="The following command have been used:"+' '.join([cmd+": "+times+" times" for cmd,times in commandDict]),
+            description="The following command have been used:"+' '.join([cmd+": "+str(times)+" times" for cmd,times in commandDict.items()]),
         )
         embed.set_image(url=uurl)
         embed.set_footer(
