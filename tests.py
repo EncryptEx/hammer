@@ -1,9 +1,9 @@
 # unit test
-
 import json
 import unittest
 from os import listdir
-from os.path import isfile, join
+from os.path import isfile
+from os.path import join
 
 
 def jsonToDict(filename):
