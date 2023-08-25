@@ -71,6 +71,11 @@ cur.execute("""CREATE TABLE IF NOT EXISTS `settings` (
         `automod` INT,
         `language` TEXT);
         """)
+cur.execute("""CREATE TABLE IF NOT EXISTS `metrics` (
+        `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+        `commandName` TEXT,
+        `timestamp` INT);
+        """)
 
 hammericon = "https://images-ext-2.discordapp.net/external/OKc8xu6AILGNFY3nSTt7wGbg-Mi1iQZonoLTFg85o-E/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/591633652493058068/e6011129c5169b29ed05a6dc873175cb.png?width=670&height=670"
 
@@ -319,6 +324,14 @@ async def GetTranslatedText(guildid: int, index: str, **replace):
         text = text.replace("{" + oldString + "}", str(newString))
     return text
 
+async def SendMetric(commandName: str):
+    cur.execute(
+            """INSERT INTO metrics (id, commandName, timestamp)
+            VALUES (NULL, ?, ?)
+    """,
+        (commandName, int(time())),
+    )
+    conn.commit()
 
 async def SaveSetting(guildid: int, module: str, value: str):
     cur.execute("SELECT * FROM settings WHERE guildid = ? LIMIT 1",
@@ -539,6 +552,7 @@ async def on_message(message):
                 await GetTranslatedText(message.guild.id,
                                         "automod_warn_reason"),
             )
+            await SendMetric("automod")
             s = "s" if warn > 1 else ""
             embed.add_field(
                 name=await GetTranslatedText(message.guild.id,
@@ -616,6 +630,7 @@ debug = False # ALWAYS FALSE!
                    guild_ids=[int(SECURITY_GUILD)])
 async def hello(ctx):
     await ctx.defer()
+    await SendMetric("hello")
     text = await GetTranslatedText(ctx.guild.id, "hello_command")
     await ctx.respond(text)
 
@@ -652,6 +667,7 @@ async def on_command_error(ctx, error):
     description="Displays all the public info from a specific user",
 )
 async def whois(ctx, member: discord.Member):
+    await SendMetric("whois")
     try:
         username, discriminator = str(member).split("#")
         discriminator = "" if discriminator == "0" else discriminator
@@ -697,6 +713,7 @@ async def whois(ctx, member: discord.Member):
 )
 @discord.default_permissions(ban_members=True, )
 async def ban(ctx, member: discord.Member, *, reason=None):
+    await SendMetric("ban")
     if member == ctx.author:
         await ctx.respond(await GetTranslatedText(ctx.guild.id,
                                                   "error_self_ban"),
@@ -750,6 +767,7 @@ async def ban(ctx, member: discord.Member, *, reason=None):
                    description="Kicks out a member from the server")
 @discord.default_permissions(kick_members=True, )
 async def kick(ctx, member: discord.Member, *, reason=None):
+    await SendMetric("kick")
     if member == ctx.author:
         await ctx.respond(await GetTranslatedText(ctx.guild.id,
                                                   "error_self_kick"),
@@ -811,6 +829,7 @@ async def warn(ctx,
                member: discord.Member,
                reason=None,
                softwarn: bool = False):
+    await SendMetric("warn")
     if member == ctx.author:
         await ctx.respond(await GetTranslatedText(ctx.guild.id,
                                                   "error_self_warn"),
@@ -866,6 +885,7 @@ async def warn(ctx,
 )
 @discord.default_permissions(administrator=True, )
 async def softwarn(ctx, member: discord.Member, reason=None):
+    await SendMetric("softwarn")
     await warn(ctx, member, reason, True)
 
 
@@ -876,6 +896,7 @@ async def softwarn(ctx, member: discord.Member, reason=None):
 )
 @discord.default_permissions(administrator=True, )
 async def seewarns(ctx, member: discord.Member):
+    await SendMetric("seewarns")
     allwarns = await getAllWarns(member.id, ctx.guild.id)
     if len(allwarns) == 0:
         allwarns = [await GetTranslatedText(ctx.guild.id, "warn_no_warns")]
@@ -950,6 +971,7 @@ async def seewarns(ctx, member: discord.Member):
                    description="Removes a strike from a user")
 @discord.default_permissions(kick_members=True, )
 async def unwarn(ctx, member: discord.Member, id: int = None, *, reason=None):
+    await SendMetric("unwarn")
     if await GetWarnings(member.id, ctx.guild.id) == 0:
         return await ctx.respond(await
                                  GetTranslatedText(ctx.guild.id,
@@ -1019,6 +1041,7 @@ async def unwarn(ctx, member: discord.Member, id: int = None, *, reason=None):
                    description="Removes all strikes from a user")
 @discord.default_permissions(kick_members=True, )
 async def clearwarns(ctx, member: discord.Member, *, reason=None):
+    await SendMetric("clearwarns")
     if reason == None:
         reason = await GetTranslatedText(ctx.guild.id,
                                          "unpunishment_default_reason")
@@ -1074,6 +1097,7 @@ async def clearwarns(ctx, member: discord.Member, *, reason=None):
     autocomplete=discord.utils.basic_autocomplete(["add", "remove"]),
 )
 async def automod(ctx, action: str, word: str):
+    await SendMetric("automodCmd")
     if action == "remove":
         response = await AddAllowedWord(ctx.guild.id, ctx.author.id, word)
     elif action == "add":
@@ -1196,6 +1220,7 @@ async def restart(ctx):
 )
 @discord.default_permissions(manage_messages=True, )
 async def setdelay(ctx, seconds: float, reason: str = ""):
+    await SendMetric("setdelay")
     m = (await GetTranslatedText(ctx.guild.id, "modified") if seconds > 0.0
          else await GetTranslatedText(ctx.guild.id, "removed"))
     reason = ((await GetTranslatedText(ctx.guild.id, "for"))+ reason) if reason != "" and reason != None else ""
@@ -1228,6 +1253,7 @@ async def setdelay(ctx, seconds: float, reason: str = ""):
 )
 @discord.default_permissions(manage_messages=True, )
 async def mute(ctx, member: discord.Member, *, reason=None):
+    await SendMetric("mute")
     guild = ctx.guild
     mutedRole = discord.utils.get(guild.roles, name="Muted")
 
@@ -1279,6 +1305,7 @@ async def mute(ctx, member: discord.Member, *, reason=None):
 )
 @discord.default_permissions(manage_messages=True, )
 async def unmute(ctx, member: discord.Member, *, reason=None):
+    await SendMetric("unmute")
     mutedRole = discord.utils.get(ctx.guild.roles, name="Muted")
     if reason == None:
         reason = ""
@@ -1313,6 +1340,7 @@ async def unmute(ctx, member: discord.Member, *, reason=None):
     description="Blocks a channel from being used as a chat.",
 )
 async def lock(ctx, channel: discord.TextChannel = None, reason=None):
+    await SendMetric("lock")
     channel = channel or ctx.channel
     reason = "for " + reason if reason else ""
     overwrite = channel.overwrites_for(ctx.guild.default_role)
@@ -1343,6 +1371,7 @@ async def lock(ctx, channel: discord.TextChannel = None, reason=None):
     "Removes the blocking in a channel from not being used as a chat.",
 )
 async def unlock(ctx, channel: discord.TextChannel = None, reason=None):
+    await SendMetric("unlock")
     channel = channel or ctx.channel
     reason = "for " + reason if reason else ""
     overwrite = channel.overwrites_for(ctx.guild.default_role)
@@ -1370,6 +1399,7 @@ async def unlock(ctx, channel: discord.TextChannel = None, reason=None):
     description="Sends a suggestion to the developer of Hammer.",
 )
 async def suggest(ctx, suggestion: str):
+    await SendMetric("suggest")
     embed = Embed(
         title=
         f"The user {filterMember(ctx.author)} has posted a suggestion! :hammer_pick:",
@@ -1394,6 +1424,7 @@ async def suggest(ctx, suggestion: str):
     description="Returns the bot's invitation link.",
 )
 async def invite(ctx):
+    await SendMetric("invite")
     embed = Embed(
         title=await GetTranslatedText(ctx.guild.id, "hammer_invite"),
         description=
@@ -1426,6 +1457,7 @@ modules = ["automod", "language"]
     autocomplete=discord.utils.basic_autocomplete(["on", "off", "en", "cat"]),
 )
 async def settings(ctx, module: str = None, value: str = None):
+    await SendMetric("settings")
     languagesOptions = [k for k,_ in languages.items()]
     if module != None and value != None:
         if module in modules:
