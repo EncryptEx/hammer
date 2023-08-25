@@ -1,7 +1,7 @@
 # unit test
 
-import unittest
 import json
+import unittest
 from os import listdir
 from os.path import isfile, join
 
