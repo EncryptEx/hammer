@@ -9,7 +9,7 @@ from os.path import join
 def jsonToDict(filename):
     """
 
-    :param filename: 
+    :param filename:
 
     """
     with open(filename) as f_in:
