@@ -7,6 +7,11 @@ from os.path import isfile, join
 
 
 def jsonToDict(filename):
+    """
+
+    :param filename: 
+
+    """
     with open(filename) as f_in:
         return json.load(f_in)
 
@@ -110,7 +115,9 @@ jsonRequiredLines = [
 
 
 class HammerTest(unittest.TestCase):
+    """ """
     def test_lanugages(self):
+        """ """
         langFiles = [f for f in listdir("./langs") if isfile(join("./langs", f))]
         for languageFile in langFiles:
             filename = languageFile.split(".")[0]
