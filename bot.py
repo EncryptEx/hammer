@@ -193,6 +193,12 @@ async def GetWarnings(userid: int, guildid: int, fullData: bool = False):
         return rows
 
 
+async def GetMetrics():
+    cur.execute("SELECT * FROM metrics")
+    rows = cur.fetchall()
+    return rows
+
+
 # Function to add a warning and save it at the database
 async def AddWarning(userid: int, guildid: int, reason):
     warncount = await GetWarnings(userid, guildid)
@@ -367,7 +373,43 @@ async def SaveSetting(guildid: int, module: str, value: str):
     return
 
 
+def GenerateChart(datasets):
+    """
+
+    :param datasets:
+
+    """
+    qc = QuickChart()
+    qc.width = 500
+    qc.height = 300
+    qc.device_pixel_ratio = 2.0
+    qc.config = {
+        "type": "line",
+        "data": {
+            "datasets": datasets
+        },
+        "options": {
+            "scales": {
+                "xAxes": [{
+                    "type": "time",
+                    "time": {
+                        "parser": "YYYY-MM-DD HH:mm:ss",
+                        "displayFormats": {
+                            "day": "DD/MM/YYYY"
+                        },
+                    },
+                }]
+            }
+        },
+    }
+
+    uurl = qc.get_url()
+    return uurl
+
+
 # Function to try to send a message to a user
+
+
 async def SendMessageTo(ctx, member, message):
     try:
         await member.send(message)
@@ -924,49 +966,25 @@ async def seewarns(ctx, member: discord.Member):
             c,
         })
 
-    qc = QuickChart()
-    qc.width = 500
-    qc.height = 300
-    qc.device_pixel_ratio = 2.0
-    qc.config = {
-        "type": "line",
-        "data": {
-            "datasets": [{
-                "fill":
-                False,
-                "label": [
-                    await GetTranslatedText(
-                        ctx.guild.id,
-                        "seewarns_chart_title",
-                        MEMBER=filterMember(member),
-                    )
-                ],
-                "lineTension":
-                0,
-                "backgroundColor":
-                "#7289DA",
-                "borderColor":
-                "#7289DA",
-                "data":
-                data,
-            }]
-        },
-        "options": {
-            "scales": {
-                "xAxes": [{
-                    "type": "time",
-                    "time": {
-                        "parser": "YYYY-MM-DD HH:mm:ss",
-                        "displayFormats": {
-                            "day": "DD/MM/YYYY"
-                        },
-                    },
-                }]
-            }
-        },
-    }
-
-    uurl = qc.get_url()
+    uurl = GenerateChart([{
+        "fill":
+        False,
+        "label": [
+            await GetTranslatedText(
+                ctx.guild.id,
+                "seewarns_chart_title",
+                MEMBER=filterMember(member),
+            )
+        ],
+        "lineTension":
+        0,
+        "backgroundColor":
+        "#7289DA",
+        "borderColor":
+        "#7289DA",
+        "data":
+        data,
+    }])
 
     embed = Embed(
         title=await GetTranslatedText(ctx.guild.id,
@@ -1587,6 +1605,56 @@ async def settings(ctx, module: str = None, value: str = None):
         icon_url=hammericon,
     )
     await ctx.respond(embed=embed)
+
+
+@bot.slash_command(guild_only=True, guild_ids=[int(SECURITY_GUILD)])
+async def metrics(ctx):
+    if str(ctx.author.id) == str(OWNER):
+        metricList = await GetMetrics()
+        commandDict = {}
+        finalList = {}
+        # prepare data
+        for metric in metricList:
+            _, commandType, timestamp = metric
+            commandDict[commandType] = commandDict.get(commandType, 0) + 1
+            provList = finalList.get(commandType, [])
+            provList.append({
+                "t":
+                str(datetime.datetime.fromtimestamp(int(timestamp))),
+                "y":
+                commandDict[commandType],
+            })
+            finalList[commandType] = provList
+        # prepare datasets
+        final = []
+        for (
+                command,
+                data,
+        ) in finalList.items():
+            final.append({
+                "fill": False,
+                "label": [command],
+                "lineTension": 0,
+                "data": data,
+            })
+
+        uurl = GenerateChart(final)
+
+        embed = Embed(
+            title="Lifetime Metrics (since 25-08-23)",
+            description="The following command have been used:" + " ".join([
+                cmd + ": " + str(times) + " times"
+                for cmd, times in commandDict.items()
+            ]),
+        )
+        embed.set_image(url=uurl)
+        embed.set_footer(
+            text=await GetTranslatedText(ctx.guild.id,
+                                         "footer_executed_by",
+                                         USERNAME=filterMember(ctx.author)),
+            icon_url=hammericon,
+        )
+        return await ctx.respond(embed=embed)
 
 
 bot.run(TOKEN)
