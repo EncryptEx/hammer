@@ -240,8 +240,11 @@ async def getAllWarns(userid: int, guildid: int):
         else:
             emojis = str(c)
         ddt = int(str(dt)[:str(dt).find(".")])
-        allwarns.append(
-            await GetTranslatedText(guildid, "warns_line_loop", EMOJIS=emojis, SUBREASON=SubReason, DDT=ddt))
+        allwarns.append(await GetTranslatedText(guildid,
+                                                "warns_line_loop",
+                                                EMOJIS=emojis,
+                                                SUBREASON=SubReason,
+                                                DDT=ddt))
         c = c + 1
     return allwarns
 
@@ -303,7 +306,7 @@ async def AddDeniedWord(guildid: int, userid: int, word: str):
     return True
 
 
-async def GetSettings(guildid: int, index:int):
+async def GetSettings(guildid: int, index: int):
     cur.execute("SELECT * FROM settings WHERE guildid = ? LIMIT 1",
                 (guildid, ))
     rows = cur.fetchall()
@@ -317,21 +320,24 @@ async def GetTranslatedText(guildid: int, index: str, **replace):
     global languages
 
     dbLanguageRecord = await GetSettings(guildid, 2)
-    currentLanguage = "en" if dbLanguageRecord == 0 or dbLanguageRecord == None  else dbLanguageRecord
+    currentLanguage = ("en" if dbLanguageRecord == 0
+                       or dbLanguageRecord == None else dbLanguageRecord)
 
     text = languages[currentLanguage].get(index, "Word not translated yet.")
     for oldString, newString in replace.items():
         text = text.replace("{" + oldString + "}", str(newString))
     return text
 
+
 async def SendMetric(commandName: str):
     cur.execute(
-            """INSERT INTO metrics (id, commandName, timestamp)
+        """INSERT INTO metrics (id, commandName, timestamp)
             VALUES (NULL, ?, ?)
     """,
         (commandName, int(time())),
     )
     conn.commit()
+
 
 async def SaveSetting(guildid: int, module: str, value: str):
     cur.execute("SELECT * FROM settings WHERE guildid = ? LIMIT 1",
@@ -481,6 +487,7 @@ def filterMember(member: discord.Member):
 
     :param member: discord.Member:
     :param member: discord.Member:
+    :param member: discord.Member:
 
     """
     username, discriminator = str(member).split("#")
@@ -622,7 +629,7 @@ async def on_ready():
         print("Sent message to #" + str(chnl))
 
 
-debug = False # ALWAYS FALSE!
+debug = False  # ALWAYS FALSE!
 
 
 @bot.slash_command(guild_only=True,
@@ -925,12 +932,23 @@ async def seewarns(ctx, member: discord.Member):
         "type": "line",
         "data": {
             "datasets": [{
-                "fill": False,
-                "label": [await GetTranslatedText(ctx.guild.id, "seewarns_chart_title", MEMBER=filterMember(member))],
-                "lineTension": 0,
-                "backgroundColor": "#7289DA",
-                "borderColor": "#7289DA",
-                "data": data,
+                "fill":
+                False,
+                "label": [
+                    await GetTranslatedText(
+                        ctx.guild.id,
+                        "seewarns_chart_title",
+                        MEMBER=filterMember(member),
+                    )
+                ],
+                "lineTension":
+                0,
+                "backgroundColor":
+                "#7289DA",
+                "borderColor":
+                "#7289DA",
+                "data":
+                data,
             }]
         },
         "options": {
@@ -1018,7 +1036,8 @@ async def unwarn(ctx, member: discord.Member, id: int = None, *, reason=None):
     )
     embed.set_thumbnail(url=member.display_avatar)
     warn = await Removewarn(member.id, ctx.guild.id, id)
-    s = await GetTranslatedText(ctx.guild.id, "plural_warn") if warn != 1 else await GetTranslatedText(ctx.guild.id, "singular_warn")
+    s = (await GetTranslatedText(ctx.guild.id, "plural_warn") if warn != 1 else
+         await GetTranslatedText(ctx.guild.id, "singular_warn"))
     congrats = "Yey! :tada:" if warn == 0 else ""
     embed.add_field(
         name=await GetTranslatedText(ctx.guild.id, "automod_count_title"),
@@ -1223,7 +1242,8 @@ async def setdelay(ctx, seconds: float, reason: str = ""):
     await SendMetric("setdelay")
     m = (await GetTranslatedText(ctx.guild.id, "modified") if seconds > 0.0
          else await GetTranslatedText(ctx.guild.id, "removed"))
-    reason = ((await GetTranslatedText(ctx.guild.id, "for"))+ reason) if reason != "" and reason != None else ""
+    reason = (((await GetTranslatedText(ctx.guild.id, "for")) +
+               reason) if reason != "" and reason != None else "")
     embed = Embed(
         title=await GetTranslatedText(ctx.guild.id,
                                       "setdelay_title",
@@ -1458,10 +1478,10 @@ modules = ["automod", "language"]
 )
 async def settings(ctx, module: str = None, value: str = None):
     await SendMetric("settings")
-    languagesOptions = [k for k,_ in languages.items()]
+    languagesOptions = [k for k, _ in languages.items()]
     if module != None and value != None:
         if module in modules:
-            if module=="automod":
+            if module == "automod":
                 value = 1 if value == "on" else 0
                 await SaveSetting(ctx.guild.id, module, value)
                 action = "enabled" if value else "disabled"
@@ -1472,33 +1492,49 @@ async def settings(ctx, module: str = None, value: str = None):
                                             ACTION=action),
                     ephemeral=True,
                 )
-                
-            elif module=="language": 
-                if(value in languagesOptions):
+
+            elif module == "language":
+                if value in languagesOptions:
                     await SaveSetting(ctx.guild.id, module, value)
                     action = "set to " + value
                     await ctx.respond(
-                        await GetTranslatedText(ctx.guild.id,
-                                                "settings_module",
-                                                MODULE=module,
-                                                ACTION=action),
+                        await GetTranslatedText(
+                            ctx.guild.id,
+                            "settings_module",
+                            MODULE=module,
+                            ACTION=action,
+                        ),
                         ephemeral=True,
                     )
-                else: 
+                else:
                     await ctx.respond(
-                        await GetTranslatedText(ctx.guild.id, "error_settings_syntax", COMMAND="/settings language "+'/'.join(languagesOptions)),
-                    ephemeral=True)
-                
+                        await GetTranslatedText(
+                            ctx.guild.id,
+                            "error_settings_syntax",
+                            COMMAND="/settings language " +
+                            "/".join(languagesOptions),
+                        ),
+                        ephemeral=True,
+                    )
+
             else:
                 await ctx.respond(
-                    await GetTranslatedText(ctx.guild.id, "error_settings_syntax", COMMAND="/settings automod on/off"),
+                    await GetTranslatedText(
+                        ctx.guild.id,
+                        "error_settings_syntax",
+                        COMMAND="/settings automod on/off",
+                    ),
                     ephemeral=True,
                 )
                 return
-            
+
         else:
             await ctx.respond(
-                await GetTranslatedText(ctx.guild.id, "error_settings_syntax", COMMAND="/settings module value"),
+                await GetTranslatedText(
+                    ctx.guild.id,
+                    "error_settings_syntax",
+                    COMMAND="/settings module value",
+                ),
                 ephemeral=True,
             )
             return
@@ -1528,8 +1564,12 @@ async def settings(ctx, module: str = None, value: str = None):
         inline=False,
     )
     language = await GetSettings(ctx.guild.id, 2)
-    languagestr = F"**{language}**" if language else "**EN (English)**"
-    recommendedacmdLang = await GetTranslatedText(ctx.guild.id, "error_settings_syntax", COMMAND="/settings language "+'/'.join(languagesOptions))
+    languagestr = f"**{language}**" if language else "**EN (English)**"
+    recommendedacmdLang = await GetTranslatedText(
+        ctx.guild.id,
+        "error_settings_syntax",
+        COMMAND="/settings language " + "/".join(languagesOptions),
+    )
     embed.add_field(
         name=await GetTranslatedText(ctx.guild.id, "help_language_title"),
         value=await GetTranslatedText(
