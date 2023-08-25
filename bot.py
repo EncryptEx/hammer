@@ -365,6 +365,33 @@ async def SaveSetting(guildid: int, module: str, value: str):
     conn.commit()
     return
 
+def GenerateChart(datasets):
+    qc = QuickChart()
+    qc.width = 500
+    qc.height = 300
+    qc.device_pixel_ratio = 2.0
+    qc.config = {
+        "type": "line",
+        "data": {
+            "datasets": datasets
+        },
+        "options": {
+            "scales": {
+                "xAxes": [{
+                    "type": "time",
+                    "time": {
+                        "parser": "YYYY-MM-DD HH:mm:ss",
+                        "displayFormats": {
+                            "day": "DD/MM/YYYY"
+                        },
+                    },
+                }]
+            }
+        },
+    }
+
+    uurl = qc.get_url()
+    return uurl
 
 # Function to try to send a message to a user
 async def SendMessageTo(ctx, member, message):
@@ -484,7 +511,6 @@ def numToEmoji(num):
 def filterMember(member: discord.Member):
     """
 
-    :param member: discord.Member:
     :param member: discord.Member:
 
     """
@@ -922,38 +948,15 @@ async def seewarns(ctx, member: discord.Member):
             c,
         })
 
-    qc = QuickChart()
-    qc.width = 500
-    qc.height = 300
-    qc.device_pixel_ratio = 2.0
-    qc.config = {
-        "type": "line",
-        "data": {
-            "datasets": [{
+
+    uurl = GenerateChart([{
                 "fill": False,
                 "label": [await GetTranslatedText(ctx.guild.id, "seewarns_chart_title", MEMBER=filterMember(member))],
                 "lineTension": 0,
                 "backgroundColor": "#7289DA",
                 "borderColor": "#7289DA",
                 "data": data,
-            }]
-        },
-        "options": {
-            "scales": {
-                "xAxes": [{
-                    "type": "time",
-                    "time": {
-                        "parser": "YYYY-MM-DD HH:mm:ss",
-                        "displayFormats": {
-                            "day": "DD/MM/YYYY"
-                        },
-                    },
-                }]
-            }
-        },
-    }
-
-    uurl = qc.get_url()
+            }])
 
     embed = Embed(
         title=await GetTranslatedText(ctx.guild.id,
@@ -1559,10 +1562,11 @@ async def metrics(ctx):
         metricList = GetMetrics()
         commandDict = {}
         finalList=[]
+        # prepare data 
         for metric in metricList:
             _, commandType, timestamp = metric
             commandDict[commandType] = commandDict.get(commandType, 0) + 1
-            finalList.append({
+            finalList[commandDict] = finalList.get(commandDict,[]).append({
                 "t":
                 str(
                     datetime.datetime.fromtimestamp(
@@ -1570,39 +1574,18 @@ async def metrics(ctx):
                 "y":
                 commandDict[commandType],
             })
-
-        qc = QuickChart()
-        qc.width = 500
-        qc.height = 300
-        qc.device_pixel_ratio = 2.0
-        qc.config = {
-            "type": "line",
-            "data": {
-                "datasets": [{
-                    "fill": False,
-                    "label": [await GetTranslatedText(ctx.guild.id, "seewarns_chart_title", MEMBER=filterMember(member))],
-                    "lineTension": 0,
-                    "backgroundColor": "#7289DA",
-                    "borderColor": "#7289DA",
-                    "data": data,
-                }]
-            },
-            "options": {
-                "scales": {
-                    "xAxes": [{
-                        "type": "time",
-                        "time": {
-                            "parser": "YYYY-MM-DD HH:mm:ss",
-                            "displayFormats": {
-                                "day": "DD/MM/YYYY"
-                            },
-                        },
-                    }]
-                }
-            },
-        }
-
-        uurl = qc.get_url()
+        # prepare datasets
+        final = []
+        for command, data, in finalList:
+            final.append({
+                "fill": False,
+                "label": [command],
+                "lineTension": 0,
+                "data": data,
+            })
+        
+        uurl = GenerateChart(final)
+        
 
         embed = Embed(
             title="Lifetime Metrics (since 25-08-23)",
