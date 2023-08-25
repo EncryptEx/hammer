@@ -303,7 +303,7 @@ async def AddDeniedWord(guildid: int, userid: int, word: str):
     return True
 
 
-async def GetSettings(guildid: int, index:int):
+async def GetSettings(guildid: int, index: int):
     cur.execute("SELECT * FROM settings WHERE guildid = ? LIMIT 1",
                 (guildid, ))
     rows = cur.fetchall()
@@ -317,21 +317,23 @@ async def GetTranslatedText(guildid: int, index: str, **replace):
     global languages
 
     dbLanguageRecord = await GetSettings(guildid, 2)
-    currentLanguage = "en" if dbLanguageRecord == 0 or dbLanguageRecord == None  else dbLanguageRecord
+    currentLanguage = "en" if dbLanguageRecord == 0 or dbLanguageRecord == None else dbLanguageRecord
 
     text = languages[currentLanguage].get(index, "Word not translated yet.")
     for oldString, newString in replace.items():
         text = text.replace("{" + oldString + "}", str(newString))
     return text
 
+
 async def SendMetric(commandName: str):
     cur.execute(
-            """INSERT INTO metrics (id, commandName, timestamp)
+        """INSERT INTO metrics (id, commandName, timestamp)
             VALUES (NULL, ?, ?)
     """,
         (commandName, int(time())),
     )
     conn.commit()
+
 
 async def SaveSetting(guildid: int, module: str, value: str):
     cur.execute("SELECT * FROM settings WHERE guildid = ? LIMIT 1",
@@ -385,8 +387,7 @@ def ErrorEmbed(error):
     embed = Embed(title=f":no_entry_sign: Error!", description=error)
 
     embed.set_thumbnail(
-        url=
-        "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ficonsplace.com%2Fwp-content%2Fuploads%2F_icons%2Fff0000%2F256%2Fpng%2Ferror-icon-14-256.png&f=1&nofb=1"
+        url="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ficonsplace.com%2Fwp-content%2Fuploads%2F_icons%2Fff0000%2F256%2Fpng%2Ferror-icon-14-256.png&f=1&nofb=1"
     )
 
     embed.set_footer(
@@ -622,7 +623,7 @@ async def on_ready():
         print("Sent message to #" + str(chnl))
 
 
-debug = False # ALWAYS FALSE!
+debug = False  # ALWAYS FALSE!
 
 
 @bot.slash_command(guild_only=True,
@@ -880,8 +881,7 @@ async def warn(ctx,
 @bot.slash_command(
     guild_only=True,
     name="softwarn",
-    description=
-    "Sets a silent warning for a user, at 3 warns/strikes they get kicked",
+    description="Sets a silent warning for a user, at 3 warns/strikes they get kicked",
 )
 @discord.default_permissions(administrator=True, )
 async def softwarn(ctx, member: discord.Member, reason=None):
@@ -1215,15 +1215,14 @@ async def restart(ctx):
 @bot.slash_command(
     guild_only=True,
     name="setdelay",
-    description=
-    "Updates the message delay in a channel with a set of custom time interval",
+    description="Updates the message delay in a channel with a set of custom time interval",
 )
 @discord.default_permissions(manage_messages=True, )
 async def setdelay(ctx, seconds: float, reason: str = ""):
     await SendMetric("setdelay")
     m = (await GetTranslatedText(ctx.guild.id, "modified") if seconds > 0.0
          else await GetTranslatedText(ctx.guild.id, "removed"))
-    reason = ((await GetTranslatedText(ctx.guild.id, "for"))+ reason) if reason != "" and reason != None else ""
+    reason = ((await GetTranslatedText(ctx.guild.id, "for")) + reason) if reason != "" and reason != None else ""
     embed = Embed(
         title=await GetTranslatedText(ctx.guild.id,
                                       "setdelay_title",
@@ -1300,8 +1299,7 @@ async def mute(ctx, member: discord.Member, *, reason=None):
 @bot.slash_command(
     guild_only=True,
     name="unmute",
-    description=
-    "Restores the hability to talk or join voice channels to a user",
+    description="Restores the hability to talk or join voice channels to a user",
 )
 @discord.default_permissions(manage_messages=True, )
 async def unmute(ctx, member: discord.Member, *, reason=None):
@@ -1367,8 +1365,7 @@ async def lock(ctx, channel: discord.TextChannel = None, reason=None):
 @bot.slash_command(
     guild_only=True,
     name="unlock",
-    description=
-    "Removes the blocking in a channel from not being used as a chat.",
+    description="Removes the blocking in a channel from not being used as a chat.",
 )
 async def unlock(ctx, channel: discord.TextChannel = None, reason=None):
     await SendMetric("unlock")
@@ -1401,8 +1398,7 @@ async def unlock(ctx, channel: discord.TextChannel = None, reason=None):
 async def suggest(ctx, suggestion: str):
     await SendMetric("suggest")
     embed = Embed(
-        title=
-        f"The user {filterMember(ctx.author)} has posted a suggestion! :hammer_pick:",
+        title=f"The user {filterMember(ctx.author)} has posted a suggestion! :hammer_pick:",
         description=f"{suggestion}",
     )
     embed.set_footer(
@@ -1427,8 +1423,7 @@ async def invite(ctx):
     await SendMetric("invite")
     embed = Embed(
         title=await GetTranslatedText(ctx.guild.id, "hammer_invite"),
-        description=
-        f"[**🔗{await GetTranslatedText(ctx.guild.id, 'hammer_link')}**](https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot)",
+        description=f"[**🔗{await GetTranslatedText(ctx.guild.id, 'hammer_link')}**](https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot)",
     )
     embed.set_footer(
         text=await GetTranslatedText(ctx.guild.id,
@@ -1458,10 +1453,10 @@ modules = ["automod", "language"]
 )
 async def settings(ctx, module: str = None, value: str = None):
     await SendMetric("settings")
-    languagesOptions = [k for k,_ in languages.items()]
+    languagesOptions = [k for k, _ in languages.items()]
     if module != None and value != None:
         if module in modules:
-            if module=="automod":
+            if module == "automod":
                 value = 1 if value == "on" else 0
                 await SaveSetting(ctx.guild.id, module, value)
                 action = "enabled" if value else "disabled"
@@ -1472,9 +1467,9 @@ async def settings(ctx, module: str = None, value: str = None):
                                             ACTION=action),
                     ephemeral=True,
                 )
-                
-            elif module=="language": 
-                if(value in languagesOptions):
+
+            elif module == "language":
+                if (value in languagesOptions):
                     await SaveSetting(ctx.guild.id, module, value)
                     action = "set to " + value
                     await ctx.respond(
@@ -1484,18 +1479,18 @@ async def settings(ctx, module: str = None, value: str = None):
                                                 ACTION=action),
                         ephemeral=True,
                     )
-                else: 
+                else:
                     await ctx.respond(
-                        await GetTranslatedText(ctx.guild.id, "error_settings_syntax", COMMAND="/settings language "+'/'.join(languagesOptions)),
-                    ephemeral=True)
-                
+                        await GetTranslatedText(ctx.guild.id, "error_settings_syntax", COMMAND="/settings language " + '/'.join(languagesOptions)),
+                        ephemeral=True)
+
             else:
                 await ctx.respond(
                     await GetTranslatedText(ctx.guild.id, "error_settings_syntax", COMMAND="/settings automod on/off"),
                     ephemeral=True,
                 )
                 return
-            
+
         else:
             await ctx.respond(
                 await GetTranslatedText(ctx.guild.id, "error_settings_syntax", COMMAND="/settings module value"),
@@ -1529,7 +1524,7 @@ async def settings(ctx, module: str = None, value: str = None):
     )
     language = await GetSettings(ctx.guild.id, 2)
     languagestr = F"**{language}**" if language else "**EN (English)**"
-    recommendedacmdLang = await GetTranslatedText(ctx.guild.id, "error_settings_syntax", COMMAND="/settings language "+'/'.join(languagesOptions))
+    recommendedacmdLang = await GetTranslatedText(ctx.guild.id, "error_settings_syntax", COMMAND="/settings language " + '/'.join(languagesOptions))
     embed.add_field(
         name=await GetTranslatedText(ctx.guild.id, "help_language_title"),
         value=await GetTranslatedText(
