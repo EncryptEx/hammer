@@ -192,6 +192,11 @@ async def GetWarnings(userid: int, guildid: int, fullData: bool = False):
     else:
         return rows
 
+async def GetMetrics():
+    cur.execute("SELECT * FROM metrics")
+    rows = cur.fetchall()
+    return rows
+
 
 # Function to add a warning and save it at the database
 async def AddWarning(userid: int, guildid: int, reason):
@@ -1548,5 +1553,67 @@ async def settings(ctx, module: str = None, value: str = None):
     )
     await ctx.respond(embed=embed)
 
+@bot.slash_command(guild_only=True, guild_ids=[int(SECURITY_GUILD)])
+async def metrics(ctx):
+    if str(ctx.author.id) == str(OWNER):
+        metricList = GetMetrics()
+        commandDict = {}
+        finalList=[]
+        for metric in metricList:
+            _, commandType, timestamp = metric
+            commandDict[commandType] = commandDict.get(commandType, 0) + 1
+            finalList.append({
+                "t":
+                str(
+                    datetime.datetime.fromtimestamp(
+                        int(timestamp))),
+                "y":
+                commandDict[commandType],
+            })
 
+        qc = QuickChart()
+        qc.width = 500
+        qc.height = 300
+        qc.device_pixel_ratio = 2.0
+        qc.config = {
+            "type": "line",
+            "data": {
+                "datasets": [{
+                    "fill": False,
+                    "label": [await GetTranslatedText(ctx.guild.id, "seewarns_chart_title", MEMBER=filterMember(member))],
+                    "lineTension": 0,
+                    "backgroundColor": "#7289DA",
+                    "borderColor": "#7289DA",
+                    "data": data,
+                }]
+            },
+            "options": {
+                "scales": {
+                    "xAxes": [{
+                        "type": "time",
+                        "time": {
+                            "parser": "YYYY-MM-DD HH:mm:ss",
+                            "displayFormats": {
+                                "day": "DD/MM/YYYY"
+                            },
+                        },
+                    }]
+                }
+            },
+        }
+
+        uurl = qc.get_url()
+
+        embed = Embed(
+            title="Lifetime Metrics (since 25-08-23)",
+            description="The following command have been used:"+' '.join([cmd+": "+times+" times" for cmd,times in commandDict]),
+        )
+        embed.set_image(url=uurl)
+        embed.set_footer(
+            text=await GetTranslatedText(ctx.guild.id,
+                                        "footer_executed_by",
+                                        USERNAME=filterMember(ctx.author)),
+            icon_url=hammericon,
+        )
+        return await ctx.respond(embed=embed)
 bot.run(TOKEN)
