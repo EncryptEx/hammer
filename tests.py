@@ -21,7 +21,7 @@ class HammerTest (unittest.TestCase):
             dictionary = jsonToDict("./langs/"+languageFile)
             self.assertEqual(len(dictionary.items()),len(jsonRequiredLines), "There's a missing line in the language json file: "+filename)
             for k,v in dictionary.items():
-                self.assertTrue(k in jsonRequiredLines, "The line "+k+" is wrong spelled "+filename)
+                self.assertTrue(k in jsonRequiredLines, "The line "+k+" is wrong spelled "+languageFile)
     
     
     
