@@ -4,7 +4,7 @@
   "user": "usuari",
   "reason": "motiu",
   "help_automod_title": "Serveis d'AutoMod :robot:",
-  "help_automod_description": "Detecta paraules obscenes i adverteix automàticament. \nUtilitza una base de dades de més de 880 paraules obscenes \n\n Personalitza-ho amb:\n    {COMMAND_PREFIX}automod [add/remove] [paraula]\nO activa/desactiva-ho amb:\n{COMMAND_PREFIX}configuració [automod] [activar/desactivar]",
+  "help_automod_description": "Detecta paraules obscenes i adverteix automàticament. \nUtilitza una base de dades de més de 880 paraules obscenes \n\n Personalitza-ho amb:\n    {COMMAND_PREFIX}automod [add/remove] [paraula]\nO activa/desactiva-ho amb:\n{COMMAND_PREFIX}settings [automod] [on/off]",
   "help_chatmod_title": "Comandes de Moderació de Xat :file_folder:",
   "help_chatmod_description": "{COMMAND_PREFIX}setdelay [segons] <motiu>\n{COMMAND_PREFIX}mute [usuari] <motiu>\n{COMMAND_PREFIX}unmute [usuari] <motiu>\n{COMMAND_PREFIX}lock <canal> <motiu>\n{COMMAND_PREFIX}unlock <canal> <motiu>\n",
   "help_various_title": "Utilitats Diverses :screwdriver:",
