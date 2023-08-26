@@ -54,6 +54,8 @@
     "unwarn_msg": "Se te ha quitado una advertencia por {REASON}",
     "unwarn_title": "{MEMBER} ha tenido una advertencia eliminada! :martillo_pico:",
     "unwarn_description": "Se le ha quitado una advertencia al usuario {MEMBER} por {REASON}",
+    "plural_warn": "advertencias",
+    "singular_warn": "advertencia",
     "unwarn_count_with_success": "El usuario {MEMBER} ahora tiene {WARN} advertencia{S}. ¡{CONGRATS}",
     "clearwarns_msg": "Tus advertencias han sido eliminadas por {REASON}",
     "clearwarns_description": "El usuario {MEMBER} no tiene advertencias por {REASON}",
@@ -64,6 +66,7 @@
     "modified": "modificado",
     "removed": "eliminado",
     "setdelay_title": "Retraso {M} en #{CHANNEL} :martillo_pico:",
+    "for": "por ",
     "setdelay_description": "Este canal ahora tiene un retraso de **{SECONDS}** segundos por {REASON}",
     "mute_title": "Usuario Silenciado: {MEMBER}",
     "mute_description": "El usuario {MENTION} ha sido silenciado por {REASON}",
@@ -86,5 +89,9 @@
     "settings_description": "Aquí puedes activar o desactivar algunos módulos",
     "settings_enable_automod": "Actívalo usando ``{COMMAND_PREFIX}settings automod on``",
     "settings_disable_automod": "Desactívalo usando: ``{COMMAND_PREFIX}settings automod off``",
-    "autmod_status": "Estado actual: {STATUS}\n {RECOMMENDED}"
+    "autmod_status": "Estado actual: {STATUS}\n {RECOMMENDED}",
+    "help_language_title": "Idioma de Hammer :globe_with_meridians:",
+    "warns_line_loop": "- **ID: {EMOJIS}** Razón: ``{SUBREASON}``  <t:{DDT}:R>",
+    "seewarns_chart_title": "Advertencias de {MEMBER}"
+
 }
