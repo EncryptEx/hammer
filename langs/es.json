@@ -89,7 +89,7 @@
     "settings_description": "Aquí puedes activar o desactivar algunos módulos",
     "settings_enable_automod": "Actívalo usando ``{COMMAND_PREFIX}settings automod on``",
     "settings_disable_automod": "Desactívalo usando: ``{COMMAND_PREFIX}settings automod off``",
-    "autmod_status": "Estado actual: {STATUS}\n {RECOMMENDED}",
+    "settings_status": "Estado actual: {STATUS}\n {RECOMMENDED}",
     "help_language_title": "Idioma de Hammer :globe_with_meridians:",
     "warns_line_loop": "- **ID: {EMOJIS}** Razón: ``{SUBREASON}``  <t:{DDT}:R>",
     "seewarns_chart_title": "Advertencias de {MEMBER}"
