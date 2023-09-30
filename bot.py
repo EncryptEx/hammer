@@ -527,10 +527,7 @@ def numToEmoji(num):
 
 def filterMember(member: discord.Member):
     """
-
-    :param member: discord.Member:
-    :param member: discord.Member:
-    :param member: discord.Member:
+    
     :param member: discord.Member:
 
     """
