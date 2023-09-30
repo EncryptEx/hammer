@@ -1,15 +1,11 @@
-import base64
 import datetime
 import json
 import os
 import sqlite3
 import sys
-import urllib
-from email import message
 from os import listdir
 from os.path import isfile
 from os.path import join
-from pydoc import describe
 from time import time
 
 import discord
