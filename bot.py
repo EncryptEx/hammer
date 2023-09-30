@@ -45,44 +45,37 @@ def jsonToDict(filename):
 langFiles = [f for f in listdir("./langs") if isfile(join("./langs", f))]
 languages = dict()
 for languageFile in langFiles:
-    languages[languageFile.split(".")[0]] = jsonToDict("./langs/" + languageFile)
+    languages[languageFile.split(".")[0]] = jsonToDict("./langs/" +
+                                                       languageFile)
 
 # database import & connection
 
 conn = sqlite3.connect("maindatabase1.db")
 cur = conn.cursor()
-cur.execute(
-    """CREATE TABLE IF NOT EXISTS `warns` (
+cur.execute("""CREATE TABLE IF NOT EXISTS `warns` (
         `id` INTEGER PRIMARY KEY AUTOINCREMENT,
         `userid` INT(100),
         `guildid` INT,
         `reason` TEXT,
         `timestamp` INT);
-        """
-)
-cur.execute(
-    """CREATE TABLE IF NOT EXISTS `customWords` (
+        """)
+cur.execute("""CREATE TABLE IF NOT EXISTS `customWords` (
         `id` INTEGER PRIMARY KEY AUTOINCREMENT,
         `guildid` INT,
         `uploaderId`INT,
         `word` TEXT,
         `type` INT);
-        """
-)
-cur.execute(
-    """CREATE TABLE IF NOT EXISTS `settings` (
+        """)
+cur.execute("""CREATE TABLE IF NOT EXISTS `settings` (
         `guildid` INT(100) UNIQUE,
         `automod` INT,
         `language` TEXT);
-        """
-)
-cur.execute(
-    """CREATE TABLE IF NOT EXISTS `metrics` (
+        """)
+cur.execute("""CREATE TABLE IF NOT EXISTS `metrics` (
         `id` INTEGER PRIMARY KEY AUTOINCREMENT,
         `commandName` TEXT,
         `timestamp` INT);
-        """
-)
+        """)
 
 hammericon = "https://images-ext-2.discordapp.net/external/OKc8xu6AILGNFY3nSTt7wGbg-Mi1iQZonoLTFg85o-E/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/591633652493058068/e6011129c5169b29ed05a6dc873175cb.png?width=670&height=670"
 
@@ -101,16 +94,15 @@ bot.remove_command("help")
 
 
 @bot.slash_command(
-    name="help", description="Displays all the available commands for Hammer"
-)
+    name="help", description="Displays all the available commands for Hammer")
 async def help(ctx):
     # Define each page
 
     descr = await GetTranslatedText(ctx.guild.id, "help_description")
 
-    embed = Embed(
-        title="Hammer Bot Help", description=descr, colour=discord.Colour.lighter_grey()
-    )
+    embed = Embed(title="Hammer Bot Help",
+                  description=descr,
+                  colour=discord.Colour.lighter_grey())
 
     user = await GetTranslatedText(ctx.guild.id, "user")
     reason = await GetTranslatedText(ctx.guild.id, "reason")
@@ -130,25 +122,25 @@ async def help(ctx):
 
     embed.add_field(
         name=await GetTranslatedText(ctx.guild.id, "help_automod_title"),
-        value=await GetTranslatedText(
-            ctx.guild.id, "help_automod_description", COMMAND_PREFIX=COMMAND_PREFIX
-        ),
+        value=await GetTranslatedText(ctx.guild.id,
+                                      "help_automod_description",
+                                      COMMAND_PREFIX=COMMAND_PREFIX),
         inline=True,
     )
 
     embed.add_field(
         name=await GetTranslatedText(ctx.guild.id, "help_chatmod_title"),
-        value=await GetTranslatedText(
-            ctx.guild.id, "help_chatmod_description", COMMAND_PREFIX=COMMAND_PREFIX
-        ),
+        value=await GetTranslatedText(ctx.guild.id,
+                                      "help_chatmod_description",
+                                      COMMAND_PREFIX=COMMAND_PREFIX),
         inline=True,
     )
 
     embed.add_field(
         name=await GetTranslatedText(ctx.guild.id, "help_various_title"),
-        value=await GetTranslatedText(
-            ctx.guild.id, "help_various_description", COMMAND_PREFIX=COMMAND_PREFIX
-        ),
+        value=await GetTranslatedText(ctx.guild.id,
+                                      "help_various_description",
+                                      COMMAND_PREFIX=COMMAND_PREFIX),
         inline=True,
     )
 
@@ -160,16 +152,16 @@ async def help(ctx):
 
     embed.add_field(
         name=await GetTranslatedText(ctx.guild.id, "help_commands_title"),
-        value=await GetTranslatedText(
-            ctx.guild.id, "help_commands_description", COMMAND_PREFIX=COMMAND_PREFIX
-        ),
+        value=await GetTranslatedText(ctx.guild.id,
+                                      "help_commands_description",
+                                      COMMAND_PREFIX=COMMAND_PREFIX),
         inline=True,
     )
 
     embed.set_footer(
-        text=await GetTranslatedText(
-            ctx.guild.id, "footer_executed_by", USERNAME=filterMember(ctx.author)
-        ),
+        text=await GetTranslatedText(ctx.guild.id,
+                                     "footer_executed_by",
+                                     USERNAME=filterMember(ctx.author)),
         icon_url=hammericon,
     )
 
@@ -237,7 +229,8 @@ async def Removewarn(userid: int, guildId: int, relativeWarnId: int):
 
 async def Clearwarns(userid: int, guildId: int):
     # delete all rows
-    cur.execute("DELETE FROM warns WHERE userid=? AND guildid=?", (userid, guildId))
+    cur.execute("DELETE FROM warns WHERE userid=? AND guildid=?",
+                (userid, guildId))
     conn.commit()
     return
 
@@ -252,21 +245,20 @@ async def getAllWarns(userid: int, guildid: int):
             emojis = ":" + numToEmoji(c) + ":"
         else:
             emojis = str(c)
-        ddt = int(str(dt)[: str(dt).find(".")])
-        allwarns.append(
-            await GetTranslatedText(
-                guildid, "warns_line_loop", EMOJIS=emojis, SUBREASON=SubReason, DDT=ddt
-            )
-        )
+        ddt = int(str(dt)[:str(dt).find(".")])
+        allwarns.append(await GetTranslatedText(guildid,
+                                                "warns_line_loop",
+                                                EMOJIS=emojis,
+                                                SUBREASON=SubReason,
+                                                DDT=ddt))
         c = c + 1
     return allwarns
 
 
 async def GetAutomodCustomWords(guildid: int, mode: str):
     wtype = 1 if mode == "allow" else 0
-    cur.execute(
-        "SELECT word FROM customWords WHERE guildid = ? AND type = ?", (guildid, wtype)
-    )
+    cur.execute("SELECT word FROM customWords WHERE guildid = ? AND type = ?",
+                (guildid, wtype))
     words = cur.fetchall()
     a = []
     if len(words) > 0:
@@ -321,7 +313,8 @@ async def AddDeniedWord(guildid: int, userid: int, word: str):
 
 
 async def GetSettings(guildid: int, index: int):
-    cur.execute("SELECT * FROM settings WHERE guildid = ? LIMIT 1", (guildid,))
+    cur.execute("SELECT * FROM settings WHERE guildid = ? LIMIT 1",
+                (guildid, ))
     rows = cur.fetchall()
     if len(rows) > 0:
         return rows[0][index]
@@ -333,9 +326,8 @@ async def GetTranslatedText(guildid: int, index: str, **replace):
     global languages
 
     dbLanguageRecord = await GetSettings(guildid, 2)
-    currentLanguage = (
-        "en" if dbLanguageRecord == 0 or dbLanguageRecord == None else dbLanguageRecord
-    )
+    currentLanguage = ("en" if dbLanguageRecord == 0
+                       or dbLanguageRecord == None else dbLanguageRecord)
 
     text = languages[currentLanguage].get(index, "Word not translated yet.")
     for oldString, newString in replace.items():
@@ -354,11 +346,14 @@ async def SendMetric(commandName: str):
 
 
 async def SaveSetting(guildid: int, module: str, value: str):
-    cur.execute("SELECT * FROM settings WHERE guildid = ? LIMIT 1", (guildid,))
+    cur.execute("SELECT * FROM settings WHERE guildid = ? LIMIT 1",
+                (guildid, ))
     rows = cur.fetchall()
 
     # print(rows)
-    if len(rows) > 0:  # cur.execute('INSERT INTO foo (a,b) values (?,?)', (strA, strB))
+    if len(
+            rows
+    ) > 0:  # cur.execute('INSERT INTO foo (a,b) values (?,?)', (strA, strB))
         query = f"""UPDATE settings
         SET {module}=?
         WHERE guildid=?"""
@@ -390,18 +385,20 @@ def GenerateChart(datasets):
     qc.device_pixel_ratio = 2.0
     qc.config = {
         "type": "line",
-        "data": {"datasets": datasets},
+        "data": {
+            "datasets": datasets
+        },
         "options": {
             "scales": {
-                "xAxes": [
-                    {
-                        "type": "time",
-                        "time": {
-                            "parser": "YYYY-MM-DD HH:mm:ss",
-                            "displayFormats": {"day": "DD/MM/YYYY"},
+                "xAxes": [{
+                    "type": "time",
+                    "time": {
+                        "parser": "YYYY-MM-DD HH:mm:ss",
+                        "displayFormats": {
+                            "day": "DD/MM/YYYY"
                         },
-                    }
-                ]
+                    },
+                }]
             }
         },
     }
@@ -418,11 +415,10 @@ async def SendMessageTo(ctx, member, message):
         await member.send(message)
     except:
         await ctx.respond(
-            embed=ErrorEmbed(
-                await GetTranslatedText(
-                    ctx.guild.id, "error_deliver_msg", USERNAME=filterMember(member)
-                )
-            ),
+            embed=ErrorEmbed(await
+                             GetTranslatedText(ctx.guild.id,
+                                               "error_deliver_msg",
+                                               USERNAME=filterMember(member))),
             ephemeral=True,
         )
 
@@ -437,7 +433,8 @@ def ErrorEmbed(error):
     embed = Embed(title=f":no_entry_sign: Error!", description=error)
 
     embed.set_thumbnail(
-        url="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ficonsplace.com%2Fwp-content%2Fuploads%2F_icons%2Fff0000%2F256%2Fpng%2Ferror-icon-14-256.png&f=1&nofb=1"
+        url=
+        "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ficonsplace.com%2Fwp-content%2Fuploads%2F_icons%2Fff0000%2F256%2Fpng%2Ferror-icon-14-256.png&f=1&nofb=1"
     )
 
     embed.set_footer(
@@ -562,8 +559,10 @@ async def on_message(message):
     if settings != 1:
         return  # user has disabled Automod or does not have it installed
     words = message.content.split()
-    allowed_words_guild_list = await GetAutomodCustomWords(message.guild.id, "allow")
-    denied_words_guild_list = await GetAutomodCustomWords(message.guild.id, "deny")
+    allowed_words_guild_list = await GetAutomodCustomWords(
+        message.guild.id, "allow")
+    denied_words_guild_list = await GetAutomodCustomWords(
+        message.guild.id, "deny")
     print("scanned: ", message.content)
     for word in words:
         # print("scanning word:",word)
@@ -592,19 +591,22 @@ async def on_message(message):
                 description=descr,
             )
             embed.set_footer(
-                text=await GetTranslatedText(message.guild.id, "automod_warn_footer"),
+                text=await GetTranslatedText(message.guild.id,
+                                             "automod_warn_footer"),
                 icon_url=hammericon,
             )
             embed.set_thumbnail(url=member.display_avatar)
             warn = await AddWarning(
                 member.id,
                 message.guild.id,
-                await GetTranslatedText(message.guild.id, "automod_warn_reason"),
+                await GetTranslatedText(message.guild.id,
+                                        "automod_warn_reason"),
             )
             await SendMetric("automod")
             s = "s" if warn > 1 else ""
             embed.add_field(
-                name=await GetTranslatedText(message.guild.id, "automod_count_title"),
+                name=await GetTranslatedText(message.guild.id,
+                                             "automod_count_title"),
                 value=await GetTranslatedText(
                     message.guild.id,
                     "automod_count_description",
@@ -615,14 +617,13 @@ async def on_message(message):
                 inline=True,
             )
             bannedmessage = (
-                message.content[: message.content.find(originalWord)]
-                + "~~"
-                + word
-                + "~~"
-                + message.content[message.content.find(originalWord) + len(word) :]
-            )
+                message.content[:message.content.find(originalWord)] + "~~" +
+                word + "~~" +
+                message.content[message.content.find(originalWord) +
+                                len(word):])
             embed.add_field(
-                name=await GetTranslatedText(message.guild.id, "automod_removed_title"),
+                name=await GetTranslatedText(message.guild.id,
+                                             "automod_removed_title"),
                 value=await GetTranslatedText(
                     message.guild.id,
                     "automod_removed_description",
@@ -631,12 +632,10 @@ async def on_message(message):
                 inline=True,
             )
             embed.add_field(
-                name=await GetTranslatedText(
-                    message.guild.id, "automod_nothappy_title"
-                ),
-                value=await GetTranslatedText(
-                    message.guild.id, "automod_nothappy_description"
-                ),
+                name=await GetTranslatedText(message.guild.id,
+                                             "automod_nothappy_title"),
+                value=await GetTranslatedText(message.guild.id,
+                                              "automod_nothappy_description"),
                 inline=False,
             )
             await message.channel.send(embed=embed)
@@ -647,24 +646,19 @@ async def on_message(message):
 
             except:
                 embed = ErrorEmbed(
-                    await message.channel.send(
-                        embed=ErrorEmbed(
-                            await GetTranslatedText(
-                                message.guild.id,
-                                "error_deliver_msg",
-                                USERNAME=filterMember(member),
-                            )
-                        ),
-                    ),
-                )
+                    await message.channel.send(embed=ErrorEmbed(
+                        await GetTranslatedText(
+                            message.guild.id,
+                            "error_deliver_msg",
+                            USERNAME=filterMember(member),
+                        )), ), )
                 message.channel.send(embed=embed)
 
 
 @bot.event
 async def on_ready():
-    await bot.change_presence(
-        activity=discord.Activity(type=discord.ActivityType.watching, name="you")
-    )
+    await bot.change_presence(activity=discord.Activity(
+        type=discord.ActivityType.watching, name="you"))
     print("HAMMER BOT Ready!", datetime.datetime.now())
     botname = await bot.application_info()
     print("logged in as:", botname.name)
@@ -681,7 +675,9 @@ async def on_ready():
 debug = False  # ALWAYS FALSE!
 
 
-@bot.slash_command(guild_only=True, name="hello", guild_ids=[int(SECURITY_GUILD)])
+@bot.slash_command(guild_only=True,
+                   name="hello",
+                   guild_ids=[int(SECURITY_GUILD)])
 async def hello(ctx):
     await ctx.defer()
     await SendMetric("hello")
@@ -693,9 +689,10 @@ async def hello(ctx):
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.respond(
-            await GetTranslatedText(
-                ctx.guild.id, "error_404", ERROR=error, COMMAND_PREFIX=COMMAND_PREFIX
-            ),
+            await GetTranslatedText(ctx.guild.id,
+                                    "error_404",
+                                    ERROR=error,
+                                    COMMAND_PREFIX=COMMAND_PREFIX),
             ephemeral=True,
         )
     if isinstance(error, commands.MissingPermissions):
@@ -740,18 +737,18 @@ async def whois(ctx, member: discord.Member):
             WARNS=await GetWarnings(member.id, ctx.guild.id),
         )
         embed = Embed(
-            title=await GetTranslatedText(
-                ctx.guild.id, "whois_title", MEMBER=filterMember(member)
-            ),
+            title=await GetTranslatedText(ctx.guild.id,
+                                          "whois_title",
+                                          MEMBER=filterMember(member)),
             description=descr,
         )
 
         embed.set_thumbnail(url=member.display_avatar)
 
         embed.set_footer(
-            text=await GetTranslatedText(
-                ctx.guild.id, "footer_executed_by", USERNAME=filterMember(ctx.author)
-            ),
+            text=await GetTranslatedText(ctx.guild.id,
+                                         "footer_executed_by",
+                                         USERNAME=filterMember(ctx.author)),
             icon_url=hammericon,
         )
         await ctx.respond(embed=embed)
@@ -764,36 +761,37 @@ async def whois(ctx, member: discord.Member):
     name="ban",
     description="Keeps out a user permanently, forbidding its entry",
 )
-@discord.default_permissions(
-    ban_members=True,
-)
+@discord.default_permissions(ban_members=True, )
 async def ban(ctx, member: discord.Member, *, reason=None):
     await SendMetric("ban")
     if member == ctx.author:
-        await ctx.respond(
-            await GetTranslatedText(ctx.guild.id, "error_self_ban"), ephemeral=True
-        )
+        await ctx.respond(await GetTranslatedText(ctx.guild.id,
+                                                  "error_self_ban"),
+                          ephemeral=True)
         return
     if reason == None:
-        reason = await GetTranslatedText(ctx.guild.id, "punishment_default_reason")
-    message = await GetTranslatedText(
-        ctx.guild.id, "ban_msg", GUILD=ctx.guild.name, REASON=reason
-    )
+        reason = await GetTranslatedText(ctx.guild.id,
+                                         "punishment_default_reason")
+    message = await GetTranslatedText(ctx.guild.id,
+                                      "ban_msg",
+                                      GUILD=ctx.guild.name,
+                                      REASON=reason)
 
-    descr = await GetTranslatedText(
-        ctx.guild.id, "ban_description", MEMBER=filterMember(member), REASON=reason
-    )
+    descr = await GetTranslatedText(ctx.guild.id,
+                                    "ban_description",
+                                    MEMBER=filterMember(member),
+                                    REASON=reason)
     embed = Embed(
-        title=await GetTranslatedText(
-            ctx.guild.id, "ban_title", MEMBER=filterMember(member)
-        ),
+        title=await GetTranslatedText(ctx.guild.id,
+                                      "ban_title",
+                                      MEMBER=filterMember(member)),
         description=descr,
     )
     embed.set_image(url="https://i.imgflip.com/19zat3.jpg")
     embed.set_footer(
-        text=await GetTranslatedText(
-            ctx.guild.id, "footer_executed_by", USERNAME=filterMember(ctx.author)
-        ),
+        text=await GetTranslatedText(ctx.guild.id,
+                                     "footer_executed_by",
+                                     USERNAME=filterMember(ctx.author)),
         icon_url=hammericon,
     )
     if not debug:
@@ -801,11 +799,10 @@ async def ban(ctx, member: discord.Member, *, reason=None):
             await member.ban(reason=reason)
         except:
             await ctx.respond(
-                embed=ErrorEmbed(
-                    await GetTranslatedText(
-                        ctx.guild.id, "error_ban_perm", MEMBER=filterMember(member)
-                    )
-                ),
+                embed=ErrorEmbed(await GetTranslatedText(
+                    ctx.guild.id,
+                    "error_ban_perm",
+                    MEMBER=filterMember(member))),
                 ephemeral=True,
             )
         return
@@ -815,50 +812,50 @@ async def ban(ctx, member: discord.Member, *, reason=None):
     await SendMessageTo(ctx, member, message)
 
 
-@bot.slash_command(
-    guild_only=True, name="kick", description="Kicks out a member from the server"
-)
-@discord.default_permissions(
-    kick_members=True,
-)
+@bot.slash_command(guild_only=True,
+                   name="kick",
+                   description="Kicks out a member from the server")
+@discord.default_permissions(kick_members=True, )
 async def kick(ctx, member: discord.Member, *, reason=None):
     await SendMetric("kick")
     if member == ctx.author:
-        await ctx.respond(
-            await GetTranslatedText(ctx.guild.id, "error_self_kick"), ephemeral=True
-        )
+        await ctx.respond(await GetTranslatedText(ctx.guild.id,
+                                                  "error_self_kick"),
+                          ephemeral=True)
         return
     if reason == None:
-        reason = await GetTranslatedText(ctx.guild.id, "punishment_default_reason")
-    message = await GetTranslatedText(
-        ctx.guild.id, "kick_msg", GUILD=ctx.guild.name, REASON=reason
-    )
+        reason = await GetTranslatedText(ctx.guild.id,
+                                         "punishment_default_reason")
+    message = await GetTranslatedText(ctx.guild.id,
+                                      "kick_msg",
+                                      GUILD=ctx.guild.name,
+                                      REASON=reason)
     if not debug:
         try:
             await member.kick(reason=reason)
         except:
             ctx.respond(
-                embed=ErrorEmbed(
-                    await GetTranslatedText(
-                        ctx.guild.id, "error_kick_perm", MEMBER=filterMember(member)
-                    )
-                ),
+                embed=ErrorEmbed(await GetTranslatedText(
+                    ctx.guild.id,
+                    "error_kick_perm",
+                    MEMBER=filterMember(member))),
                 ephemeral=True,
             )
             return
-    descr = await GetTranslatedText(
-        ctx.guild.id, "kick_description", MEMBER=filterMember(member), REASON=reason
-    )
+    descr = await GetTranslatedText(ctx.guild.id,
+                                    "kick_description",
+                                    MEMBER=filterMember(member),
+                                    REASON=reason)
     embed = Embed(
-        title=await GetTranslatedText(
-            ctx.guild.id, "kick_title", MEMBER=filterMember(member)
-        ),
+        title=await GetTranslatedText(ctx.guild.id,
+                                      "kick_title",
+                                      MEMBER=filterMember(member)),
         description=descr,
     )
     embed.set_footer(
-        text=await GetTranslatedText(
-            ctx.guild.id, "footer_executed_by", USERNAME=filterMember(ctx.author)
-        ),
+        text=await GetTranslatedText(ctx.guild.id,
+                                     "footer_executed_by",
+                                     USERNAME=filterMember(ctx.author)),
         icon_url=hammericon,
     )
     embed.set_thumbnail(url=member.display_avatar)
@@ -877,34 +874,37 @@ async def kick(ctx, member: discord.Member, *, reason=None):
     description="Select on/off",
     autocomplete=discord.utils.basic_autocomplete(["on", "off"]),
 )
-@discord.default_permissions(
-    administrator=True,
-)
-async def warn(ctx, member: discord.Member, reason=None, softwarn: bool = False):
+@discord.default_permissions(administrator=True, )
+async def warn(ctx,
+               member: discord.Member,
+               reason=None,
+               softwarn: bool = False):
     await SendMetric("warn")
     if member == ctx.author:
-        await ctx.respond(
-            await GetTranslatedText(ctx.guild.id, "error_self_warn"), ephemeral=True
-        )
+        await ctx.respond(await GetTranslatedText(ctx.guild.id,
+                                                  "error_self_warn"),
+                          ephemeral=True)
         return
     if reason == None:
-        reason = await GetTranslatedText(ctx.guild.id, "punishment_default_reason")
+        reason = await GetTranslatedText(ctx.guild.id,
+                                         "punishment_default_reason")
 
     message = await GetTranslatedText(ctx.guild.id, "warn_msg", REASON=reason)
 
-    descr = await GetTranslatedText(
-        ctx.guild.id, "warn_description", MEMBER=filterMember(member), REASON=reason
-    )
+    descr = await GetTranslatedText(ctx.guild.id,
+                                    "warn_description",
+                                    MEMBER=filterMember(member),
+                                    REASON=reason)
     embed = Embed(
-        title=await GetTranslatedText(
-            ctx.guild.id, "warn_title", MEMBER=filterMember(member)
-        ),
+        title=await GetTranslatedText(ctx.guild.id,
+                                      "warn_title",
+                                      MEMBER=filterMember(member)),
         description=descr,
     )
     embed.set_footer(
-        text=await GetTranslatedText(
-            ctx.guild.id, "footer_executed_by", USERNAME=filterMember(ctx.author)
-        ),
+        text=await GetTranslatedText(ctx.guild.id,
+                                     "footer_executed_by",
+                                     USERNAME=filterMember(ctx.author)),
         icon_url=hammericon,
     )
     embed.set_thumbnail(url=member.display_avatar)
@@ -930,11 +930,10 @@ async def warn(ctx, member: discord.Member, reason=None, softwarn: bool = False)
 @bot.slash_command(
     guild_only=True,
     name="softwarn",
-    description="Sets a silent warning for a user, at 3 warns/strikes they get kicked",
+    description=
+    "Sets a silent warning for a user, at 3 warns/strikes they get kicked",
 )
-@discord.default_permissions(
-    administrator=True,
-)
+@discord.default_permissions(administrator=True, )
 async def softwarn(ctx, member: discord.Member, reason=None):
     await SendMetric("softwarn")
     await warn(ctx, member, reason, True)
@@ -945,9 +944,7 @@ async def softwarn(ctx, member: discord.Member, reason=None):
     name="seewarns",
     description="Displays the warn history of a user in the guild",
 )
-@discord.default_permissions(
-    administrator=True,
-)
+@discord.default_permissions(administrator=True, )
 async def seewarns(ctx, member: discord.Member):
     await SendMetric("seewarns")
     allwarns = await getAllWarns(member.id, ctx.guild.id)
@@ -961,105 +958,105 @@ async def seewarns(ctx, member: discord.Member):
     for warn in await GetWarnings(member.id, ctx.guild.id, fullData=True):
         _, _, _, _, timestamp = warn
         c = c + 1
-        data.append(
-            {
-                "t": str(
-                    datetime.datetime.fromtimestamp(
-                        int(str(timestamp)[: str(timestamp).find(".")])
-                    )
-                ),
-                "y": c,
-            }
-        )
+        data.append({
+            "t":
+            str(
+                datetime.datetime.fromtimestamp(
+                    int(str(timestamp)[:str(timestamp).find(".")]))),
+            "y":
+            c,
+        })
 
-    uurl = GenerateChart(
-        [
-            {
-                "fill": False,
-                "label": [
-                    await GetTranslatedText(
-                        ctx.guild.id,
-                        "seewarns_chart_title",
-                        MEMBER=filterMember(member),
-                    )
-                ],
-                "lineTension": 0,
-                "backgroundColor": "#7289DA",
-                "borderColor": "#7289DA",
-                "data": data,
-            }
-        ]
-    )
+    uurl = GenerateChart([{
+        "fill":
+        False,
+        "label": [
+            await GetTranslatedText(
+                ctx.guild.id,
+                "seewarns_chart_title",
+                MEMBER=filterMember(member),
+            )
+        ],
+        "lineTension":
+        0,
+        "backgroundColor":
+        "#7289DA",
+        "borderColor":
+        "#7289DA",
+        "data":
+        data,
+    }])
 
     embed = Embed(
-        title=await GetTranslatedText(
-            ctx.guild.id, "seewarns_title", MEMBER=filterMember(member)
-        ),
+        title=await GetTranslatedText(ctx.guild.id,
+                                      "seewarns_title",
+                                      MEMBER=filterMember(member)),
         description=message,
     )
     embed.set_image(url=uurl)
     embed.set_footer(
-        text=await GetTranslatedText(
-            ctx.guild.id, "footer_executed_by", USERNAME=filterMember(ctx.author)
-        ),
+        text=await GetTranslatedText(ctx.guild.id,
+                                     "footer_executed_by",
+                                     USERNAME=filterMember(ctx.author)),
         icon_url=hammericon,
     )
     return await ctx.respond(embed=embed)
 
 
-@bot.slash_command(
-    guild_only=True, name="unwarn", description="Removes a strike from a user"
-)
-@discord.default_permissions(
-    kick_members=True,
-)
+@bot.slash_command(guild_only=True,
+                   name="unwarn",
+                   description="Removes a strike from a user")
+@discord.default_permissions(kick_members=True, )
 async def unwarn(ctx, member: discord.Member, id: int = None, *, reason=None):
     await SendMetric("unwarn")
     if await GetWarnings(member.id, ctx.guild.id) == 0:
-        return await ctx.respond(
-            await GetTranslatedText(ctx.guild.id, "unwarn_no_warns")
-        )
+        return await ctx.respond(await
+                                 GetTranslatedText(ctx.guild.id,
+                                                   "unwarn_no_warns"))
     if id == None:
-        descriptionMsg = await GetTranslatedText(ctx.guild.id, "unwarn_description_msg")
+        descriptionMsg = await GetTranslatedText(ctx.guild.id,
+                                                 "unwarn_description_msg")
 
         embed = Embed(
-            title=await GetTranslatedText(ctx.guild.id, "unwarn_wrong_selection"),
+            title=await GetTranslatedText(ctx.guild.id,
+                                          "unwarn_wrong_selection"),
             description=descriptionMsg,
         )
         allwarns = await getAllWarns(member.id, ctx.guild.id)
         embed.add_field(
-            name=await GetTranslatedText(
-                ctx.guild.id, "seewarns_title", MEMBER=filterMember(member)
-            ),
+            name=await GetTranslatedText(ctx.guild.id,
+                                         "seewarns_title",
+                                         MEMBER=filterMember(member)),
             value="\n".join(allwarns),
         )
         return await ctx.respond(embed=embed)
     if reason == None:
-        reason = await GetTranslatedText(ctx.guild.id, "unpunishment_default_reason")
-    message = await GetTranslatedText(ctx.guild.id, "unwarn_msg", REASON=reason)
+        reason = await GetTranslatedText(ctx.guild.id,
+                                         "unpunishment_default_reason")
+    message = await GetTranslatedText(ctx.guild.id,
+                                      "unwarn_msg",
+                                      REASON=reason)
 
-    descr = await GetTranslatedText(
-        ctx.guild.id, "unwarn_description", MEMBER=filterMember(member), REASON=reason
-    )
+    descr = await GetTranslatedText(ctx.guild.id,
+                                    "unwarn_description",
+                                    MEMBER=filterMember(member),
+                                    REASON=reason)
     embed = Embed(
-        title=await GetTranslatedText(
-            ctx.guild.id, "unwarn_title", MEMBER=filterMember(member)
-        ),
+        title=await GetTranslatedText(ctx.guild.id,
+                                      "unwarn_title",
+                                      MEMBER=filterMember(member)),
         description=descr,
     )
     embed.set_footer(
-        text=await GetTranslatedText(
-            ctx.guild.id, "footer_executed_by", USERNAME=filterMember(ctx.author)
-        ),
+        text=await GetTranslatedText(ctx.guild.id,
+                                     "footer_executed_by",
+                                     USERNAME=filterMember(ctx.author)),
         icon_url=hammericon,
     )
     embed.set_thumbnail(url=member.display_avatar)
     warn = await Removewarn(member.id, ctx.guild.id, id)
-    s = (
-        await GetTranslatedText(ctx.guild.id, "plural_warn")
-        if warn != 1
-        else await GetTranslatedText(ctx.guild.id, "singular_warn")
-    )
+    s = (await GetTranslatedText(ctx.guild.id, "plural_warn") if warn != 1 else
+         await GetTranslatedText(ctx.guild.id, "singular_warn"))
     congrats = "Yey! :tada:" if warn == 0 else ""
     embed.add_field(
         name=await GetTranslatedText(ctx.guild.id, "automod_count_title"),
@@ -1077,17 +1074,18 @@ async def unwarn(ctx, member: discord.Member, id: int = None, *, reason=None):
     await SendMessageTo(ctx, member, message)
 
 
-@bot.slash_command(
-    guild_only=True, name="clearwarns", description="Removes all strikes from a user"
-)
-@discord.default_permissions(
-    kick_members=True,
-)
+@bot.slash_command(guild_only=True,
+                   name="clearwarns",
+                   description="Removes all strikes from a user")
+@discord.default_permissions(kick_members=True, )
 async def clearwarns(ctx, member: discord.Member, *, reason=None):
     await SendMetric("clearwarns")
     if reason == None:
-        reason = await GetTranslatedText(ctx.guild.id, "unpunishment_default_reason")
-    message = await GetTranslatedText(ctx.guild.id, "clearwarns_msg", REASON=reason)
+        reason = await GetTranslatedText(ctx.guild.id,
+                                         "unpunishment_default_reason")
+    message = await GetTranslatedText(ctx.guild.id,
+                                      "clearwarns_msg",
+                                      REASON=reason)
 
     descr = await GetTranslatedText(
         ctx.guild.id,
@@ -1096,15 +1094,15 @@ async def clearwarns(ctx, member: discord.Member, *, reason=None):
         REASON=reason,
     )
     embed = Embed(
-        title=await GetTranslatedText(
-            ctx.guild.id, "clearwarns_title", MEMBER=filterMember(member)
-        ),
+        title=await GetTranslatedText(ctx.guild.id,
+                                      "clearwarns_title",
+                                      MEMBER=filterMember(member)),
         description=descr,
     )
     embed.set_footer(
-        text=await GetTranslatedText(
-            ctx.guild.id, "footer_executed_by", USERNAME=filterMember(ctx.author)
-        ),
+        text=await GetTranslatedText(ctx.guild.id,
+                                     "footer_executed_by",
+                                     USERNAME=filterMember(ctx.author)),
         icon_url=hammericon,
     )
     embed.set_thumbnail(url=member.display_avatar)
@@ -1130,9 +1128,7 @@ async def clearwarns(ctx, member: discord.Member, *, reason=None):
     name="automod",
     description="Customizes in this guild Hammer's automod",
 )
-@discord.default_permissions(
-    administrator=True,
-)
+@discord.default_permissions(administrator=True, )
 @option(
     "action",
     description="Select add/remove word from swear list",
@@ -1146,9 +1142,8 @@ async def automod(ctx, action: str, word: str):
         response = await AddDeniedWord(ctx.guild.id, ctx.author.id, word)
     else:
         return await ctx.respond(
-            embed=ErrorEmbed(
-                await GetTranslatedText(ctx.guild.id, "error_automod_syntax")
-            ),
+            embed=ErrorEmbed(await GetTranslatedText(ctx.guild.id,
+                                                     "error_automod_syntax")),
             ephemeral=True,
         )
     if response:
@@ -1165,9 +1160,9 @@ async def automod(ctx, action: str, word: str):
         )
     else:
         return await ctx.respond(
-            embed=ErrorEmbed(
-                await GetTranslatedText(ctx.guild.id, "error_automod", WORD=word)
-            ),
+            embed=ErrorEmbed(await GetTranslatedText(ctx.guild.id,
+                                                     "error_automod",
+                                                     WORD=word)),
             ephemeral=True,
         )
 
@@ -1258,35 +1253,30 @@ async def restart(ctx):
 @bot.slash_command(
     guild_only=True,
     name="setdelay",
-    description="Updates the message delay in a channel with a set of custom time interval",
+    description=
+    "Updates the message delay in a channel with a set of custom time interval",
 )
-@discord.default_permissions(
-    manage_messages=True,
-)
+@discord.default_permissions(manage_messages=True, )
 async def setdelay(ctx, seconds: float, reason: str = ""):
     await SendMetric("setdelay")
-    m = (
-        await GetTranslatedText(ctx.guild.id, "modified")
-        if seconds > 0.0
-        else await GetTranslatedText(ctx.guild.id, "removed")
-    )
-    reason = (
-        ((await GetTranslatedText(ctx.guild.id, "for")) + reason)
-        if reason != "" and reason != None
-        else ""
-    )
+    m = (await GetTranslatedText(ctx.guild.id, "modified") if seconds > 0.0
+         else await GetTranslatedText(ctx.guild.id, "removed"))
+    reason = (((await GetTranslatedText(ctx.guild.id, "for")) +
+               reason) if reason != "" and reason != None else "")
     embed = Embed(
-        title=await GetTranslatedText(
-            ctx.guild.id, "setdelay_title", M=m, CHANNEL=ctx.channel
-        ),
-        description=await GetTranslatedText(
-            ctx.guild.id, "setdelay_description", SECONDS=seconds, REASON=reason
-        ),
+        title=await GetTranslatedText(ctx.guild.id,
+                                      "setdelay_title",
+                                      M=m,
+                                      CHANNEL=ctx.channel),
+        description=await GetTranslatedText(ctx.guild.id,
+                                            "setdelay_description",
+                                            SECONDS=seconds,
+                                            REASON=reason),
     )
     embed.set_footer(
-        text=await GetTranslatedText(
-            ctx.guild.id, "footer_executed_by", USERNAME=filterMember(ctx.author)
-        ),
+        text=await GetTranslatedText(ctx.guild.id,
+                                     "footer_executed_by",
+                                     USERNAME=filterMember(ctx.author)),
         icon_url=hammericon,
     )
 
@@ -1300,9 +1290,7 @@ async def setdelay(ctx, seconds: float, reason: str = ""):
     name="mute",
     description="Removes the hability to talk or join voice channels to a user",
 )
-@discord.default_permissions(
-    manage_messages=True,
-)
+@discord.default_permissions(manage_messages=True, )
 async def mute(ctx, member: discord.Member, *, reason=None):
     await SendMetric("mute")
     guild = ctx.guild
@@ -1321,15 +1309,17 @@ async def mute(ctx, member: discord.Member, *, reason=None):
             )
 
     if reason == None:
-        reason = await GetTranslatedText(ctx.guild.id, "punishment_default_reason")
+        reason = await GetTranslatedText(ctx.guild.id,
+                                         "punishment_default_reason")
 
     embed = discord.Embed(
-        title=await GetTranslatedText(
-            ctx.guild.id, "mute_title", MEMBER=filterMember(member)
-        ),
-        description=await GetTranslatedText(
-            ctx.guild.id, "mute_description", MENTION=member.mention, REASON=reason
-        ),
+        title=await GetTranslatedText(ctx.guild.id,
+                                      "mute_title",
+                                      MEMBER=filterMember(member)),
+        description=await GetTranslatedText(ctx.guild.id,
+                                            "mute_description",
+                                            MENTION=member.mention,
+                                            REASON=reason),
         colour=discord.Colour.red(),
     )
     await ctx.respond(embed=embed)
@@ -1338,9 +1328,10 @@ async def mute(ctx, member: discord.Member, *, reason=None):
     SendMessageTo(
         ctx,
         member,
-        await GetTranslatedText(
-            ctx.guild.id, "mute_msg", GUILD=ctx.guild.name, REASON=reason
-        ),
+        await GetTranslatedText(ctx.guild.id,
+                                "mute_msg",
+                                GUILD=ctx.guild.name,
+                                REASON=reason),
     )
 
 
@@ -1348,11 +1339,10 @@ async def mute(ctx, member: discord.Member, *, reason=None):
 @bot.slash_command(
     guild_only=True,
     name="unmute",
-    description="Restores the hability to talk or join voice channels to a user",
+    description=
+    "Restores the hability to talk or join voice channels to a user",
 )
-@discord.default_permissions(
-    manage_messages=True,
-)
+@discord.default_permissions(manage_messages=True, )
 async def unmute(ctx, member: discord.Member, *, reason=None):
     await SendMetric("unmute")
     mutedRole = discord.utils.get(ctx.guild.roles, name="Muted")
@@ -1364,17 +1354,19 @@ async def unmute(ctx, member: discord.Member, *, reason=None):
     SendMessageTo(
         ctx,
         member,
-        await GetTranslatedText(
-            ctx.guild.id, "unmute_msg", GUILD=ctx.guild.name, REASON=reason
-        ),
+        await GetTranslatedText(ctx.guild.id,
+                                "unmute_msg",
+                                GUILD=ctx.guild.name,
+                                REASON=reason),
     )
     embed = discord.Embed(
-        title=await GetTranslatedText(
-            ctx.guild.id, "unmute_title", MEMBER=filterMember(member)
-        ),
-        description=await GetTranslatedText(
-            ctx.guild.id, "unmute_description", MENTION=member.mention, REASON=reason
-        ),
+        title=await GetTranslatedText(ctx.guild.id,
+                                      "unmute_title",
+                                      MEMBER=filterMember(member)),
+        description=await GetTranslatedText(ctx.guild.id,
+                                            "unmute_description",
+                                            MENTION=member.mention,
+                                            REASON=reason),
         colour=discord.Colour.light_gray(),
     )
     await ctx.respond(embed=embed)
@@ -1394,15 +1386,17 @@ async def lock(ctx, channel: discord.TextChannel = None, reason=None):
     overwrite.send_messages = False
     await channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
     embed = Embed(
-        title=await GetTranslatedText(ctx.guild.id, "lock_title", CHANNEL=ctx.channel),
-        description=await GetTranslatedText(
-            ctx.guild.id, "lock_description", REASON=reason
-        ),
+        title=await GetTranslatedText(ctx.guild.id,
+                                      "lock_title",
+                                      CHANNEL=ctx.channel),
+        description=await GetTranslatedText(ctx.guild.id,
+                                            "lock_description",
+                                            REASON=reason),
     )
     embed.set_footer(
-        text=await GetTranslatedText(
-            ctx.guild.id, "footer_executed_by", USERNAME=filterMember(ctx.author)
-        ),
+        text=await GetTranslatedText(ctx.guild.id,
+                                     "footer_executed_by",
+                                     USERNAME=filterMember(ctx.author)),
         icon_url=hammericon,
     )
     await ctx.respond(embed=embed)
@@ -1412,7 +1406,8 @@ async def lock(ctx, channel: discord.TextChannel = None, reason=None):
 @bot.slash_command(
     guild_only=True,
     name="unlock",
-    description="Removes the blocking in a channel from not being used as a chat.",
+    description=
+    "Removes the blocking in a channel from not being used as a chat.",
 )
 async def unlock(ctx, channel: discord.TextChannel = None, reason=None):
     await SendMetric("unlock")
@@ -1422,17 +1417,17 @@ async def unlock(ctx, channel: discord.TextChannel = None, reason=None):
     overwrite.send_messages = True
     await channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
     embed = Embed(
-        title=await GetTranslatedText(
-            ctx.guild.id, "unlock_title", CHANNEL=ctx.channel
-        ),
-        description=await GetTranslatedText(
-            ctx.guild.id, "unlock_description", REASON=reason
-        ),
+        title=await GetTranslatedText(ctx.guild.id,
+                                      "unlock_title",
+                                      CHANNEL=ctx.channel),
+        description=await GetTranslatedText(ctx.guild.id,
+                                            "unlock_description",
+                                            REASON=reason),
     )
     embed.set_footer(
-        text=await GetTranslatedText(
-            ctx.guild.id, "footer_executed_by", USERNAME=filterMember(ctx.author)
-        ),
+        text=await GetTranslatedText(ctx.guild.id,
+                                     "footer_executed_by",
+                                     USERNAME=filterMember(ctx.author)),
         icon_url=hammericon,
     )
     await ctx.respond(embed=embed)
@@ -1445,13 +1440,14 @@ async def unlock(ctx, channel: discord.TextChannel = None, reason=None):
 async def suggest(ctx, suggestion: str):
     await SendMetric("suggest")
     embed = Embed(
-        title=f"The user {filterMember(ctx.author)} has posted a suggestion! :hammer_pick:",
+        title=
+        f"The user {filterMember(ctx.author)} has posted a suggestion! :hammer_pick:",
         description=f"{suggestion}",
     )
     embed.set_footer(
-        text=await GetTranslatedText(
-            ctx.guild.id, "footer_executed_by", USERNAME=filterMember(ctx.author)
-        ),
+        text=await GetTranslatedText(ctx.guild.id,
+                                     "footer_executed_by",
+                                     USERNAME=filterMember(ctx.author)),
         icon_url=hammericon,
     )
     suggestionChannel = bot.get_channel(int(DEV_SUGGESTIONS_CHANNEL))
@@ -1470,12 +1466,13 @@ async def invite(ctx):
     await SendMetric("invite")
     embed = Embed(
         title=await GetTranslatedText(ctx.guild.id, "hammer_invite"),
-        description=f"[**🔗{await GetTranslatedText(ctx.guild.id, 'hammer_link')}**](https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot)",
+        description=
+        f"[**🔗{await GetTranslatedText(ctx.guild.id, 'hammer_link')}**](https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot)",
     )
     embed.set_footer(
-        text=await GetTranslatedText(
-            ctx.guild.id, "footer_executed_by", USERNAME=filterMember(ctx.author)
-        ),
+        text=await GetTranslatedText(ctx.guild.id,
+                                     "footer_executed_by",
+                                     USERNAME=filterMember(ctx.author)),
         icon_url=hammericon,
     )
     await ctx.respond(embed=embed)
@@ -1485,9 +1482,9 @@ modules = ["automod", "language"]
 
 
 @discord.default_permissions(administrator=True)
-@bot.slash_command(
-    name="settings", description="Modifies some Hammer config values", guild_only=True
-)
+@bot.slash_command(name="settings",
+                   description="Modifies some Hammer config values",
+                   guild_only=True)
 @option(
     "module",
     description="Pick a module to switch!",
@@ -1496,7 +1493,8 @@ modules = ["automod", "language"]
 @option(
     "value",
     description="Select on/off",
-    autocomplete=discord.utils.basic_autocomplete(["on", "off", "en", "cat", "es"]),
+    autocomplete=discord.utils.basic_autocomplete(
+        ["on", "off", "en", "cat", "es"]),
 )
 async def settings(ctx, module: str = None, value: str = None):
     await SendMetric("settings")
@@ -1508,9 +1506,10 @@ async def settings(ctx, module: str = None, value: str = None):
                 await SaveSetting(ctx.guild.id, module, value)
                 action = "enabled" if value else "disabled"
                 await ctx.respond(
-                    await GetTranslatedText(
-                        ctx.guild.id, "settings_module", MODULE=module, ACTION=action
-                    ),
+                    await GetTranslatedText(ctx.guild.id,
+                                            "settings_module",
+                                            MODULE=module,
+                                            ACTION=action),
                     ephemeral=True,
                 )
 
@@ -1532,7 +1531,8 @@ async def settings(ctx, module: str = None, value: str = None):
                         await GetTranslatedText(
                             ctx.guild.id,
                             "error_settings_syntax",
-                            COMMAND="/settings language " + "/".join(languagesOptions),
+                            COMMAND="/settings language " +
+                            "/".join(languagesOptions),
                         ),
                         ephemeral=True,
                     )
@@ -1560,20 +1560,19 @@ async def settings(ctx, module: str = None, value: str = None):
             return
     embed = Embed(
         title=await GetTranslatedText(ctx.guild.id, "settings_title"),
-        description=await GetTranslatedText(ctx.guild.id, "settings_description"),
+        description=await GetTranslatedText(ctx.guild.id,
+                                            "settings_description"),
     )
     print("getting settings from discord.Guild.id", ctx.guild.id)
     automodStatus = await GetSettings(ctx.guild.id, 1)
     automodStatustr = "**✅ ON**" if automodStatus else "**❌ OFF**"
     recommendedactivityAutomod = (
-        await GetTranslatedText(
-            ctx.guild.id, "settings_disable_automod", COMMAND_PREFIX=COMMAND_PREFIX
-        )
-        if automodStatus
-        else await GetTranslatedText(
-            ctx.guild.id, "settings_enable_automod", COMMAND_PREFIX=COMMAND_PREFIX
-        )
-    )
+        await GetTranslatedText(ctx.guild.id,
+                                "settings_disable_automod",
+                                COMMAND_PREFIX=COMMAND_PREFIX) if automodStatus
+        else await GetTranslatedText(ctx.guild.id,
+                                     "settings_enable_automod",
+                                     COMMAND_PREFIX=COMMAND_PREFIX))
     embed.add_field(
         name=await GetTranslatedText(ctx.guild.id, "help_automod_title"),
         value=await GetTranslatedText(
@@ -1602,9 +1601,9 @@ async def settings(ctx, module: str = None, value: str = None):
         inline=False,
     )
     embed.set_footer(
-        text=await GetTranslatedText(
-            ctx.guild.id, "footer_executed_by", USERNAME=filterMember(ctx.author)
-        ),
+        text=await GetTranslatedText(ctx.guild.id,
+                                     "footer_executed_by",
+                                     USERNAME=filterMember(ctx.author)),
         icon_url=hammericon,
     )
     await ctx.respond(embed=embed)
@@ -1621,48 +1620,44 @@ async def metrics(ctx):
             _, commandType, timestamp = metric
             commandDict[commandType] = commandDict.get(commandType, 0) + 1
             provList = finalList.get(commandType, [])
-            provList.append(
-                {
-                    "t": str(datetime.datetime.fromtimestamp(int(timestamp))),
-                    "y": commandDict[commandType],
-                }
-            )
+            provList.append({
+                "t":
+                str(datetime.datetime.fromtimestamp(int(timestamp))),
+                "y":
+                commandDict[commandType],
+            })
             finalList[commandType] = provList
         # prepare datasets
         final = []
         for (
-            command,
-            data,
+                command,
+                data,
         ) in finalList.items():
-            final.append(
-                {
-                    "fill": False,
-                    "label": [command],
-                    "lineTension": 0,
-                    "data": data,
-                }
-            )
+            final.append({
+                "fill": False,
+                "label": [command],
+                "lineTension": 0,
+                "data": data,
+            })
 
         uurl = GenerateChart(final)
 
         embed = Embed(
             title="Lifetime Metrics (since 25-08-23)",
-            description="The following command have been used:"
-            + " ".join(
-                [
-                    cmd + ": " + str(times) + " times"
-                    for cmd, times in commandDict.items()
-                ]
-            ),
+            description="The following command have been used:" + " ".join([
+                cmd + ": " + str(times) + " times"
+                for cmd, times in commandDict.items()
+            ]),
         )
         if len(uurl) > 2048:
             embed.set_image(url=uurl)
         else:
-            embed.add_field("Graph URL :link:", f"[Click Here to visualize](${uurl})")
+            embed.add_field("Graph URL :link:",
+                            f"[Click Here to visualize](${uurl})")
         embed.set_footer(
-            text=await GetTranslatedText(
-                ctx.guild.id, "footer_executed_by", USERNAME=filterMember(ctx.author)
-            ),
+            text=await GetTranslatedText(ctx.guild.id,
+                                         "footer_executed_by",
+                                         USERNAME=filterMember(ctx.author)),
             icon_url=hammericon,
         )
         return await ctx.respond(embed=embed)
