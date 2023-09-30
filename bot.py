@@ -531,6 +531,7 @@ def filterMember(member: discord.Member):
     :param member: discord.Member:
     :param member: discord.Member:
     :param member: discord.Member:
+    :param member: discord.Member:
 
     """
     username, discriminator = str(member).split("#")
@@ -1493,7 +1494,8 @@ modules = ["automod", "language"]
 @option(
     "value",
     description="Select on/off",
-    autocomplete=discord.utils.basic_autocomplete(["on", "off", "en", "cat", "es"]),
+    autocomplete=discord.utils.basic_autocomplete(
+        ["on", "off", "en", "cat", "es"]),
 )
 async def settings(ctx, module: str = None, value: str = None):
     await SendMetric("settings")
@@ -1648,7 +1650,7 @@ async def metrics(ctx):
                 for cmd, times in commandDict.items()
             ]),
         )
-        if(len(uurl) > 2048):
+        if len(uurl) > 2048:
             embed.set_image(url=uurl)
         else: 
             embed.add_field("Graph URL :link:", base64.b64encode(bytes(uurl, 'utf-8')));
