@@ -1653,7 +1653,7 @@ async def metrics(ctx):
         if len(uurl) < 2048:
             embed.set_image(url=uurl)
         else: 
-            embed.add_field("Graph URL :link:", base64.b64encode(bytes(uurl, 'utf-8')));
+            embed.add_field(name="Graph URL :link:", value=base64.b64encode(bytes(uurl, 'utf-8')), inline=True)
         embed.set_footer(
             text=await GetTranslatedText(ctx.guild.id,
                                          "footer_executed_by",
