@@ -1650,7 +1650,7 @@ async def metrics(ctx):
                 for cmd, times in commandDict.items()
             ]),
         )
-        if len(uurl) > 2048:
+        if len(uurl) < 2048:
             embed.set_image(url=uurl)
         else: 
             embed.add_field("Graph URL :link:", base64.b64encode(bytes(uurl, 'utf-8')));
