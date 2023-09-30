@@ -797,7 +797,7 @@ async def ban(ctx, member: discord.Member, *, reason=None):
         try:
             await member.ban(reason=reason)
         except:
-            ctx.respond(
+            await ctx.respond(
                 embed=ErrorEmbed(await GetTranslatedText(
                     ctx.guild.id,
                     "error_ban_perm",
@@ -1647,7 +1647,10 @@ async def metrics(ctx):
                 for cmd, times in commandDict.items()
             ]),
         )
-        embed.set_image(url=uurl)
+        if(len(uurl) > 2048):
+            embed.set_image(url=uurl)
+        else: 
+            embed.add_field("Graph URL :link:", f"[Click Here to visualize](${uurl})")
         embed.set_footer(
             text=await GetTranslatedText(ctx.guild.id,
                                          "footer_executed_by",
