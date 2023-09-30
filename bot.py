@@ -1,3 +1,4 @@
+import base64
 import datetime
 import json
 import os
@@ -526,9 +527,7 @@ def numToEmoji(num):
 
 def filterMember(member: discord.Member):
     """
-
-    :param member: discord.Member:
-    :param member: discord.Member:
+    
     :param member: discord.Member:
 
     """
@@ -797,7 +796,7 @@ async def ban(ctx, member: discord.Member, *, reason=None):
         try:
             await member.ban(reason=reason)
         except:
-            ctx.respond(
+            await ctx.respond(
                 embed=ErrorEmbed(await GetTranslatedText(
                     ctx.guild.id,
                     "error_ban_perm",
@@ -1492,7 +1491,8 @@ modules = ["automod", "language"]
 @option(
     "value",
     description="Select on/off",
-    autocomplete=discord.utils.basic_autocomplete(["on", "off", "en", "cat", "es"]),
+    autocomplete=discord.utils.basic_autocomplete(
+        ["on", "off", "en", "cat", "es"]),
 )
 async def settings(ctx, module: str = None, value: str = None):
     await SendMetric("settings")
@@ -1647,7 +1647,14 @@ async def metrics(ctx):
                 for cmd, times in commandDict.items()
             ]),
         )
-        embed.set_image(url=uurl)
+        if len(uurl) < 2048:
+            embed.set_image(url=uurl)
+        else:
+            rest = uurl
+            i = 1020
+            while len(rest) > 0:
+                await ctx.respond(rest[:i])
+                rest = rest[i:]
         embed.set_footer(
             text=await GetTranslatedText(ctx.guild.id,
                                          "footer_executed_by",
