@@ -4,6 +4,7 @@ import os
 import sqlite3
 import sys
 import urllib
+import base64
 from email import message
 from os import listdir
 from os.path import isfile
@@ -1650,7 +1651,7 @@ async def metrics(ctx):
         if(len(uurl) > 2048):
             embed.set_image(url=uurl)
         else: 
-            embed.add_field("Graph URL :link:", f"[Click Here to visualize](${uurl})")
+            embed.add_field("Graph URL :link:", base64.b64encode(bytes(uurl, 'utf-8')));
         embed.set_footer(
             text=await GetTranslatedText(ctx.guild.id,
                                          "footer_executed_by",
