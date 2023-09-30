@@ -1,10 +1,10 @@
+import base64
 import datetime
 import json
 import os
 import sqlite3
 import sys
 import urllib
-import base64
 from email import message
 from os import listdir
 from os.path import isfile
@@ -528,6 +528,7 @@ def numToEmoji(num):
 def filterMember(member: discord.Member):
     """
 
+    :param member: discord.Member:
     :param member: discord.Member:
     :param member: discord.Member:
     :param member: discord.Member:
@@ -1652,10 +1653,10 @@ async def metrics(ctx):
         )
         if len(uurl) < 2048:
             embed.set_image(url=uurl)
-        else: 
+        else:
             rest = uurl
             i = 1020
-            while (len(rest) > 0):
+            while len(rest) > 0:
                 await ctx.respond(rest[:i])
                 rest = rest[i:]
         embed.set_footer(
