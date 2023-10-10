@@ -373,17 +373,17 @@ async def SaveSetting(guildid: int, module: str, value: str):
     conn.commit()
     return
 
+
 def ShortenLink(link: str):
     headers = {
         'Authorization': f"Bearer {FEMTOLINK}",
         'Content-Type': 'application/json',
     }
 
-    data ='{ "long_url": "' + uurl + '" }'
+    data = '{ "long_url": "' + uurl + '" }'
 
     response = requests.post('https://femtolink.jaumelopez.dev/api/link', headers=headers, data=data)
-    return response.json()['link'];
-            
+    return response.json()['link']
 
 
 def GenerateChart(datasets):
@@ -446,8 +446,7 @@ def ErrorEmbed(error):
     embed = Embed(title=f":no_entry_sign: Error!", description=error)
 
     embed.set_thumbnail(
-        url=
-        "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ficonsplace.com%2Fwp-content%2Fuploads%2F_icons%2Fff0000%2F256%2Fpng%2Ferror-icon-14-256.png&f=1&nofb=1"
+        url="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ficonsplace.com%2Fwp-content%2Fuploads%2F_icons%2Fff0000%2F256%2Fpng%2Ferror-icon-14-256.png&f=1&nofb=1"
     )
 
     embed.set_footer(
@@ -539,7 +538,7 @@ def numToEmoji(num):
 
 def filterMember(member: discord.Member):
     """
-    
+
     :param member: discord.Member:
 
     """
@@ -940,8 +939,7 @@ async def warn(ctx,
 @bot.slash_command(
     guild_only=True,
     name="softwarn",
-    description=
-    "Sets a silent warning for a user, at 3 warns/strikes they get kicked",
+    description="Sets a silent warning for a user, at 3 warns/strikes they get kicked",
 )
 @discord.default_permissions(administrator=True, )
 async def softwarn(ctx, member: discord.Member, reason=None):
@@ -1264,8 +1262,7 @@ async def restart(ctx):
 @bot.slash_command(
     guild_only=True,
     name="setdelay",
-    description=
-    "Updates the message delay in a channel with a set of custom time interval",
+    description="Updates the message delay in a channel with a set of custom time interval",
 )
 @discord.default_permissions(manage_messages=True, )
 async def setdelay(ctx, seconds: float, reason: str = ""):
@@ -1350,8 +1347,7 @@ async def mute(ctx, member: discord.Member, *, reason=None):
 @bot.slash_command(
     guild_only=True,
     name="unmute",
-    description=
-    "Restores the hability to talk or join voice channels to a user",
+    description="Restores the hability to talk or join voice channels to a user",
 )
 @discord.default_permissions(manage_messages=True, )
 async def unmute(ctx, member: discord.Member, *, reason=None):
@@ -1417,8 +1413,7 @@ async def lock(ctx, channel: discord.TextChannel = None, reason=None):
 @bot.slash_command(
     guild_only=True,
     name="unlock",
-    description=
-    "Removes the blocking in a channel from not being used as a chat.",
+    description="Removes the blocking in a channel from not being used as a chat.",
 )
 async def unlock(ctx, channel: discord.TextChannel = None, reason=None):
     await SendMetric("unlock")
@@ -1451,8 +1446,7 @@ async def unlock(ctx, channel: discord.TextChannel = None, reason=None):
 async def suggest(ctx, suggestion: str):
     await SendMetric("suggest")
     embed = Embed(
-        title=
-        f"The user {filterMember(ctx.author)} has posted a suggestion! :hammer_pick:",
+        title=f"The user {filterMember(ctx.author)} has posted a suggestion! :hammer_pick:",
         description=f"{suggestion}",
     )
     embed.set_footer(
@@ -1477,8 +1471,7 @@ async def invite(ctx):
     await SendMetric("invite")
     embed = Embed(
         title=await GetTranslatedText(ctx.guild.id, "hammer_invite"),
-        description=
-        f"[**🔗{await GetTranslatedText(ctx.guild.id, 'hammer_link')}**](https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot)",
+        description=f"[**🔗{await GetTranslatedText(ctx.guild.id, 'hammer_link')}**](https://discordapp.com/api/oauth2/authorize?client_id=591633652493058068&permissions=8&scope=bot)",
     )
     embed.set_footer(
         text=await GetTranslatedText(ctx.guild.id,
