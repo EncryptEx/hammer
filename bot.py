@@ -5,6 +5,7 @@ import os
 import sqlite3
 import sys
 import urllib
+import requests
 from email import message
 from os import listdir
 from os.path import isfile
@@ -28,6 +29,7 @@ from get_enviroment import SECURITY_CHANNEL
 from get_enviroment import SECURITY_GUILD
 from get_enviroment import SWEAR_WORDS_LIST
 from get_enviroment import TOKEN
+from get_enviroment import FEMTOLINK
 
 # Language Loading
 
@@ -385,7 +387,7 @@ def ShortenLink(link: str):
         "Content-Type": "application/json",
     }
 
-    data = '{ "long_url": "' + uurl + '" }'
+    data = '{ "long_url": "' + link + '" }'
 
     response = requests.post("https://femtolink.jaumelopez.dev/api/link",
                              headers=headers,
