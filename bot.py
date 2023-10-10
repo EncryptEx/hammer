@@ -35,7 +35,7 @@ from get_enviroment import TOKEN
 def jsonToDict(filename):
     """
 
-    :param filename: 
+    :param filename:
 
     """
     with open(filename) as f_in:
@@ -383,7 +383,7 @@ def ShortenLink(link: str):
     """
 
     :param link: str:
-    :param link: str: 
+    :param link: str:
 
     """
     headers = {
@@ -402,7 +402,7 @@ def ShortenLink(link: str):
 def GenerateChart(datasets):
     """
 
-    :param datasets: 
+    :param datasets:
 
     """
     qc = QuickChart()
@@ -452,7 +452,7 @@ async def SendMessageTo(ctx, member, message):
 def ErrorEmbed(error):
     """
 
-    :param error: 
+    :param error:
 
     """
     embed = Embed(title=f":no_entry_sign: Error!", description=error)
@@ -471,7 +471,7 @@ def ErrorEmbed(error):
 def unicodeLetterConver(word):
     """
 
-    :param word: 
+    :param word:
 
     """
     f = ""
@@ -521,7 +521,7 @@ def unicodeLetterConver(word):
 def numToEmoji(num):
     """
 
-    :param num: 
+    :param num:
 
     """
     v = ""
@@ -553,7 +553,7 @@ def filterMember(member: discord.Member):
 
     :param member: discord.Member:
     :param member: discord.Member:
-    :param member: discord.Member: 
+    :param member: discord.Member:
 
     """
     username, discriminator = str(member).split("#")
