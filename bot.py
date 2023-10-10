@@ -1,12 +1,15 @@
+import base64
 import datetime
 import json
 import os
 import sqlite3
 import sys
-import requests
+import urllib
+from email import message
 from os import listdir
 from os.path import isfile
 from os.path import join
+from pydoc import describe
 from time import time
 
 import discord
@@ -24,7 +27,6 @@ from get_enviroment import OWNER
 from get_enviroment import SECURITY_CHANNEL
 from get_enviroment import SECURITY_GUILD
 from get_enviroment import SWEAR_WORDS_LIST
-from get_enviroment import FEMTOLINK
 from get_enviroment import TOKEN
 
 # Language Loading
@@ -1648,18 +1650,11 @@ async def metrics(ctx):
         if len(uurl) < 2048:
             embed.set_image(url=uurl)
         else:
-            headers = {
-                'Authorization': f"Bearer {FEMTOLINK}",
-                'Content-Type': 'application/json',
-            }
-
-            data ='{ "long_url": "' + uurl + '" }'
-
-            response = requests.post('https://femtolink.jaumelopez.dev/api/link', headers=headers, data=data)
-            
-            
-            embed.set_image(url=response.json()['link'])
-
+            rest = uurl
+            i = 1020
+            while len(rest) > 0:
+                await ctx.respond(rest[:i])
+                rest = rest[i:]
         embed.set_footer(
             text=await GetTranslatedText(ctx.guild.id,
                                          "footer_executed_by",
