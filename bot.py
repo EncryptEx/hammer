@@ -373,17 +373,24 @@ async def SaveSetting(guildid: int, module: str, value: str):
     conn.commit()
     return
 
+
 def ShortenLink(link: str):
+    """
+
+    :param link: str:
+
+    """
     headers = {
-        'Authorization': f"Bearer {FEMTOLINK}",
-        'Content-Type': 'application/json',
+        "Authorization": f"Bearer {FEMTOLINK}",
+        "Content-Type": "application/json",
     }
 
-    data ='{ "long_url": "' + uurl + '" }'
+    data = '{ "long_url": "' + uurl + '" }'
 
-    response = requests.post('https://femtolink.jaumelopez.dev/api/link', headers=headers, data=data)
-    return response.json()['link'];
-            
+    response = requests.post("https://femtolink.jaumelopez.dev/api/link",
+                             headers=headers,
+                             data=data)
+    return response.json()["link"]
 
 
 def GenerateChart(datasets):
@@ -539,7 +546,8 @@ def numToEmoji(num):
 
 def filterMember(member: discord.Member):
     """
-    
+
+    :param member: discord.Member:
     :param member: discord.Member:
 
     """
