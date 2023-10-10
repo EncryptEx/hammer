@@ -1,12 +1,15 @@
+import base64
 import datetime
 import json
 import os
 import sqlite3
 import sys
-import requests
+import urllib
+from email import message
 from os import listdir
 from os.path import isfile
 from os.path import join
+from pydoc import describe
 from time import time
 
 import discord
@@ -24,7 +27,6 @@ from get_enviroment import OWNER
 from get_enviroment import SECURITY_CHANNEL
 from get_enviroment import SECURITY_GUILD
 from get_enviroment import SWEAR_WORDS_LIST
-from get_enviroment import FEMTOLINK
 from get_enviroment import TOKEN
 
 # Language Loading
