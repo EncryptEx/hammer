@@ -11,5 +11,5 @@ py-cord==2.0.1
 python-dotenv==0.20.0
 quickchart-io==2.0.0
 requests==2.31.0
-urllib3==1.26.12
+urllib3==1.26.18
 yarl==1.7.2
