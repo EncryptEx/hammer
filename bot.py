@@ -1631,32 +1631,36 @@ async def settings(ctx, module: str = None, value: str = None):
 
 
 @bot.slash_command(guild_only=True, guild_ids=[int(SECURITY_GUILD)])
-async def metrics(ctx):
+async def metrics(ctx, sample: int = 5):
     if str(ctx.author.id) == str(OWNER):
         metricList = await GetMetrics()
         commandDict = {}
         finalList = {}
         # prepare data
+        iterations = 0
         for metric in metricList:
             _, commandType, timestamp = metric
+            iterations += 1
             commandDict[commandType] = commandDict.get(commandType, 0) + 1
-            provList = finalList.get(commandType, [])
-            provList.append({
-                "t":
-                str(datetime.datetime.fromtimestamp(int(timestamp))),
-                "y":
-                commandDict[commandType],
-            })
-            finalList[commandType] = provList
+            if (iterations > sample):  # sample every 10 data points without losing accuracy
+                provList = finalList.get(commandType, [])
+                provList.append({
+                    "t":
+                    str(datetime.datetime.fromtimestamp(int(timestamp))),
+                    "y":
+                    commandDict[commandType],
+                })
+                finalList[commandType] = provList
+                iterations = 0
         # prepare datasets
         final = []
         for (
-                command,
+                botcommand,
                 data,
         ) in finalList.items():
             final.append({
                 "fill": False,
-                "label": [command],
+                "label": [botcommand],
                 "lineTension": 0,
                 "data": data,
             })
