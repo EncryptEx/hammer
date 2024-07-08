@@ -1631,7 +1631,7 @@ async def settings(ctx, module: str = None, value: str = None):
 
 
 @bot.slash_command(guild_only=True, guild_ids=[int(SECURITY_GUILD)])
-async def metrics(ctx, sample: int = 5):
+async def metrics(ctx, sample: int = 10):
     if str(ctx.author.id) == str(OWNER):
         metricList = await GetMetrics()
         commandDict = {}
@@ -1669,7 +1669,7 @@ async def metrics(ctx, sample: int = 5):
 
         embed = Embed(
             title="Lifetime Metrics (since 25-08-23)",
-            description="The following command have been used:" + " ".join([
+            description="The following command have been used:" + "\n".join([
                 cmd + ": " + str(times) + " times"
                 for cmd, times in commandDict.items()
             ]),
