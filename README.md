@@ -1,12 +1,11 @@
 <p align="center"><a href="#"><img src="https://thumbs.gfycat.com/LoathsomeWeirdElk-size_restricted.gif" alt="Hammer" height="60"/></a></p>
 <h1 align="center">Hammer Discord Bot</h1>
-<p align="center">The bot that keeps calmed down people.</p>
+<p align="center">"A bot designed to maintain a calm and respectful environment by auto-moderating conversations.</p>
 <p align="center">
 <img src="https://img.shields.io/github/repo-size/EncryptEx/hammer"/>
 <img src="https://img.shields.io/github/languages/top/EncryptEx/hammer"/>
 <img src="https://img.shields.io/github/last-commit/EncryptEx/hammer?color=red"/>
 <img src="https://img.shields.io/badge/GitHub-Artic%20Vault%20Code-%2394fcfc"/>
-<a href="https://github.com/EncryptEx/hammer/actions/workflows/main.yml"><img src="https://github.com/EncryptEx/hammer/actions/workflows/main.yml/badge.svg"></img></a>
 <img src="https://img.shields.io/badge/License-MIT-green"/>
 <img src="https://img.shields.io/discord/729442309145493597"/>
 
