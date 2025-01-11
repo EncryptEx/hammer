@@ -1,6 +1,6 @@
 <p align="center"><a href="#"><img src="https://thumbs.gfycat.com/LoathsomeWeirdElk-size_restricted.gif" alt="Hammer" height="60"/></a></p>
 <h1 align="center">Hammer Discord Bot</h1>
-<p align="center">"A bot designed to maintain a calm and respectful environment by auto-moderating conversations.</p>
+<p align="center">A bot designed to maintain a calm and respectful environment by auto-moderating conversations.</p>
 <p align="center">
 <img src="https://img.shields.io/github/repo-size/EncryptEx/hammer"/>
 <img src="https://img.shields.io/github/languages/top/EncryptEx/hammer"/>
