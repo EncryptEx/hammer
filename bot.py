@@ -141,7 +141,7 @@ async def help(ctx):
     {COMMAND_PREFIX}unmute [{user}] <{reason}>\n
     {COMMAND_PREFIX}lock <{channel}> <{reason}>\n
     {COMMAND_PREFIX}unlock <{channel}> <{reason}>\n
-    {COMMAND_PREFIX}bulkdelete [{channel}] [{user}] <{reason}>",
+    {COMMAND_PREFIX}bulkdelete [{channel}] [{user}] <{reason}>
     """,
         inline=True,
     )
