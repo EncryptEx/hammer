@@ -83,10 +83,10 @@ cur.execute("""CREATE TABLE IF NOT EXISTS `metrics` (
 hammericon = "https://images-ext-2.discordapp.net/external/OKc8xu6AILGNFY3nSTt7wGbg-Mi1iQZonoLTFg85o-E/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/591633652493058068/e6011129c5169b29ed05a6dc873175cb.png?width=670&height=670"
 
 intents = discord.Intents.default()
-intents.members = True
+# intents.members = True
 intents.message_content = True
 
-bot = commands.AutoShardedBot(command_prefix=COMMAND_PREFIX, intents=intents)
+bot = commands.Bot(command_prefix=COMMAND_PREFIX, intents=intents)
 client = discord.Client()
 
 bot.remove_command("help")
@@ -684,9 +684,10 @@ async def on_message(message):
 
 @bot.event
 async def on_ready():
+    print("HAMMER BOT Ready!", datetime.datetime.now())
+    await bot.sync_commands()
     await bot.change_presence(activity=discord.Activity(
         type=discord.ActivityType.watching, name="you"))
-    print("HAMMER BOT Ready!", datetime.datetime.now())
     botname = await bot.application_info()
     print("logged in as:", botname.name)
     if botname.name == "Hammer":
@@ -1363,12 +1364,13 @@ async def mute(ctx, member: discord.Member, *, reason=None):
     )
 
 
+# description="Mutes the specified user."
+@discord.default_permissions(manage_messages=True, )
 @bot.slash_command(
     guild_only=True,
     name="bulkdelete",
     description="Removes all messages from a user in a channel", 
 )
-@discord.default_permissions(manage_messages=True, )
 async def bulkdelete(ctx, channel: discord.TextChannel, member: discord.Member, *, reason=None):
     await SendMetric("builkdelete")
     guild = ctx.guild
