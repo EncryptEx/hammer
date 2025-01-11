@@ -1356,6 +1356,52 @@ async def mute(ctx, member: discord.Member, *, reason=None):
     )
 
 
+@bot.slash_command(
+    guild_only=True,
+    name="bulkdelete",
+    description="Removes all messages from a user in a channel", 
+)
+@discord.default_permissions(manage_messages=True, )
+async def bulkdelete(ctx, channel: discord.TextChannel, member: discord.Member, *, reason=None):
+    await SendMetric("builkdelete")
+    guild = ctx.guild
+    
+    if reason == None:
+        reason = await GetTranslatedText(ctx.guild.id,
+                                         "punishment_default_reason")
+
+
+    await ctx.defer()
+    msgcount = 0
+    try: 
+        # delete msg on channel from user
+        async for message in channel.history():
+            if message.author == member:
+                msgcount+=1
+                await message.delete()
+    except Exception as e:
+        await ctx.respond(
+            embed=ErrorEmbed(await GetTranslatedText(ctx.guild.id, "error_no_permission")),
+            ephemeral=True,
+        )
+        return
+
+    embed = discord.Embed(
+        title=await GetTranslatedText(ctx.guild.id,
+                                        "bulkdelete_title",
+                                        CHANNEL=channel,
+                                        MEMBER=filterMember(member)),
+        description=await GetTranslatedText(ctx.guild.id,
+                                            "bulkdelete_description",
+                                            CHANNEL=channel,
+                                            AMOUNT=msgcount,
+                                            MEMBER=filterMember(member),
+                                            REASON=reason),
+        colour=discord.Colour.red(),
+    )
+    await ctx.respond(embed=embed)
+
+
 # description="Unmutes a specified user."
 @bot.slash_command(
     guild_only=True,
