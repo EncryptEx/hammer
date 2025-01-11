@@ -1353,7 +1353,7 @@ async def mute(ctx, member: discord.Member, *, reason=None):
     await ctx.respond(embed=embed)
     await member.add_roles(mutedRole, reason=reason)
 
-    SendMessageTo(
+    await SendMessageTo(
         ctx,
         member,
         await GetTranslatedText(ctx.guild.id,
@@ -1425,7 +1425,7 @@ async def unmute(ctx, member: discord.Member, *, reason=None):
     else:
         reason = "for " + reason
     await member.remove_roles(mutedRole)
-    SendMessageTo(
+    await SendMessageTo(
         ctx,
         member,
         await GetTranslatedText(ctx.guild.id,
