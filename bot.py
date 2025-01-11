@@ -109,6 +109,8 @@ async def help(ctx):
 
     user = await GetTranslatedText(ctx.guild.id, "user")
     reason = await GetTranslatedText(ctx.guild.id, "reason")
+    seconds = await GetTranslatedText(ctx.guild.id, "seconds")
+    channel = await GetTranslatedText(ctx.guild.id, "channel")
     embed.add_field(
         name=await GetTranslatedText(ctx.guild.id, "help_moderation_title"),
         value=f"""
@@ -133,17 +135,22 @@ async def help(ctx):
 
     embed.add_field(
         name=await GetTranslatedText(ctx.guild.id, "help_chatmod_title"),
-        value=await GetTranslatedText(ctx.guild.id,
-                                      "help_chatmod_description",
-                                      COMMAND_PREFIX=COMMAND_PREFIX),
+        value=f"""
+    {COMMAND_PREFIX}setdelay [{seconds}] <{reason}>\n
+    {COMMAND_PREFIX}mute [{user}] <{reason}>\n
+    {COMMAND_PREFIX}unmute [{user}] <{reason}>\n
+    {COMMAND_PREFIX}lock <{channel}> <{reason}>\n
+    {COMMAND_PREFIX}unlock <{channel}> <{reason}>\n
+    {COMMAND_PREFIX}bulkdelete [{channel}] [{user}] <{reason}>",
+    """,
         inline=True,
     )
 
     embed.add_field(
         name=await GetTranslatedText(ctx.guild.id, "help_various_title"),
-        value=await GetTranslatedText(ctx.guild.id,
-                                      "help_various_description",
-                                      COMMAND_PREFIX=COMMAND_PREFIX),
+        value=f"""
+    {COMMAND_PREFIX}whois [{user}]
+    """,
         inline=True,
     )
 
